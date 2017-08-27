@@ -44,6 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/button_margin"
             android:background="#179c52"
+            android:onClick="googleLogin"
             android:paddingLeft="@dimen/button_padding"
             android:paddingRight="@dimen/button_padding"
             android:text="Login Via Google"></Button>

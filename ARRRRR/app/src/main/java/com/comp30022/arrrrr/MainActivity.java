@@ -18,4 +18,14 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void googleLogin(View view) {
+        Intent intent = new Intent(this, GoogleLoginActivity.class);
+        startActivity(intent);
+    }
+
+//    public void facebookLogin(View view) {
+//        Intent intent = new Intent(this, EmailLoginActivity.class);
+//        startActivity(intent);
+//    }
+
 }
