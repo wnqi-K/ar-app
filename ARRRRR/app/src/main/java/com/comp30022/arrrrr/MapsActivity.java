@@ -36,15 +36,12 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback {
