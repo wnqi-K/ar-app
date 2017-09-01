@@ -72,4 +72,13 @@
     <string name="id_fmt">User ID: %s</string>
     <string name="email_fmt">Email: %s</string>
     <string name="app_name">ARRRRR</string>
+    <string name="title_activity_maps">Map</string>
+
+    <!-- Permissions -->
+    <string name="permission_rationale_location">
+        Location permission is needed for core functionality
+    </string>
+    <string name="permission_denied_explanation_location">
+        Permission was denied, but is needed for corefunctionality.
+    </string>
 </resources>
