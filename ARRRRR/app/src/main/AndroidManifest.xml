@@ -31,13 +31,11 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"/>
 
-        <service
-            android:name=".PositioningService"
-            android:exported="false"/>
-
         <activity android:name=".EmailLoginActivity">
         </activity>
         <activity android:name=".GoogleLoginActivity">
+        </activity>
+        <activity android:name=".RegisterActivity">
         </activity>
         <activity
             android:name=".MainViewActivity"
