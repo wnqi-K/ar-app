@@ -81,12 +81,12 @@ public class MapsActivity extends AppCompatActivity
     /**
      * The main map using Google Map.
      */
-    private GoogleMap googleMap;
+    private GoogleMap mGoogleMap;
 
     /**
      * Marker on the map of the user's device.
      */
-    private MarkerOptions selfMarker;
+    private Marker mSelfMarker;
 
     /**
      * Intent to start positioning service.
@@ -96,12 +96,12 @@ public class MapsActivity extends AppCompatActivity
     /**
      * Receiver for self positioning service.
      */
-    private PositioningReceiver positioningReceiver;
+    private PositioningReceiver mPositioningReceiver;
 
     /**
      * Indicates whether marker has been added to the map.
      */
-    private Boolean isSelfMarkerAdded;
+    private Boolean mIsSelfMarkerAdded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,9 +120,31 @@ public class MapsActivity extends AppCompatActivity
 
         //Update values using data stored in the Bundle.
         updateValuesFromBundle(savedInstanceState);
+    }
 
-        registerPositioningReceiver();
+    @Override
+    public void onResume() {
+        super.onResume();
 
+        registerReceivers();
+
+        Toast.makeText(this, "Starting positioning service...", Toast.LENGTH_SHORT).show();
+
+        if (!mRequestingLocationUpdates && checkPermissions()) {
+            // Start positioning service
+            startPositioningSerice();
+        } else if (!checkPermissions()) {
+            requestPermissions();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        unregisterReceiver(mPositioningReceiver);
+
+        // TODO: Maybe considering stop service by user preferences
     }
 
     /**
@@ -130,23 +152,21 @@ public class MapsActivity extends AppCompatActivity
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        this.googleMap = googleMap;
+        this.mGoogleMap = googleMap;
         Toast.makeText(this, "Map ready", Toast.LENGTH_SHORT).show();
         initializeMapUI();
-        updateUI();
+        updateMapUI();
     }
 
     /**
      * Initialize map interface.
      */
     private void initializeMapUI() {
-        selfMarker = new MarkerOptions().title("Your position");
-        isSelfMarkerAdded = false;
+        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
     }
 
     /**
      * Updates fields based on data stored in the bundle.
-     *
      * @param savedInstanceState The activity state saved in the Bundle.
      */
     private void updateValuesFromBundle(Bundle savedInstanceState) {
@@ -174,6 +194,9 @@ public class MapsActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Handles when the activity has received a result from the intent.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -187,7 +210,7 @@ public class MapsActivity extends AppCompatActivity
                     case Activity.RESULT_CANCELED:
                         Log.i(TAG, "User chose not to make required location settings changes.");
                         mRequestingLocationUpdates = false;
-                        updateUI();
+                        updateMapUI();
                         break;
                 }
                 break;
@@ -197,7 +220,7 @@ public class MapsActivity extends AppCompatActivity
     /**
      * Sets the value of the UI fields for the location latitude, longitude and last update time.
      */
-    private void updateLocationUI() {
+    private void updateMapUI() {
         if (mCurrentLocation != null) {
             // Add a marker in Sydney, Australia,
             // and move the map's camera to the same location.
@@ -205,43 +228,15 @@ public class MapsActivity extends AppCompatActivity
             Double longitude = mCurrentLocation.getLongitude();
             LatLng currLatLng = new LatLng(latitude, longitude);
 
-
-            selfMarker.position(currLatLng);
-            if(!isSelfMarkerAdded) {
-                googleMap.addMarker(selfMarker);
-                isSelfMarkerAdded = true;
+            if(mSelfMarker == null) {
+                mSelfMarker = mGoogleMap.addMarker(new MarkerOptions()
+                        .title("My position")
+                        .position(currLatLng));
+            } else {
+                mSelfMarker.setPosition(currLatLng);
             }
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
-            googleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
         }
-    }
-
-    /**
-     * Updates all UI fields.
-     */
-    private void updateUI() {
-        updateLocationUI();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        Toast.makeText(this, "Starting positioning service...", Toast.LENGTH_SHORT).show();
-
-        if (!mRequestingLocationUpdates && checkPermissions()) {
-            // Start positioning service
-            startPositioningSerice();
-        } else if (!checkPermissions()) {
-            requestPermissions();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        // TODO: Maybe considering stop service by user preferences
     }
 
     /**
@@ -253,6 +248,9 @@ public class MapsActivity extends AppCompatActivity
         return permissionState == PackageManager.PERMISSION_GRANTED;
     }
 
+    /**
+     * Request permission from user.
+     */
     private void requestPermissions() {
         boolean shouldProvideRationale =
                 ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -317,7 +315,7 @@ public class MapsActivity extends AppCompatActivity
     /**
      * Start positioning service given that permission has been granted!
      */
-    private void startPositioningSerice () {
+    private void startPositioningSerice() {
         mRequestingLocationUpdates = true;
         mPositioningServiceIntent = new Intent(this, PositioningService.class);
         mPositioningServiceIntent.putExtra(PositioningService.PARAM_IN_PERM_GRANTED, true);
@@ -339,25 +337,39 @@ public class MapsActivity extends AppCompatActivity
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Boolean settingsOK = intent.getBooleanExtra(PositioningService.PARAM_OUT_SETTINGS_OK, true);
+            Boolean settingsOK = intent.getBooleanExtra(PositioningService.PARAM_OUT_SETTINGS_OK, false);
             if(!settingsOK) {
-                Toast.makeText(context, "Location settigns not satisfied.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Error: location settigns not satisfied.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, "Received broadcast from PositioningService.", Toast.LENGTH_SHORT).show();
+
+                Location location = intent.getParcelableExtra(PositioningService.PARAM_OUT_LOCATION);
+                String time = intent.getStringExtra(PositioningService.PARAM_OUT_LOC_TIME);
+                if(location != null) {
+                    mCurrentLocation = location;
+                    mLastUpdateTime = time;
+                    updateMapUI();
+                }
             }
-            Toast.makeText(context, "got new location update", Toast.LENGTH_SHORT).show();
-            Double latitude = intent.getDoubleExtra(PositioningService.PARAM_OUT_LOC_LAT, 0);
-            Double longitude = intent.getDoubleExtra(PositioningService.PARAM_OUT_LOC_LONG, 0);
-            String time = intent.getStringExtra(PositioningService.PARAM_OUT_LOC_TIME);
 
         }
     }
 
     /**
-     * Register the positioning receiver.
+     * Register all receivers. Should be called in onResume().
      */
-    public void registerPositioningReceiver() {
-        IntentFilter filter = new IntentFilter(PositioningReceiver.ACTION_SELF_POSITION);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        positioningReceiver = new PositioningReceiver(this);
-        registerReceiver(positioningReceiver, filter);
+    public void registerReceivers() {
+        IntentFilter positioningIntentFilter = new IntentFilter(PositioningReceiver.ACTION_SELF_POSITION);
+        positioningIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mPositioningReceiver = new PositioningReceiver(this);
+        registerReceiver(mPositioningReceiver, positioningIntentFilter);
     }
+
+    /**
+     * Unregister all receives. Should be called in onPause().
+     */
+    public void unregisterReceivers() {
+        unregisterReceiver(mPositioningReceiver);
+    }
+
 }

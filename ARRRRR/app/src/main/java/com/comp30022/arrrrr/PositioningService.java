@@ -44,8 +44,7 @@ import java.util.Date;
 public class PositioningService extends IntentService {
     private static final String TAG = PositioningService.class.getSimpleName();
     // Keys for intent extras
-    public static final String PARAM_OUT_LOC_LAT = "OUT_LOCATION_LATITUDE";
-    public static final String PARAM_OUT_LOC_LONG = "OUT_LOCATION_LONGITUDE";
+    public static final String PARAM_OUT_LOCATION = "OUT_LOCATION";
     public static final String PARAM_OUT_LOC_TIME = "OUT_LOCATION_TIME";
     public static final String PARAM_OUT_SETTINGS_OK = "OUT_SETTINGS_OK";
     public static final String PARAM_IN_PERM_GRANTED = "IN_PERMISSION_GRANTED";
@@ -122,7 +121,7 @@ public class PositioningService extends IntentService {
         if(intent != null && intent.getBooleanExtra(PARAM_IN_PERM_GRANTED, true)) {
 
             // Only starts location updates if it has not been started.
-            if(!mRequestingLocationUpdates) {
+            if(mRequestingLocationUpdates == null || !mRequestingLocationUpdates) {
 
                 mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
                 mSettingsClient = LocationServices.getSettingsClient(this);
@@ -148,7 +147,7 @@ public class PositioningService extends IntentService {
                 mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
 
                 // Send back location data to observers
-                broadcastLocation(mCurrentLocation, mLastUpdateTime);
+                broadcastLocation();
             }
         };
     }
@@ -156,12 +155,12 @@ public class PositioningService extends IntentService {
     /**
      * Broadcast the updated location to receivers.
      */
-    private void broadcastLocation(Location location, String time) {
+    private void broadcastLocation() {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(MapsActivity.PositioningReceiver.ACTION_SELF_POSITION);
-        broadcastIntent.putExtra(PARAM_OUT_LOC_LAT, location.getLatitude());
-        broadcastIntent.putExtra(PARAM_OUT_LOC_LONG, location.getLongitude());
-        broadcastIntent.putExtra(PARAM_OUT_LOC_TIME, time);
+        broadcastIntent.putExtra(PARAM_OUT_SETTINGS_OK, mRequestingLocationUpdates);
+        broadcastIntent.putExtra(PARAM_OUT_LOCATION, mCurrentLocation);
+        broadcastIntent.putExtra(PARAM_OUT_LOC_TIME, mLastUpdateTime);
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(broadcastIntent);
     }
