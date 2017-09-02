@@ -6,5 +6,6 @@
     <dimen name="icon_margin">24dp</dimen>
     <dimen name="button_margin">10dp</dimen>
     <dimen name="title_bottom_margin">16dp</dimen>
+    <dimen name="login_button_width">285dp</dimen>
 
 </resources>

@@ -24,22 +24,24 @@
         android:layout_height="0dip"
         android:layout_weight="1"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:weightSum="1">
 
         <Button
             android:id="@+id/emailLoginButton"
-            android:layout_width="wrap_content"
+            android:layout_width="@dimen/login_button_width"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/button_margin"
             android:background="#f7b529"
             android:onClick="emailLogin"
             android:paddingLeft="@dimen/button_padding"
             android:paddingRight="@dimen/button_padding"
-            android:text="Email Login"/>
+            android:text="Email Login"
+            />
 
         <Button
             android:id="@+id/googleLoginButton"
-            android:layout_width="wrap_content"
+            android:layout_width="@dimen/login_button_width"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/button_margin"
             android:background="#179c52"
@@ -50,7 +52,7 @@
 
         <Button
             android:id="@+id/facebookLoginButton"
-            android:layout_width="wrap_content"
+            android:layout_width="@dimen/login_button_width"
             android:layout_height="wrap_content"
             android:background="#3b5998"
             android:paddingLeft="@dimen/button_padding"
