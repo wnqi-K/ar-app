@@ -1,6 +1,7 @@
 package com.comp30022.arrrrr;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -190,14 +191,16 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
     private void updateUI(FirebaseUser user) {
         hideProgressDialog();
         if (user != null) {
-            mStatusTextView.setText(getString(R.string.emailpassword_status_fmt,
+            Intent intent = new Intent(this, MainViewActivity.class);
+            startActivity(intent);
+/*          mStatusTextView.setText(getString(R.string.emailpassword_status_fmt,
                     user.getEmail(), user.isEmailVerified()));
             mDetailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));
 
             findViewById(R.id.sign_in_layout).setVisibility(View.GONE);
             findViewById(R.id.create_account_layout).setVisibility(View.GONE);
             findViewById(R.id.email_password_fields).setVisibility(View.GONE);
-            findViewById(R.id.signed_in_buttons).setVisibility(View.VISIBLE);
+            findViewById(R.id.signed_in_buttons).setVisibility(View.VISIBLE);*/
 
             findViewById(R.id.verify_email_button).setEnabled(!user.isEmailVerified());
         } else {
