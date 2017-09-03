@@ -81,4 +81,8 @@
     <string name="permission_denied_explanation_location">
         Permission was denied, but is needed for corefunctionality.
     </string>
+    <string name="title_activity_main_view">Dashboard</string>
+    <string name="title_friends">Friends</string>
+    <string name="title_home">Home</string>
+    <string name="title_settings">Settings</string>
 </resources>
