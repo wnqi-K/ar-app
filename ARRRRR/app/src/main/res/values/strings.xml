@@ -96,4 +96,5 @@
 
     <string name="adding_user_to_db">Adding user to database.</string>
     <string name="please_wait">Please wait...</string>
+    <string name="title_activity_user_listing">UserListingActivity</string>
 </resources>
