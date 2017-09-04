@@ -1,32 +1,23 @@
 package com.comp30022.arrrrr;
 
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -39,9 +30,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
-
-import java.text.DateFormat;
-import java.util.Date;
 
 public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback {
@@ -58,18 +46,6 @@ public class MapsActivity extends AppCompatActivity
      */
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
 
-    /**
-     * The desired interval for location updates. Inexact. Updates may be more or less frequent.
-     */
-    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
-
-    /**
-     * The fastest rate for active location updates. Exact. Updates will never be more frequent
-     * than this value.
-     */
-    private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
-            UPDATE_INTERVAL_IN_MILLISECONDS / 2;
-
     // Keys for storing activity state in the Bundle.
     private final static String KEY_REQUESTING_LOCATION_UPDATES = "requesting-location-updates";
     private final static String KEY_LOCATION = "location";
@@ -81,30 +57,10 @@ public class MapsActivity extends AppCompatActivity
     private final static float DEFAULT_CAMERA_ZOOM_LEVEL = 15;
 
     /**
-     * Provides access to the Location Settings API.
-     */
-    private SettingsClient mSettingsClient;
-
-    /**
-     * Provides access to the Fused Location Provider API.
-     */
-    private FusedLocationProviderClient mFusedLocationClient;
-
-    /**
-     * Stores parameters for requests to the FusedLocationProviderApi.
-     */
-    private LocationRequest mLocationRequest;
-
-    /**
      * Stores the types of location services the client is interested in using. Used for checking
      * settings to determine if the device has optimal location settings.
      */
     private LocationSettingsRequest mLocationSettingsRequest;
-
-    /**
-     * Callback for Location events.
-     */
-    private LocationCallback mLocationCallback;
 
     /**
      * Tracks the status of the location updates request. Value changes when the user presses the
@@ -122,7 +78,30 @@ public class MapsActivity extends AppCompatActivity
      */
     private String mLastUpdateTime;
 
-    private GoogleMap googleMap;
+    /**
+     * The main map using Google Map.
+     */
+    private GoogleMap mGoogleMap;
+
+    /**
+     * Marker on the map of the user's device.
+     */
+    private Marker mSelfMarker;
+
+    /**
+     * Intent to start positioning service.
+     */
+    private Intent mPositioningServiceIntent;
+
+    /**
+     * Receiver for self positioning service.
+     */
+    private PositioningReceiver mPositioningReceiver;
+
+    /**
+     * Indicates whether marker has been added to the map.
+     */
+    private Boolean mIsSelfMarkerAdded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,14 +114,37 @@ public class MapsActivity extends AppCompatActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        mCurrentLocation = null;
         mRequestingLocationUpdates = false;
         mLastUpdateTime = "";
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        mSettingsClient = LocationServices.getSettingsClient(this);
-
-        // Update values using data stored in the Bundle.
+        //Update values using data stored in the Bundle.
         updateValuesFromBundle(savedInstanceState);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        registerReceivers();
+
+        Toast.makeText(this, "Starting positioning service...", Toast.LENGTH_SHORT).show();
+
+        if (!mRequestingLocationUpdates && checkPermissions()) {
+            // Start positioning service
+            startPositioningSerice();
+        } else if (!checkPermissions()) {
+            requestPermissions();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        unregisterReceiver(mPositioningReceiver);
+
+        // TODO: Maybe considering stop service by user preferences
     }
 
     /**
@@ -150,19 +152,21 @@ public class MapsActivity extends AppCompatActivity
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        this.googleMap = googleMap;
+        this.mGoogleMap = googleMap;
+        Toast.makeText(this, "Map ready", Toast.LENGTH_SHORT).show();
+        initializeMapUI();
+        updateMapUI();
+    }
 
-        // Kick off the process of building the LocationCallback, LocationRequest, and
-        // LocationSettingsRequest objects.
-        createLocationCallback();
-        createLocationRequest();
-        buildLocationSettingsRequest();
-        startLocationUpdates();
+    /**
+     * Initialize map interface.
+     */
+    private void initializeMapUI() {
+        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
     }
 
     /**
      * Updates fields based on data stored in the bundle.
-     *
      * @param savedInstanceState The activity state saved in the Bundle.
      */
     private void updateValuesFromBundle(Bundle savedInstanceState) {
@@ -186,52 +190,13 @@ public class MapsActivity extends AppCompatActivity
             if (savedInstanceState.keySet().contains(KEY_LAST_UPDATED_TIME_STRING)) {
                 mLastUpdateTime = savedInstanceState.getString(KEY_LAST_UPDATED_TIME_STRING);
             }
-            updateUI();
+            //updateUI();
         }
     }
 
     /**
-     * Sets up the location request.
+     * Handles when the activity has received a result from the intent.
      */
-    private void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-
-        // Sets the desired interval for active location updates.
-        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
-
-        // Sets the fastest rate for active location updates.
-        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
-
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
-
-    /**
-     * Creates a callback for receiving location events.
-     */
-    private void createLocationCallback() {
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-
-                mCurrentLocation = locationResult.getLastLocation();
-                mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-                updateLocationUI();
-            }
-        };
-    }
-
-    /**
-     * Uses a {@link com.google.android.gms.location.LocationSettingsRequest.Builder} to build
-     * a {@link com.google.android.gms.location.LocationSettingsRequest} that is used for checking
-     * if a device has the needed location settings.
-     */
-    private void buildLocationSettingsRequest() {
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-        builder.addLocationRequest(mLocationRequest);
-        mLocationSettingsRequest = builder.build();
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -245,7 +210,7 @@ public class MapsActivity extends AppCompatActivity
                     case Activity.RESULT_CANCELED:
                         Log.i(TAG, "User chose not to make required location settings changes.");
                         mRequestingLocationUpdates = false;
-                        updateUI();
+                        updateMapUI();
                         break;
                 }
                 break;
@@ -255,7 +220,7 @@ public class MapsActivity extends AppCompatActivity
     /**
      * Sets the value of the UI fields for the location latitude, longitude and last update time.
      */
-    private void updateLocationUI() {
+    private void updateMapUI() {
         if (mCurrentLocation != null) {
             // Add a marker in Sydney, Australia,
             // and move the map's camera to the same location.
@@ -263,112 +228,15 @@ public class MapsActivity extends AppCompatActivity
             Double longitude = mCurrentLocation.getLongitude();
             LatLng currLatLng = new LatLng(latitude, longitude);
 
-            googleMap.addMarker(new MarkerOptions().position(currLatLng)
-                                .title("Your current location"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
-            googleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
+            if(mSelfMarker == null) {
+                mSelfMarker = mGoogleMap.addMarker(new MarkerOptions()
+                        .title("My position")
+                        .position(currLatLng));
+            } else {
+                mSelfMarker.setPosition(currLatLng);
+            }
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
         }
-    }
-
-    /**
-     * Updates all UI fields.
-     */
-    private void updateUI() {
-        updateLocationUI();
-    }
-
-    /**
-     * Requests location updates from the FusedLocationApi. Note: we don't call this unless location
-     * runtime permission has been granted.
-     */
-    private void startLocationUpdates() {
-        mRequestingLocationUpdates = true;
-
-        // Begin by checking if the device has the necessary location settings.
-        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
-                .addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
-                    @Override
-                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        Log.i(TAG, "All location settings are satisfied.");
-
-                        //noinspection MissingPermission
-                        mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                                mLocationCallback, Looper.myLooper());
-
-                        updateUI();
-                    }
-                })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        int statusCode = ((ApiException) e).getStatusCode();
-                        switch (statusCode) {
-                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                                Log.i(TAG, "Location settings are not satisfied. Attempting to upgrade " +
-                                        "location settings ");
-                                try {
-                                    // Show the dialog by calling startResolutionForResult(), and check the
-                                    // result in onActivityResult().
-                                    ResolvableApiException rae = (ResolvableApiException) e;
-                                    rae.startResolutionForResult(MapsActivity.this, REQUEST_CHECK_SETTINGS);
-                                } catch (IntentSender.SendIntentException sie) {
-                                    Log.i(TAG, "PendingIntent unable to execute request.");
-                                }
-                                break;
-                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                                String errorMessage = "Location settings are inadequate, and cannot be " +
-                                        "fixed here. Fix in Settings.";
-                                Log.e(TAG, errorMessage);
-                                Toast.makeText(MapsActivity.this, errorMessage, Toast.LENGTH_LONG).show();
-                                mRequestingLocationUpdates = false;
-                        }
-
-                        updateUI();
-                    }
-                });
-    }
-
-    /**
-     * Removes location updates from the FusedLocationApi.
-     */
-    private void stopLocationUpdates() {
-        if (!mRequestingLocationUpdates) {
-            Log.d(TAG, "stopLocationUpdates: updates never requested, no-op.");
-            return;
-        }
-
-        // It is a good practice to remove location requests when the activity is in a paused or
-        // stopped state. Doing so helps battery performance and is especially
-        // recommended in applications that request frequent location updates.
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback)
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        mRequestingLocationUpdates = false;
-                    }
-                });
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        // Within {@code onPause()}, we remove location updates. Here, we resume receiving
-        // location updates if the user has requested them.
-        if (mRequestingLocationUpdates && checkPermissions()) {
-            startLocationUpdates();
-        } else if (!checkPermissions()) {
-            requestPermissions();
-        }
-
-        updateUI();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        // Remove location updates to save battery.
-        stopLocationUpdates();
     }
 
     /**
@@ -380,6 +248,9 @@ public class MapsActivity extends AppCompatActivity
         return permissionState == PackageManager.PERMISSION_GRANTED;
     }
 
+    /**
+     * Request permission from user.
+     */
     private void requestPermissions() {
         boolean shouldProvideRationale =
                 ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -419,14 +290,10 @@ public class MapsActivity extends AppCompatActivity
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (mRequestingLocationUpdates) {
                     Log.i(TAG, "Permission granted, updates requested, starting location updates");
-                    startLocationUpdates();
+                    startPositioningSerice();
                 }
             } else {
                 // Permission denied.
-
-                // Notify the user via a SnackBar that they have rejected a core permission for the
-                // app, which makes the Activity useless. In a real app, core permissions would
-                // typically be best requested during a welcome-screen flow.
 
                 // Additionally, it is important to remember that a permission might have been
                 // rejected without asking the user for permission (device policy or "Never ask
@@ -444,4 +311,65 @@ public class MapsActivity extends AppCompatActivity
             }
         }
     }
+
+    /**
+     * Start positioning service given that permission has been granted!
+     */
+    private void startPositioningSerice() {
+        mRequestingLocationUpdates = true;
+        mPositioningServiceIntent = new Intent(this, PositioningService.class);
+        mPositioningServiceIntent.putExtra(PositioningService.PARAM_IN_PERM_GRANTED, true);
+        startService(mPositioningServiceIntent);
+    }
+
+    /**
+     * Receiver for positioning service
+     */
+    public class PositioningReceiver extends BroadcastReceiver {
+        public static final String ACTION_SELF_POSITION =
+                "com.comp30022.arrrrr.intent.action.SELF_POSITION_RECEIVED";
+
+        private Context context;
+
+        public PositioningReceiver(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Boolean settingsOK = intent.getBooleanExtra(PositioningService.PARAM_OUT_SETTINGS_OK, false);
+            if(!settingsOK) {
+                Toast.makeText(context, "Error: location settigns not satisfied.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, "Received broadcast from PositioningService.", Toast.LENGTH_SHORT).show();
+
+                Location location = intent.getParcelableExtra(PositioningService.PARAM_OUT_LOCATION);
+                String time = intent.getStringExtra(PositioningService.PARAM_OUT_LOC_TIME);
+                if(location != null) {
+                    mCurrentLocation = location;
+                    mLastUpdateTime = time;
+                    updateMapUI();
+                }
+            }
+
+        }
+    }
+
+    /**
+     * Register all receivers. Should be called in onResume().
+     */
+    public void registerReceivers() {
+        IntentFilter positioningIntentFilter = new IntentFilter(PositioningReceiver.ACTION_SELF_POSITION);
+        positioningIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mPositioningReceiver = new PositioningReceiver(this);
+        registerReceiver(mPositioningReceiver, positioningIntentFilter);
+    }
+
+    /**
+     * Unregister all receives. Should be called in onPause().
+     */
+    public void unregisterReceivers() {
+        unregisterReceiver(mPositioningReceiver);
+    }
+
 }
