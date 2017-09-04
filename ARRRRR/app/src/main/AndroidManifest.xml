@@ -40,6 +40,9 @@
             android:name=".UserListingActivity"
             android:label="@string/title_activity_user_listing"
             android:theme="@style/AppTheme"></activity>
+        <service
+            android:name=".PositioningService"
+            android:exported="false"/>
     </application>
 
 </manifest>
