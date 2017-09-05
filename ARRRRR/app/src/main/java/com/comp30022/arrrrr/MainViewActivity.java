@@ -1,21 +1,27 @@
 package com.comp30022.arrrrr;
 
+import android.app.FragmentManager;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
+import com.comp30022.arrrrr.models.User;
 
+/**
+ * Main view of the application after user has logged in.
+ */
 public class MainViewActivity extends AppCompatActivity implements
-        FriendsFragment.OnFragmentInteractionListener,
-        MapsFragment.OnFragmentInteractionListener,
-        SettingFragment.OnFragmentInteractionListener{
+        MapContainerFragment.OnMapContainerFragmentInteractionListener,
+        SettingFragment.OnSettingFragmentInteractionListener,
+        UsersFragment.OnListFragmentInteractionListener {
 
-
+    /**
+     * Sets OnNavigationItemSelectedListener for the bottom navigation.
+     */
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
@@ -38,36 +44,77 @@ public class MainViewActivity extends AppCompatActivity implements
         }
     };
 
-
+    /**
+     * Switch the current fragment to friends fragment.
+     */
     private void switchToFragmentFriends() {
-        FragmentManager manager = getSupportFragmentManager();
+        FragmentManager manager = getFragmentManager();
         manager.beginTransaction().replace(R.id.fragment_container,
-                new FriendsFragment().newInstance("Alice", "Bob")).commit();
+                UsersFragment.newInstance(1)).commit();
     }
 
+    /**
+     * Switch the current fragment to maps fragment.
+     */
     private void switchToFragmentHome() {
-        FragmentManager manager = getSupportFragmentManager();
+        FragmentManager manager = getFragmentManager();
         manager.beginTransaction().replace(R.id.fragment_container,
-                new MapsFragment().newInstance("Cindy", "Daisy")).commit();
+                MapContainerFragment.newInstance()).commit();
     }
 
+    /**
+     * Switch the current fragment to settings fragment.
+     */
     private void switchToFragmentSetting() {
-        FragmentManager manager = getSupportFragmentManager();
+        FragmentManager manager = getFragmentManager();
         manager.beginTransaction().replace(R.id.fragment_container,
-                new SettingFragment().newInstance("Eddie", "Frank")).commit();
+                SettingFragment.newInstance("Eddie", "Frank")).commit();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_view);
-        switchToFragmentHome();
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
+    @Override
+    public void onListFragmentInteraction(User user) {
+        // TODO: Probably need to do use this in the future
+    }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
+    public void onMapContainerFragmentInteraction(Uri uri) {
+        // TODO: Probably need to do use this in the future
+    }
+
+    @Override
+    public void onSettingFragmentInteraction(Uri uri) {
+        // TODO: Probably need to do use this in the future
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // If current fragment is map container, then pass arguments to its onActivityResult
+        MapContainerFragment fragment = (MapContainerFragment) getFragmentManager()
+                .findFragmentById(R.id.map_container);
+        if (fragment != null) {
+            fragment.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // If current fragment is map container, then pass arguments to its onRequestPermissionsResult
+        MapContainerFragment fragment = (MapContainerFragment) getFragmentManager()
+                .findFragmentById(R.id.map_container);
+        if (fragment != null) {
+            fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 }
