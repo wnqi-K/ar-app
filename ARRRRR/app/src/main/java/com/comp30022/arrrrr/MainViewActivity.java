@@ -2,6 +2,7 @@ package com.comp30022.arrrrr;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentManager;
@@ -38,6 +39,7 @@ public class MainViewActivity extends AppCompatActivity implements
         }
     };
 
+
     private void switchToFragmentFriends() {
         FragmentManager manager = getSupportFragmentManager();
         manager.beginTransaction().replace(R.id.fragment_container,
@@ -60,15 +62,13 @@ public class MainViewActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_view);
-
         switchToFragmentHome();
-
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
     }
+
 
     @Override
     public void onFragmentInteraction(Uri uri) {
-
     }
 }

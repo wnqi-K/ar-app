@@ -86,6 +86,15 @@
     <string name="title_home">Home</string>
     <string name="title_settings">Settings</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="user_successfully_added">User successfully added!</string>
+    <string name="user_unable_to_add">Unable to add user!</string>
+    <string name="email">Email Id</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="login_register">New user, tap here to register !</string>
+    <string name="register">Register</string>
+
+    <string name="adding_user_to_db">Adding user to database.</string>
+    <string name="please_wait">Please wait...</string>
+    <string name="title_activity_user_listing">UserListingActivity</string>
 </resources>

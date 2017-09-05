@@ -2,23 +2,15 @@ package com.comp30022.arrrrr;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.content.Context;
-import android.content.IntentSender;
 import android.location.Location;
-import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
@@ -42,6 +34,11 @@ import java.util.Date;
  * helper methods.
  */
 public class PositioningService extends IntentService {
+    private static final String TAG = PositioningService.class.getSimpleName();
+    // Keys for intent extras
+    public static final String PARAM_OUT_LOCATION = "OUT_LOCATION";
+    public static final String PARAM_OUT_SETTINGS_OK = "OUT_SETTINGS_OK";
+    public static final String PARAM_IN_PERM_GRANTED = "IN_PERMISSION_GRANTED";
 
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
@@ -91,29 +88,37 @@ public class PositioningService extends IntentService {
      */
     private Location mCurrentLocation;
 
-    /**
-     * Time when the location was updated represented as a String.
-     */
-    private String mLastUpdateTime;
+    public PositioningService() {
+        super("PositioningService");
+    }
 
     public PositioningService(String name) {
         super(name);
     }
 
     /**
-     * Handles starting intent service
+     * Handles starting intent service.
      */
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        mSettingsClient = LocationServices.getSettingsClient(this);
+        Log.v(TAG, "Starting location updates.");
+        // Check for permission requests.
+        // Only start location updates when permission has been granted.
+        if(intent != null && intent.getBooleanExtra(PARAM_IN_PERM_GRANTED, true)) {
 
-        createLocationCallback();
-        createLocationRequest();
-        buildLocationSettingsRequest();
-        startLocationUpdates();
+            // Only starts location updates if it has not been started.
+            if(mRequestingLocationUpdates == null || !mRequestingLocationUpdates) {
+
+                mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+                mSettingsClient = LocationServices.getSettingsClient(this);
+
+                createLocationCallback();
+                createLocationRequest();
+                buildLocationSettingsRequest();
+                startLocationUpdates();
+            }
+        }
     }
-
 
     /**
      * Creates a callback for receiving location events.
@@ -125,10 +130,23 @@ public class PositioningService extends IntentService {
                 super.onLocationResult(locationResult);
 
                 mCurrentLocation = locationResult.getLastLocation();
-                mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-                // TODO: Send broadcast intent here
+
+                // Send back location data to observers
+                broadcastLocation();
             }
         };
+    }
+
+    /**
+     * Broadcast the updated location to receivers.
+     */
+    private void broadcastLocation() {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(MapsActivity.PositioningReceiver.ACTION_SELF_POSITION);
+        broadcastIntent.putExtra(PARAM_OUT_SETTINGS_OK, mRequestingLocationUpdates);
+        broadcastIntent.putExtra(PARAM_OUT_LOCATION, mCurrentLocation);
+        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(broadcastIntent);
     }
 
     /**
@@ -192,6 +210,18 @@ public class PositioningService extends IntentService {
                     }
                 });
 
+        broadcastServiceStatus();
+    }
+
+    /**
+     * Broadcast service status to receivers.
+     */
+    private void broadcastServiceStatus() {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(MapsActivity.PositioningReceiver.ACTION_SELF_POSITION);
+        broadcastIntent.putExtra(PARAM_OUT_SETTINGS_OK, mRequestingLocationUpdates);
+        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(broadcastIntent);
     }
 
     /**
