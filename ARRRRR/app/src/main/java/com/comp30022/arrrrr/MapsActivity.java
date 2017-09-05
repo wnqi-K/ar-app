@@ -16,6 +16,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import java.text.DateFormat;
+import java.util.Date;
+
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,7 +47,6 @@ public class MapsActivity extends AppCompatActivity
     // Keys for storing activity state in the Bundle.
     private final static String KEY_REQUESTING_LOCATION_UPDATES = "requesting-location-updates";
     private final static String KEY_LOCATION = "location";
-    private final static String KEY_LAST_UPDATED_TIME_STRING = "last-updated-time-string";
 
     /**
      * Default zoom level value of the map camera
@@ -67,11 +69,6 @@ public class MapsActivity extends AppCompatActivity
      * Represents a geographical location.
      */
     private Location mCurrentLocation;
-
-    /**
-     * Time when the location was updated represented as a String.
-     */
-    private String mLastUpdateTime;
 
     /**
      * The main map using Google Map.
@@ -111,7 +108,6 @@ public class MapsActivity extends AppCompatActivity
 
         mCurrentLocation = null;
         mRequestingLocationUpdates = false;
-        mLastUpdateTime = "";
 
         //Update values using data stored in the Bundle.
         updateValuesFromBundle(savedInstanceState);
@@ -181,10 +177,6 @@ public class MapsActivity extends AppCompatActivity
                 mCurrentLocation = savedInstanceState.getParcelable(KEY_LOCATION);
             }
 
-            // Update the value of mLastUpdateTime from the Bundle and update the UI.
-            if (savedInstanceState.keySet().contains(KEY_LAST_UPDATED_TIME_STRING)) {
-                mLastUpdateTime = savedInstanceState.getString(KEY_LAST_UPDATED_TIME_STRING);
-            }
             //updateUI();
         }
     }
@@ -339,10 +331,12 @@ public class MapsActivity extends AppCompatActivity
                 Toast.makeText(context, "Received broadcast from PositioningService.", Toast.LENGTH_SHORT).show();
 
                 Location location = intent.getParcelableExtra(PositioningService.PARAM_OUT_LOCATION);
-                String time = intent.getStringExtra(PositioningService.PARAM_OUT_LOC_TIME);
                 if(location != null) {
                     mCurrentLocation = location;
-                    mLastUpdateTime = time;
+                    Toast.makeText(context, DateFormat.getTimeInstance().format(
+                            new Date(mCurrentLocation.getTime())),
+                            Toast.LENGTH_SHORT)
+                            .show();
                     updateMapUI();
                 }
             }
