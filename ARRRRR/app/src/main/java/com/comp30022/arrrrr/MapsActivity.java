@@ -333,10 +333,7 @@ public class MapsActivity extends AppCompatActivity
                 Location location = intent.getParcelableExtra(PositioningService.PARAM_OUT_LOCATION);
                 if(location != null) {
                     mCurrentLocation = location;
-                    Toast.makeText(context, DateFormat.getTimeInstance().format(
-                            new Date(mCurrentLocation.getTime())),
-                            Toast.LENGTH_SHORT)
-                            .show();
+
                     updateMapUI();
                 }
             }
