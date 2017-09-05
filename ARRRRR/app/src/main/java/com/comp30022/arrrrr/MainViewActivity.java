@@ -1,80 +1,74 @@
 package com.comp30022.arrrrr;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.BottomNavigationView.OnNavigationItemSelectedListener;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
-import java.util.HashMap;
 
-/**
- * The activity that serves as the main view of the app after user has logged in.
- */
-public class MainViewActivity extends AppCompatActivity {
+public class MainViewActivity extends AppCompatActivity implements
+        FriendsFragment.OnFragmentInteractionListener,
+        MapsFragment.OnFragmentInteractionListener,
+        SettingFragment.OnFragmentInteractionListener{
 
-    /**
-     * Stores all fragments associated with the navigation items.
-     */
-    private HashMap<Integer, Fragment> mFragments;
 
-    /**
-     * Handles when an item is selected. Switch fragment accordingly.
-     */
-    private OnNavigationItemSelectedListener mOnNavigationItemSelectedListener;
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+            switch (item.getItemId()) {
+                case R.id.navigation_friends:
+                    switchToFragmentFriends();
+                    return true;
+
+                case R.id.navigation_home:
+                    switchToFragmentHome();
+                    return true;
+
+                case R.id.navigation_settings:
+                    switchToFragmentSetting();
+                    return true;
+            }
+            return false;
+        }
+    };
+
+
+    private void switchToFragmentFriends() {
+        FragmentManager manager = getSupportFragmentManager();
+        manager.beginTransaction().replace(R.id.fragment_container,
+                new FriendsFragment().newInstance("Alice", "Bob")).commit();
+    }
+
+    private void switchToFragmentHome() {
+        FragmentManager manager = getSupportFragmentManager();
+        manager.beginTransaction().replace(R.id.fragment_container,
+                new MapsFragment().newInstance("Cindy", "Daisy")).commit();
+    }
+
+    private void switchToFragmentSetting() {
+        FragmentManager manager = getSupportFragmentManager();
+        manager.beginTransaction().replace(R.id.fragment_container,
+                new SettingFragment().newInstance("Eddie", "Frank")).commit();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_view);
-        
-        registerAllListeners();
-        registerAllFragments();
-    }
-
-    /**
-     * Register all listeners for this activity.
-     */
-    private void registerAllListeners() {
+        switchToFragmentHome();
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switchFragment(item.getItemId());
-                return false;
-            }
-
-        };
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
-    /**
-     * Register a single fragment associated with a navigation id
-     */
-    private void registerFragment(Integer navId, @IdRes Integer fragId) {
-        mFragments.put(navId, getSupportFragmentManager().findFragmentById(fragId));
-    }
 
-    /**
-     * Register all fragments associated with each navigation button.
-     */
-    private void registerAllFragments() {
-        registerFragment(R.id.navigation, R.id.main_view_map);
-        // TODO: Add two other fragments below
-    }
-
-    /**
-     * Switch the current fragment to another one.
-     * @param id the fragement id.
-     */
-    private void switchFragment(@IdRes int id) {
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, mFragments.get(id));
-        fragmentTransaction.commit();
+    @Override
+    public void onFragmentInteraction(Uri uri) {
     }
 }
