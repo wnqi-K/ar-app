@@ -13,11 +13,12 @@ import android.view.MenuItem;
 public class MainViewActivity extends AppCompatActivity implements
         FriendsFragment.OnFragmentInteractionListener,
         MapsFragment.OnFragmentInteractionListener,
-        SettingFragment.OnFragmentInteractionListener{
+        SettingFragment.OnFragmentInteractionListener {
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
@@ -63,11 +64,11 @@ public class MainViewActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main_view);
         switchToFragmentHome();
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
     }
 
-
     @Override
-    public void onFragmentInteraction(Uri uri) {
+    public void onFragmentInteraction (Uri uri){
     }
 }
