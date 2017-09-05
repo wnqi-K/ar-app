@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.BottomNavigationView.OnNavigationItemSelectedListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -21,30 +22,36 @@ public class MainViewActivity extends AppCompatActivity {
      */
     private HashMap<Integer, Fragment> mFragments;
 
+    /**
+     * Handles when an item is selected. Switch fragment accordingly.
+     */
+    private OnNavigationItemSelectedListener mOnNavigationItemSelectedListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_view);
-
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
+        
+        registerAllListeners();
         registerAllFragments();
     }
 
     /**
-     * Handles when an item is selected. Switch fragment accordingly.
+     * Register all listeners for this activity.
      */
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+    private void registerAllListeners() {
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switchFragment(item.getItemId());
-            return false;
-        }
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switchFragment(item.getItemId());
+                return false;
+            }
 
-    };
+        };
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+    }
 
     /**
      * Register a single fragment associated with a navigation id
