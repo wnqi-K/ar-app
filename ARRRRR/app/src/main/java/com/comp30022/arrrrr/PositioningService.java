@@ -37,7 +37,6 @@ public class PositioningService extends IntentService {
     private static final String TAG = PositioningService.class.getSimpleName();
     // Keys for intent extras
     public static final String PARAM_OUT_LOCATION = "OUT_LOCATION";
-    public static final String PARAM_OUT_LOC_TIME = "OUT_LOCATION_TIME";
     public static final String PARAM_OUT_SETTINGS_OK = "OUT_SETTINGS_OK";
     public static final String PARAM_IN_PERM_GRANTED = "IN_PERMISSION_GRANTED";
 
@@ -89,11 +88,6 @@ public class PositioningService extends IntentService {
      */
     private Location mCurrentLocation;
 
-    /**
-     * Time when the location was updated represented as a String.
-     */
-    private String mLastUpdateTime;
-
     public PositioningService() {
         super("PositioningService");
     }
@@ -136,7 +130,6 @@ public class PositioningService extends IntentService {
                 super.onLocationResult(locationResult);
 
                 mCurrentLocation = locationResult.getLastLocation();
-                mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
 
                 // Send back location data to observers
                 broadcastLocation();
@@ -152,7 +145,6 @@ public class PositioningService extends IntentService {
         broadcastIntent.setAction(MapsActivity.PositioningReceiver.ACTION_SELF_POSITION);
         broadcastIntent.putExtra(PARAM_OUT_SETTINGS_OK, mRequestingLocationUpdates);
         broadcastIntent.putExtra(PARAM_OUT_LOCATION, mCurrentLocation);
-        broadcastIntent.putExtra(PARAM_OUT_LOC_TIME, mLastUpdateTime);
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(broadcastIntent);
     }
