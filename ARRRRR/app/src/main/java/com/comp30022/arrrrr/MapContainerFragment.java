@@ -1,38 +1,44 @@
 package com.comp30022.arrrrr;
 
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import android.Manifest;
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import java.text.DateFormat;
-import java.util.Date;
-
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
-public class MapsActivity extends AppCompatActivity
-        implements OnMapReadyCallback {
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+import java.text.DateFormat;
+import java.util.Date;
+
+/**
+ * Fragment containing map interface.
+ */
+public class MapContainerFragment extends Fragment implements OnMapReadyCallback {
+
+    private static final String TAG = MapContainerFragment.class.getSimpleName();
 
     /**
      * Code used in requesting runtime permissions.
@@ -90,17 +96,30 @@ public class MapsActivity extends AppCompatActivity
      */
     private PositioningReceiver mPositioningReceiver;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // Retrieve the content view that renders the map.
-        setContentView(R.layout.activity_maps);
-        // Get the SupportMapFragment and request notification
-        // when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map_container_map);
-        mapFragment.getMapAsync(this);
+    /**
+     * Context that this fragment is running under.
+     */
+    private AppCompatActivity mContext;
 
+    /**
+     * Listener for communication between this fragment and its parent context.
+     */
+    private OnMapContainerFragmentInteractionListener mListener;
+
+    public MapContainerFragment() {
+        // Required empty public constructor
+    }
+
+    public static MapContainerFragment newInstance() {
+        MapContainerFragment fragment = new MapContainerFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         mCurrentLocation = null;
         mRequestingLocationUpdates = false;
 
@@ -109,12 +128,28 @@ public class MapsActivity extends AppCompatActivity
     }
 
     @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_map_container, null, false);
+        // Get the SupportMapFragment and request notification
+        // when the map is ready to be used.
+        MapFragment mapFragment = (MapFragment) getChildFragmentManager()
+                .findFragmentById(R.id.map_container_map);
+        mapFragment.getMapAsync(this);
+        return view;
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
-
         registerReceivers();
 
-        Toast.makeText(this, "Starting positioning service...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext, "Starting positioning service...", Toast.LENGTH_SHORT).show();
 
         if (!mRequestingLocationUpdates && checkPermissions()) {
             // Start positioning service
@@ -125,23 +160,41 @@ public class MapsActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
 
-        unregisterReceiver(mPositioningReceiver);
-
-        // TODO: Maybe considering stop service by user preferences
+        unregisterReceivers();
     }
 
-    /**
-     * Manipulates the map when it's available.
-     */
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = (AppCompatActivity) context;
+        if (mContext instanceof OnMapContainerFragmentInteractionListener) {
+            mListener = (OnMapContainerFragmentInteractionListener) mContext;
+        } else {
+            throw new RuntimeException(mContext.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.mGoogleMap = googleMap;
-        Toast.makeText(this, "Map ready", Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext, "Map ready", Toast.LENGTH_SHORT).show();
         initializeMapUI();
         updateMapUI();
+    }
+
+    public interface OnMapContainerFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onMapContainerFragmentInteraction(Uri uri);
     }
 
     /**
@@ -176,11 +229,12 @@ public class MapsActivity extends AppCompatActivity
         }
     }
 
+
     /**
      * Handles when the activity has received a result from the intent.
+     * This callback is intentionally implemented in this fragment for cohesion
      */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             // Check for the integer request code originally supplied to startResolutionForResult().
             case REQUEST_CHECK_SETTINGS:
@@ -225,8 +279,8 @@ public class MapsActivity extends AppCompatActivity
      * Return the current state of the permissions needed.
      */
     private boolean checkPermissions() {
-        int permissionState = ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
+        int permissionState = ActivityCompat.checkSelfPermission(mContext,
+                android.Manifest.permission.ACCESS_FINE_LOCATION);
         return permissionState == PackageManager.PERMISSION_GRANTED;
     }
 
@@ -235,32 +289,33 @@ public class MapsActivity extends AppCompatActivity
      */
     private void requestPermissions() {
         boolean shouldProvideRationale =
-                ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION);
+                ActivityCompat.shouldShowRequestPermissionRationale(mContext,
+                        android.Manifest.permission.ACCESS_FINE_LOCATION);
 
         // Provide an additional rationale to the user. This would happen if the user denied the
         // request previously, but didn't check the "Don't ask again" checkbox.
         if (shouldProvideRationale) {
             Log.i(TAG, "Displaying permission rationale to provide additional context.");
-            Toast.makeText(this, R.string.permission_rationale_location, Toast.LENGTH_SHORT).show();
-            ActivityCompat.requestPermissions(MapsActivity.this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+            Toast.makeText(mContext, R.string.permission_rationale_location, Toast.LENGTH_SHORT).show();
+            ActivityCompat.requestPermissions(mContext,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_PERMISSIONS_REQUEST_CODE);
         } else {
             Log.i(TAG, "Requesting permission");
             // Request permission. It's possible this can be auto answered if device policy
             // sets the permission in a given state or the user denied the permission
             // previously and checked "Never ask again".
-            ActivityCompat.requestPermissions(MapsActivity.this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+            ActivityCompat.requestPermissions(mContext,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_PERMISSIONS_REQUEST_CODE);
         }
     }
 
+
     /**
      * Callback received when a permissions request has been completed.
+     * This callback is intentionally implemented in this fragment for cohesion
      */
-    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         Log.i(TAG, "onRequestPermissionResult");
@@ -276,13 +331,7 @@ public class MapsActivity extends AppCompatActivity
                 }
             } else {
                 // Permission denied.
-
-                // Additionally, it is important to remember that a permission might have been
-                // rejected without asking the user for permission (device policy or "Never ask
-                // again" prompts). Therefore, a user interface affordance is typically implemented
-                // when permissions are denied. Otherwise, your app could appear unresponsive to
-                // touches or interactions which have required permissions.
-                Toast.makeText(this, R.string.permission_denied_explanation_location, Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, R.string.permission_denied_explanation_location, Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent();
                 intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -299,9 +348,9 @@ public class MapsActivity extends AppCompatActivity
      */
     private void startPositioningSerice() {
         mRequestingLocationUpdates = true;
-        mPositioningServiceIntent = new Intent(this, PositioningService.class);
+        mPositioningServiceIntent = new Intent(mContext, PositioningService.class);
         mPositioningServiceIntent.putExtra(PositioningService.PARAM_IN_PERM_GRANTED, true);
-        startService(mPositioningServiceIntent);
+        mContext.startService(mPositioningServiceIntent);
     }
 
     /**
@@ -345,15 +394,14 @@ public class MapsActivity extends AppCompatActivity
     public void registerReceivers() {
         IntentFilter positioningIntentFilter = new IntentFilter(PositioningReceiver.ACTION_SELF_POSITION);
         positioningIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mPositioningReceiver = new PositioningReceiver(this);
-        registerReceiver(mPositioningReceiver, positioningIntentFilter);
+        mPositioningReceiver = new PositioningReceiver(mContext);
+        mContext.registerReceiver(mPositioningReceiver, positioningIntentFilter);
     }
 
     /**
      * Unregister all receives. Should be called in onPause().
      */
     public void unregisterReceivers() {
-        unregisterReceiver(mPositioningReceiver);
+        mContext.unregisterReceiver(mPositioningReceiver);
     }
-
 }

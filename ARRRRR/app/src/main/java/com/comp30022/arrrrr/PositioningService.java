@@ -23,17 +23,13 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
-import java.text.DateFormat;
-import java.util.Date;
 
 /**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- * <p>
- * TODO: Customize class - update intent actions, extra parameters and static
- * helper methods.
+ * An intent service that (runs in the background)
+ * and it is responsible for positioning user's device on the map.
  */
 public class PositioningService extends IntentService {
+
     private static final String TAG = PositioningService.class.getSimpleName();
     // Keys for intent extras
     public static final String PARAM_OUT_LOCATION = "OUT_LOCATION";
