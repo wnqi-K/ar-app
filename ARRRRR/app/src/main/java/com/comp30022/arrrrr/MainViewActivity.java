@@ -31,7 +31,7 @@ public class MainViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_view);
-        
+
         registerAllListeners();
         registerAllFragments();
     }
@@ -41,16 +41,14 @@ public class MainViewActivity extends AppCompatActivity {
      */
     private void registerAllListeners() {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
+        navigation.setOnNavigationItemSelectedListener(new OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switchFragment(item.getItemId());
                 return false;
             }
-
-        };
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        });
     }
 
     /**
