@@ -23,7 +23,6 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
     private static final String TAG = "EmailPassword";
 
     private ProgressDialog mProgressDialog;
-
     private TextView mStatusTextView;
     private TextView mDetailTextView;
     private EditText mEmailField;
