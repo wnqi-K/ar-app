@@ -1,78 +1,73 @@
 package com.comp30022.arrrrr;
 
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
-import android.widget.ListView;
-import android.widget.TextView;
 
-import com.comp30022.arrrrr.models.User;
+import java.util.HashMap;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+/**
+ * The activity that serves as the main view of the app after user has logged in.
+ */
+public class MainViewActivity extends AppCompatActivity {
 
-import com.comp30022.arrrrr.UsersFragment.OnListFragmentInteractionListener;
-
-public class MainViewActivity extends AppCompatActivity implements UsersFragment.OnListFragmentInteractionListener {
-
-    private TextView mTextMessage;
-
-
-
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_friends:
-                    UserListing();
-                    //UserListingActivity.startActivity(MainViewActivity.this);
-                    return true;
-                case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
-                    return true;
-                case R.id.navigation_settings:
-                    mTextMessage.setText(R.string.title_settings);
-                    return true;
-            }
-            return false;
-        }
-
-    };
+    /**
+     * Stores all fragments associated with the navigation items.
+     */
+    private HashMap<Integer, Fragment> mFragments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_view);
 
-        mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        registerAllFragments();
     }
 
+    /**
+     * Handles when an item is selected. Switch fragment accordingly.
+     */
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switchFragment(item.getItemId());
+            return false;
+        }
 
-    private void UserListing() {
+    };
 
-        // set the register screen fragment
+    /**
+     * Register a single fragment associated with a navigation id
+     */
+    private void registerFragment(Integer navId, @IdRes Integer fragId) {
+        mFragments.put(navId, getSupportFragmentManager().findFragmentById(fragId));
+    }
+
+    /**
+     * Register all fragments associated with each navigation button.
+     */
+    private void registerAllFragments() {
+        registerFragment(R.id.navigation, R.id.main_view_map);
+        // TODO: Add two other fragments below
+    }
+
+    /**
+     * Switch the current fragment to another one.
+     * @param id the fragement id.
+     */
+    private void switchFragment(@IdRes int id) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.list,
-                UsersFragment.newInstance(1),
-                UsersFragment.class.getSimpleName());
+        fragmentTransaction.replace(R.id.fragment_container, mFragments.get(id));
         fragmentTransaction.commit();
     }
-
-
-    @Override
-    public void onListFragmentInteraction(User user) {
-
-    }
-
-
 }
