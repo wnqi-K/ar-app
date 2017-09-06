@@ -2,18 +2,21 @@ package com.comp30022.arrrrr;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+
+import com.comp30022.arrrrr.models.User;
 
 
 public class MainViewActivity extends AppCompatActivity implements
         FriendsFragment.OnFragmentInteractionListener,
         MapsFragment.OnFragmentInteractionListener,
-        SettingFragment.OnFragmentInteractionListener {
+        SettingFragment.OnFragmentInteractionListener,
+        UsersFragment.OnListFragmentInteractionListener {
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -24,7 +27,7 @@ public class MainViewActivity extends AppCompatActivity implements
 
             switch (item.getItemId()) {
                 case R.id.navigation_friends:
-                    switchToFragmentFriends();
+                    switchToFragmentUsers();
                     return true;
 
                 case R.id.navigation_home:
@@ -40,10 +43,11 @@ public class MainViewActivity extends AppCompatActivity implements
     };
 
 
-    private void switchToFragmentFriends() {
+    private void switchToFragmentUsers() {
+        UserListing();
         FragmentManager manager = getSupportFragmentManager();
         manager.beginTransaction().replace(R.id.fragment_container,
-                new FriendsFragment().newInstance("Alice", "Bob")).commit();
+                new UsersFragment().newInstance(1)).commit();
     }
 
     private void switchToFragmentHome() {
@@ -64,11 +68,25 @@ public class MainViewActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main_view);
         switchToFragmentHome();
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setSelectedItemId(R.id.navigation_home);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+    }
 
+    private void UserListing() {
+        // set the register screen fragment
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.list,
+                UsersFragment.newInstance(1),
+                UsersFragment.class.getSimpleName());
+        fragmentTransaction.commit();
     }
 
     @Override
     public void onFragmentInteraction (Uri uri){
+    }
+
+    @Override
+    public void onListFragmentInteraction(User user) {
+
     }
 }
