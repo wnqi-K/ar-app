@@ -30,7 +30,7 @@ public class MainViewActivity extends AppCompatActivity implements
 
             switch (item.getItemId()) {
                 case R.id.navigation_friends:
-                    switchToFragmentUsers();
+                    switchToFragmentFriends();
                     return true;
 
                 case R.id.navigation_home:
@@ -48,7 +48,7 @@ public class MainViewActivity extends AppCompatActivity implements
     /**
      * Switch the current fragment to friends fragment.
      */
-    private void switchToFragmentUsers() {
+    private void switchToFragmentFriends() {
         FragmentManager manager = getFragmentManager();
         manager.beginTransaction().replace(R.id.fragment_container,
                 UsersFragment.newInstance(1)).commit();
