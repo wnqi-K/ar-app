@@ -24,12 +24,13 @@ public class MainViewActivity extends AppCompatActivity implements
      */
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
             switch (item.getItemId()) {
                 case R.id.navigation_friends:
-                    switchToFragmentFriends();
+                    switchToFragmentUsers();
                     return true;
 
                 case R.id.navigation_home:
@@ -47,7 +48,7 @@ public class MainViewActivity extends AppCompatActivity implements
     /**
      * Switch the current fragment to friends fragment.
      */
-    private void switchToFragmentFriends() {
+    private void switchToFragmentUsers() {
         FragmentManager manager = getFragmentManager();
         manager.beginTransaction().replace(R.id.fragment_container,
                 UsersFragment.newInstance(1)).commit();
@@ -76,6 +77,8 @@ public class MainViewActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_view);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setSelectedItemId(R.id.navigation_home);
+        switchToFragmentHome();
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
