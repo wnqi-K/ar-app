@@ -138,7 +138,7 @@ public class PositioningService extends IntentService {
      */
     private void broadcastLocation() {
         Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(MapsActivity.PositioningReceiver.ACTION_SELF_POSITION);
+        //broadcastIntent.setAction(MapsActivity.PositioningReceiver.ACTION_SELF_POSITION);
         broadcastIntent.putExtra(PARAM_OUT_SETTINGS_OK, mRequestingLocationUpdates);
         broadcastIntent.putExtra(PARAM_OUT_LOCATION, mCurrentLocation);
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -214,7 +214,7 @@ public class PositioningService extends IntentService {
      */
     private void broadcastServiceStatus() {
         Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(MapsActivity.PositioningReceiver.ACTION_SELF_POSITION);
+        //broadcastIntent.setAction(MapsActivity.PositioningReceiver.ACTION_SELF_POSITION);
         broadcastIntent.putExtra(PARAM_OUT_SETTINGS_OK, mRequestingLocationUpdates);
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(broadcastIntent);
