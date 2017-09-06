@@ -11,11 +11,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        if (getIntent().getBooleanExtra("LOGOUT", false))
-        {
-            finish();
-        }
     }
 
     public void emailLogin(View view) {
