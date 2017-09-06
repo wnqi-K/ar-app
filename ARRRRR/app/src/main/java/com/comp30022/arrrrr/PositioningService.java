@@ -18,6 +18,7 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -138,7 +139,7 @@ public class PositioningService extends IntentService {
      */
     private void broadcastLocation() {
         Intent broadcastIntent = new Intent();
-        //broadcastIntent.setAction(MapsActivity.PositioningReceiver.ACTION_SELF_POSITION);
+        broadcastIntent.setAction(MapContainerFragment.PositioningReceiver.ACTION_SELF_POSITION);
         broadcastIntent.putExtra(PARAM_OUT_SETTINGS_OK, mRequestingLocationUpdates);
         broadcastIntent.putExtra(PARAM_OUT_LOCATION, mCurrentLocation);
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -214,7 +215,7 @@ public class PositioningService extends IntentService {
      */
     private void broadcastServiceStatus() {
         Intent broadcastIntent = new Intent();
-        //broadcastIntent.setAction(MapsActivity.PositioningReceiver.ACTION_SELF_POSITION);
+        broadcastIntent.setAction(MapContainerFragment.PositioningReceiver.ACTION_SELF_POSITION);
         broadcastIntent.putExtra(PARAM_OUT_SETTINGS_OK, mRequestingLocationUpdates);
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(broadcastIntent);
