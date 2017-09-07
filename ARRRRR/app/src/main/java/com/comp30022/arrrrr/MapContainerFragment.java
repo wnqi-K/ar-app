@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
@@ -20,8 +21,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
+import com.comp30022.arrrrr.utils.LocationPermissionHelper;
+import com.comp30022.arrrrr.utils.LocationRequestManager;
+import com.comp30022.arrrrr.utils.LocationSettingsHelper;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
-import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -36,18 +43,15 @@ import java.util.Date;
 
 /**
  * Fragment containing map interface.
+ *
+ * @author Dafu Ai
  */
 public class MapContainerFragment extends Fragment implements
         OnMapReadyCallback,
         SelfPositionReceiver.SelfPositionUpdateListener,
-        LocationSettingsResultReceiver.LocationSettingsResultListener {
+        LocationSettingsHelper.OnLocationSettingsResultListener {
 
     private static final String TAG = MapContainerFragment.class.getSimpleName();
-
-    /**
-     * Code used in requesting runtime permissions.
-     */
-    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
     /**
      * Constant used in the location settings dialog.
@@ -61,12 +65,6 @@ public class MapContainerFragment extends Fragment implements
      * Default zoom level value of the map camera
      */
     private final static float DEFAULT_CAMERA_ZOOM_LEVEL = 15;
-
-    /**
-     * Stores the types of location services the client is interested in using. Used for checking
-     * settings to determine if the device has optimal location settings.
-     */
-    private LocationSettingsRequest mLocationSettingsRequest;
 
     /**
      * Tracks the status of the location updates request. Value changes when the user presses the
@@ -95,11 +93,6 @@ public class MapContainerFragment extends Fragment implements
     private SelfPositionReceiver mPositioningReceiver;
 
     /**
-     * Receiver for location settings result.
-     */
-    private LocationSettingsResultReceiver mLocationSettingsResultReceiver;
-
-    /**
      * Context that this fragment is running under.
      */
     private AppCompatActivity mContext;
@@ -112,7 +105,7 @@ public class MapContainerFragment extends Fragment implements
     /**
      * Used for checking location permission.
      */
-    private LocationPermissionChecker mPermissionChecker;
+    private LocationPermissionHelper mPermissionChecker;
 
     public MapContainerFragment() {
         // Required empty public constructor
@@ -165,11 +158,13 @@ public class MapContainerFragment extends Fragment implements
         super.onResume();
         registerReceivers();
 
+        // 1. Check location permissions.
         Boolean permissionGranted = mPermissionChecker.checkPermissions();
 
         if (!mRequestingLocationUpdates && permissionGranted) {
-            // Start positioning service
-            startPositioningService();
+            // 2. Check location settings.
+            // 3. Will start positioning service after checking is passed.
+            checkLocationSettings();
         } else if (!permissionGranted) {
             mPermissionChecker.requestPermissions();
         }
@@ -180,6 +175,7 @@ public class MapContainerFragment extends Fragment implements
         super.onPause();
 
         unregisterReceivers();
+        saveCurrentMapView();
     }
 
     @Override
@@ -195,7 +191,7 @@ public class MapContainerFragment extends Fragment implements
         }
 
         // Sets up permission checker.
-        mPermissionChecker = new LocationPermissionChecker(mContext);
+        mPermissionChecker = new LocationPermissionHelper(mContext);
     }
 
     @Override
@@ -209,7 +205,8 @@ public class MapContainerFragment extends Fragment implements
         this.mGoogleMap = googleMap;
         Toast.makeText(mContext, "Map ready", Toast.LENGTH_SHORT).show();
         initializeMapUI();
-        updateMapUI();
+        updateLocations();
+        restoreCurrentMapView();
     }
 
     @Override
@@ -219,16 +216,19 @@ public class MapContainerFragment extends Fragment implements
                 new Date(mCurrentLocation.getTime())),
                 Toast.LENGTH_SHORT)
                 .show();
-        updateMapUI();
+        updateLocations();
     }
 
     @Override
-    public void onLocationSettingsResult(Integer statusCode, Exception e) {
-        mRequestingLocationUpdates = true;
+    public void onLocationSettingsResultSuccess(LocationSettingsResponse locationSettingsResponse) {
+        Log.i(TAG, "All location settings are satisfied.");
+        startPositioningService();
+    }
+
+    @Override
+    public void onLocationSettingsResultFailure(@NonNull Exception e) {
+        int statusCode = ((ApiException) e).getStatusCode();
         switch (statusCode) {
-            case LocationSettingsStatusCodes.SUCCESS:
-                Toast.makeText(mContext, "Location settings OK.", Toast.LENGTH_SHORT).show();
-                break;
             case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                 Log.i(TAG, "Location settings are not satisfied. Attempting to upgrade " +
                         "location settings ");
@@ -248,17 +248,15 @@ public class MapContainerFragment extends Fragment implements
                 mRequestingLocationUpdates = false;
                 break;
         }
-    }
 
-    public interface OnMapContainerFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onMapContainerFragmentInteraction(Uri uri);
     }
 
     /**
      * Initialize map interface.
      */
     private void initializeMapUI() {
+        mGoogleMap.setMinZoomPreference(5);
+        mGoogleMap.setMaxZoomPreference(20);
         mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
     }
 
@@ -274,6 +272,12 @@ public class MapContainerFragment extends Fragment implements
                 Toast.makeText(mContext, "Location updated from savedInstanceState", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public void checkLocationSettings() {
+        //LocationRequest request = LocationRequestManager.getRequest();
+        LocationSettingsHelper helper = new LocationSettingsHelper(this, mContext);
+        helper.checkLocationSettings();
     }
 
     /**
@@ -292,7 +296,7 @@ public class MapContainerFragment extends Fragment implements
                     case Activity.RESULT_CANCELED:
                         Log.i(TAG, "User chose not to make required location settings changes.");
                         mRequestingLocationUpdates = false;
-                        updateMapUI();
+                        updateLocations();
                         break;
                 }
                 break;
@@ -302,7 +306,7 @@ public class MapContainerFragment extends Fragment implements
     /**
      * Sets the value of the UI fields for the location latitude, longitude and last update time.
      */
-    private void updateMapUI() {
+    private void updateLocations() {
         if (mCurrentLocation != null) {
             // Add a marker in Sydney, Australia,
             // and move the map's camera to the same location.
@@ -328,7 +332,7 @@ public class MapContainerFragment extends Fragment implements
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         Log.i(TAG, "onRequestPermissionResult");
-        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
+        if (requestCode == LocationPermissionHelper.REQUEST_PERMISSIONS_REQUEST_CODE) {
             if (grantResults.length <= 0) {
                 // If user interaction was interrupted, the permission request is cancelled and you
                 // receive empty arrays.
@@ -336,7 +340,7 @@ public class MapContainerFragment extends Fragment implements
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (mRequestingLocationUpdates) {
                     Log.i(TAG, "Permission granted, updates requested, starting location updates");
-                    startPositioningService();
+                    checkLocationSettings();
                 }
             } else {
                 // Permission denied.
@@ -353,7 +357,9 @@ public class MapContainerFragment extends Fragment implements
     }
 
     /**
-     * Start positioning service given that permission has been granted!
+     * Start positioning service ONLY AFTER :
+     * 1. location permission has been granted
+     * 2. location settings are okay.
      */
     private void startPositioningService() {
         mRequestingLocationUpdates = true;
@@ -368,7 +374,6 @@ public class MapContainerFragment extends Fragment implements
      * Register all receivers. Should be called in onResume().
      */
     public void registerReceivers() {
-        registerLocationSettingsReceiver();
         registerPositioningReceiver();
     }
 
@@ -379,18 +384,37 @@ public class MapContainerFragment extends Fragment implements
         mContext.registerReceiver(mPositioningReceiver, filter);
     }
 
-    public void registerLocationSettingsReceiver() {
-        IntentFilter filter = new IntentFilter(LocationSettingsResultReceiver.ACTION_SETTINGS_RESULT);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        mLocationSettingsResultReceiver = new LocationSettingsResultReceiver(this);
-        mContext.registerReceiver(mLocationSettingsResultReceiver, filter);
-    }
-
     /**
      * Unregister all receives. Should be called in onPause().
      */
     public void unregisterReceivers() {
         mContext.unregisterReceiver(mPositioningReceiver);
-        mContext.unregisterReceiver(mLocationSettingsResultReceiver);
+    }
+
+    /**
+     * Save current view of the map into shared preferences.
+     */
+    public void restoreCurrentMapView() {
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        double latitude = sharedPref.getLong(getString(R.string.saved_camera_lat), (long) -37.8141);
+        double longitude = sharedPref.getLong(getString(R.string.saved_camera_long), (long) 144.9633);
+        LatLng currLatLng = new LatLng(latitude, longitude);
+        //mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
+    }
+
+    /**
+     * Save current view of the map into shared preferences.
+     */
+    public void saveCurrentMapView() {
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putFloat(getString(R.string.saved_camera_lat), (float) mCurrentLocation.getLatitude());
+        editor.putFloat(getString(R.string.saved_camera_long), (float) mCurrentLocation.getLongitude());
+        editor.apply();
+    }
+
+    public interface OnMapContainerFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onMapContainerFragmentInteraction(Uri uri);
     }
 }

@@ -97,4 +97,7 @@
     <string name="adding_user_to_db">Adding user to database.</string>
     <string name="please_wait">Please wait...</string>
     <string name="title_activity_user_listing">UserListingActivity</string>
+
+    <string name="saved_camera_lat">SAVED_CAMERA_LAT</string>
+    <string name="saved_camera_long">SAVED_CAMERA_LONG</string>
 </resources>
