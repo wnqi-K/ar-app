@@ -2,10 +2,10 @@ package com.comp30022.arrrrr;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,7 +20,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -36,7 +37,10 @@ import java.util.Date;
 /**
  * Fragment containing map interface.
  */
-public class MapContainerFragment extends Fragment implements OnMapReadyCallback {
+public class MapContainerFragment extends Fragment implements
+        OnMapReadyCallback,
+        SelfPositionReceiver.SelfPositionUpdateListener,
+        LocationSettingsResultReceiver.LocationSettingsResultListener {
 
     private static final String TAG = MapContainerFragment.class.getSimpleName();
 
@@ -51,8 +55,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
 
     // Keys for storing activity state in the Bundle.
-    private final static String KEY_REQUESTING_LOCATION_UPDATES = "requesting-location-updates";
-    private final static String KEY_LOCATION = "location";
+    private final static String KEY_SELF_LOCATION = "self_location";
 
     /**
      * Default zoom level value of the map camera
@@ -87,14 +90,14 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     private Marker mSelfMarker;
 
     /**
-     * Intent to start positioning service.
-     */
-    private Intent mPositioningServiceIntent;
-
-    /**
      * Receiver for self positioning service.
      */
-    private PositioningReceiver mPositioningReceiver;
+    private SelfPositionReceiver mPositioningReceiver;
+
+    /**
+     * Receiver for location settings result.
+     */
+    private LocationSettingsResultReceiver mLocationSettingsResultReceiver;
 
     /**
      * Context that this fragment is running under.
@@ -105,6 +108,11 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
      * Listener for communication between this fragment and its parent context.
      */
     private OnMapContainerFragmentInteractionListener mListener;
+
+    /**
+     * Used for checking location permission.
+     */
+    private LocationPermissionChecker mPermissionChecker;
 
     public MapContainerFragment() {
         // Required empty public constructor
@@ -145,17 +153,25 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (mCurrentLocation != null) {
+            outState.putParcelable(KEY_SELF_LOCATION, mCurrentLocation);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         registerReceivers();
 
-        Toast.makeText(mContext, "Starting positioning service...", Toast.LENGTH_SHORT).show();
+        Boolean permissionGranted = mPermissionChecker.checkPermissions();
 
-        if (!mRequestingLocationUpdates && checkPermissions()) {
+        if (!mRequestingLocationUpdates && permissionGranted) {
             // Start positioning service
-            startPositioningSerice();
-        } else if (!checkPermissions()) {
-            requestPermissions();
+            startPositioningService();
+        } else if (!permissionGranted) {
+            mPermissionChecker.requestPermissions();
         }
     }
 
@@ -169,6 +185,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+
         mContext = (AppCompatActivity) context;
         if (mContext instanceof OnMapContainerFragmentInteractionListener) {
             mListener = (OnMapContainerFragmentInteractionListener) mContext;
@@ -176,6 +193,9 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             throw new RuntimeException(mContext.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+
+        // Sets up permission checker.
+        mPermissionChecker = new LocationPermissionChecker(mContext);
     }
 
     @Override
@@ -190,6 +210,44 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         Toast.makeText(mContext, "Map ready", Toast.LENGTH_SHORT).show();
         initializeMapUI();
         updateMapUI();
+    }
+
+    @Override
+    public void onSelfLocationUpdate(Location location) {
+        mCurrentLocation = location;
+        Toast.makeText(mContext, DateFormat.getTimeInstance().format(
+                new Date(mCurrentLocation.getTime())),
+                Toast.LENGTH_SHORT)
+                .show();
+        updateMapUI();
+    }
+
+    @Override
+    public void onLocationSettingsResult(Integer statusCode, Exception e) {
+        mRequestingLocationUpdates = true;
+        switch (statusCode) {
+            case LocationSettingsStatusCodes.SUCCESS:
+                Toast.makeText(mContext, "Location settings OK.", Toast.LENGTH_SHORT).show();
+                break;
+            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                Log.i(TAG, "Location settings are not satisfied. Attempting to upgrade " +
+                        "location settings ");
+                try {
+                    // Show the dialog by calling startResolutionForResult(), and check the
+                    // result in onActivityResult().
+                    ResolvableApiException rae = (ResolvableApiException) e;
+                    rae.startResolutionForResult(mContext, REQUEST_CHECK_SETTINGS);
+                } catch (IntentSender.SendIntentException sie) {
+                    Log.i(TAG, "PendingIntent unable to execute request.");
+                }
+                break;
+            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                // TODO: Notify user:
+                // Location settings are inadequate, and cannot be fixed here.
+                // Fix in Settings.
+                mRequestingLocationUpdates = false;
+                break;
+        }
     }
 
     public interface OnMapContainerFragmentInteractionListener {
@@ -210,25 +268,13 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
      */
     private void updateValuesFromBundle(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
-            // Update the value of mRequestingLocationUpdates from the Bundle, and make sure that
-            // the Start Updates and Stop Updates buttons are correctly enabled or disabled.
-            if (savedInstanceState.keySet().contains(KEY_REQUESTING_LOCATION_UPDATES)) {
-                mRequestingLocationUpdates = savedInstanceState.getBoolean(
-                        KEY_REQUESTING_LOCATION_UPDATES);
+            // Update the value of mCurrentLocation from the Bundle
+            if (savedInstanceState.keySet().contains(KEY_SELF_LOCATION)) {
+                mCurrentLocation = savedInstanceState.getParcelable(KEY_SELF_LOCATION);
+                Toast.makeText(mContext, "Location updated from savedInstanceState", Toast.LENGTH_SHORT).show();
             }
-
-            // Update the value of mCurrentLocation from the Bundle and update the UI to show the
-            // correct latitude and longitude.
-            if (savedInstanceState.keySet().contains(KEY_LOCATION)) {
-                // Since KEY_LOCATION was found in the Bundle, we can be sure that mCurrentLocation
-                // is not null.
-                mCurrentLocation = savedInstanceState.getParcelable(KEY_LOCATION);
-            }
-
-            //updateUI();
         }
     }
-
 
     /**
      * Handles when the activity has received a result from the intent.
@@ -276,43 +322,6 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     }
 
     /**
-     * Return the current state of the permissions needed.
-     */
-    private boolean checkPermissions() {
-        int permissionState = ActivityCompat.checkSelfPermission(mContext,
-                android.Manifest.permission.ACCESS_FINE_LOCATION);
-        return permissionState == PackageManager.PERMISSION_GRANTED;
-    }
-
-    /**
-     * Request permission from user.
-     */
-    private void requestPermissions() {
-        boolean shouldProvideRationale =
-                ActivityCompat.shouldShowRequestPermissionRationale(mContext,
-                        android.Manifest.permission.ACCESS_FINE_LOCATION);
-
-        // Provide an additional rationale to the user. This would happen if the user denied the
-        // request previously, but didn't check the "Don't ask again" checkbox.
-        if (shouldProvideRationale) {
-            Log.i(TAG, "Displaying permission rationale to provide additional context.");
-            Toast.makeText(mContext, R.string.permission_rationale_location, Toast.LENGTH_SHORT).show();
-            ActivityCompat.requestPermissions(mContext,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
-        } else {
-            Log.i(TAG, "Requesting permission");
-            // Request permission. It's possible this can be auto answered if device policy
-            // sets the permission in a given state or the user denied the permission
-            // previously and checked "Never ask again".
-            ActivityCompat.requestPermissions(mContext,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
-        }
-    }
-
-
-    /**
      * Callback received when a permissions request has been completed.
      * This callback is intentionally implemented in this fragment for cohesion
      */
@@ -327,7 +336,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (mRequestingLocationUpdates) {
                     Log.i(TAG, "Permission granted, updates requested, starting location updates");
-                    startPositioningSerice();
+                    startPositioningService();
                 }
             } else {
                 // Permission denied.
@@ -346,56 +355,35 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     /**
      * Start positioning service given that permission has been granted!
      */
-    private void startPositioningSerice() {
+    private void startPositioningService() {
         mRequestingLocationUpdates = true;
-        mPositioningServiceIntent = new Intent(mContext, PositioningService.class);
+
+        Intent mPositioningServiceIntent = new Intent(mContext, PositioningService.class);
         mPositioningServiceIntent.putExtra(PositioningService.PARAM_IN_PERM_GRANTED, true);
         mContext.startService(mPositioningServiceIntent);
-    }
-
-    /**
-     * Receiver for positioning service
-     */
-    public class PositioningReceiver extends BroadcastReceiver {
-        public static final String ACTION_SELF_POSITION =
-                "com.comp30022.arrrrr.intent.action.SELF_POSITION_RECEIVED";
-
-        private Context context;
-
-        public PositioningReceiver(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Boolean settingsOK = intent.getBooleanExtra(PositioningService.PARAM_OUT_SETTINGS_OK, false);
-            if(!settingsOK) {
-                Toast.makeText(context, "Error: location settigns not satisfied.", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(context, "Received broadcast from PositioningService.", Toast.LENGTH_SHORT).show();
-
-                Location location = intent.getParcelableExtra(PositioningService.PARAM_OUT_LOCATION);
-                if(location != null) {
-                    mCurrentLocation = location;
-                    Toast.makeText(context, DateFormat.getTimeInstance().format(
-                            new Date(mCurrentLocation.getTime())),
-                            Toast.LENGTH_SHORT)
-                            .show();
-                    updateMapUI();
-                }
-            }
-
-        }
+        Toast.makeText(mContext, "Starting positioning service...", Toast.LENGTH_SHORT).show();
     }
 
     /**
      * Register all receivers. Should be called in onResume().
      */
     public void registerReceivers() {
-        IntentFilter positioningIntentFilter = new IntentFilter(PositioningReceiver.ACTION_SELF_POSITION);
-        positioningIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mPositioningReceiver = new PositioningReceiver(mContext);
-        mContext.registerReceiver(mPositioningReceiver, positioningIntentFilter);
+        registerLocationSettingsReceiver();
+        registerPositioningReceiver();
+    }
+
+    public void registerPositioningReceiver() {
+        IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        mPositioningReceiver = new SelfPositionReceiver(this);
+        mContext.registerReceiver(mPositioningReceiver, filter);
+    }
+
+    public void registerLocationSettingsReceiver() {
+        IntentFilter filter = new IntentFilter(LocationSettingsResultReceiver.ACTION_SETTINGS_RESULT);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        mLocationSettingsResultReceiver = new LocationSettingsResultReceiver(this);
+        mContext.registerReceiver(mLocationSettingsResultReceiver, filter);
     }
 
     /**
@@ -403,5 +391,6 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
      */
     public void unregisterReceivers() {
         mContext.unregisterReceiver(mPositioningReceiver);
+        mContext.unregisterReceiver(mLocationSettingsResultReceiver);
     }
 }
