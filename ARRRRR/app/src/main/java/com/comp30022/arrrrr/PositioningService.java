@@ -18,7 +18,6 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -34,8 +33,14 @@ public class PositioningService extends IntentService {
     private static final String TAG = PositioningService.class.getSimpleName();
     // Keys for intent extras
     public static final String PARAM_OUT_LOCATION = "OUT_LOCATION";
-    public static final String PARAM_OUT_SETTINGS_OK = "OUT_SETTINGS_OK";
+    public static final String PARAM_OUT_SETTTINGS_STATUS_CODE = "OUT_SETTINGS_STATUS_CODE";
+    public static final String PARAM_OUT_SETTINGS_EXCEPTION = "OUT_SETTINGS_EXCEPTION";
     public static final String PARAM_IN_PERM_GRANTED = "IN_PERMISSION_GRANTED";
+
+    /*
+     * Constant used in the location settings dialog.
+     */
+    private static final int REQUEST_CHECK_SETTINGS = 0x1;
 
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
@@ -139,8 +144,7 @@ public class PositioningService extends IntentService {
      */
     private void broadcastLocation() {
         Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(MapContainerFragment.PositioningReceiver.ACTION_SELF_POSITION);
-        broadcastIntent.putExtra(PARAM_OUT_SETTINGS_OK, mRequestingLocationUpdates);
+        broadcastIntent.setAction(SelfPositionReceiver.ACTION_SELF_POSITION);
         broadcastIntent.putExtra(PARAM_OUT_LOCATION, mCurrentLocation);
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(broadcastIntent);
@@ -184,39 +188,38 @@ public class PositioningService extends IntentService {
                 .addOnSuccessListener(new OnSuccessListener<LocationSettingsResponse>() {
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        // TODO: Broadcast to activity to check for permission
+                        Log.i(TAG, "All location settings are satisfied.");
+
                         //noinspection MissingPermission
                         mFusedLocationClient.requestLocationUpdates(mLocationRequest,
                                 mLocationCallback, Looper.myLooper());
 
+                        broadcastSettingsResult(LocationSettingsStatusCodes.SUCCESS, null);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         int statusCode = ((ApiException) e).getStatusCode();
-                        switch (statusCode) {
-                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                                // "Location settings are not satisfied. Attempting to upgrade location settings"
-                                break;
-                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                                // "Location settings are inadequate, and cannot be fixed here.
-                                // Fix in Settings."
-                                mRequestingLocationUpdates = false;
+                        if (statusCode == LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE) {
+                            // Location settings are inadequate, and cannot be fixed here.
+                            // Fix in Settings.
+                            mRequestingLocationUpdates = false;
                         }
+                        // Let context activity to process other status code values.
+                        broadcastSettingsResult(statusCode, e);
                     }
                 });
-
-        broadcastServiceStatus();
     }
 
     /**
-     * Broadcast service status to receivers.
+     * Broadcast check result of settings to listening receivers.
      */
-    private void broadcastServiceStatus() {
+    private void broadcastSettingsResult(Integer statusCode, Exception e) {
         Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(MapContainerFragment.PositioningReceiver.ACTION_SELF_POSITION);
-        broadcastIntent.putExtra(PARAM_OUT_SETTINGS_OK, mRequestingLocationUpdates);
+        broadcastIntent.setAction(LocationSettingsResultReceiver.ACTION_SETTINGS_RESULT);
+        broadcastIntent.putExtra(PARAM_OUT_SETTTINGS_STATUS_CODE, statusCode);
+        broadcastIntent.putExtra(PARAM_OUT_SETTINGS_EXCEPTION, e);
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(broadcastIntent);
     }
