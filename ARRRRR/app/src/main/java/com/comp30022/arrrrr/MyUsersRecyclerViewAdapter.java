@@ -7,16 +7,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.comp30022.arrrrr.UsersFragment.OnListFragmentInteractionListener;
-import com.comp30022.arrrrr.dummy.DummyContent.DummyItem;
 import com.comp30022.arrrrr.models.User;
 
 import java.util.List;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
- */
+
 public class MyUsersRecyclerViewAdapter extends RecyclerView.Adapter<MyUsersRecyclerViewAdapter.ViewHolder> {
 
     private final List<User> users_list;

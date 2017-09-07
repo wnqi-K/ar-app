@@ -38,10 +38,7 @@ public class UsersFragment extends Fragment{
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
 
-    private ListView friends;
     private List<User> users = new ArrayList<User>();
-    private RecyclerView mRecyclerView;
-    private GetFriends mGetFriends;
 
 
     /**
