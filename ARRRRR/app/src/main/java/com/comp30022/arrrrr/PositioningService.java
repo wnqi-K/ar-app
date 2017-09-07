@@ -246,6 +246,4 @@ public class PositioningService extends IntentService {
                     }
                 });
     }
-
 }
-

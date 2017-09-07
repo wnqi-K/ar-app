@@ -58,5 +58,4 @@ public class LocationPermissionChecker {
                     REQUEST_PERMISSIONS_REQUEST_CODE);
         }
     }
-
 }
