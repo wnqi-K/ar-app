@@ -9,19 +9,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class SettingFragment extends Fragment {
 
     private OnSettingFragmentInteractionListener mListener;
 
-
     private FirebaseAuth mAuth;
+    FirebaseUser currentUser;
 
     public SettingFragment() {
         // Required empty public constructor
-        mAuth = FirebaseAuth.getInstance();
     }
 
     /**
@@ -38,12 +39,25 @@ public class SettingFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_setting, container, false);
+
+        TextView mStatusView = (TextView) view.findViewById(R.id.login_status_view);
+        TextView mDetailView = (TextView) view.findViewById(R.id.detail_view);
+
+
+        mStatusView.setText(getString(R.string.emailpassword_status_fmt,
+                currentUser.getEmail(), currentUser.isEmailVerified()));
+        mDetailView.setText(getString(R.string.firebase_status_fmt, currentUser.getUid()));
+
+
+
         Button logoutButton = (Button)view.findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,4 +113,8 @@ public class SettingFragment extends Fragment {
         // TODO: Update argument type and name
         void onSettingFragmentInteraction(Uri uri);
     }
+
+    /*public String getUid() {
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }*/
 }
