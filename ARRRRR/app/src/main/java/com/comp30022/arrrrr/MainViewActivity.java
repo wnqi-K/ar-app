@@ -34,7 +34,7 @@ public class MainViewActivity extends AppCompatActivity implements
                     return true;
 
                 case R.id.navigation_home:
-                    //switchToFragmentHome();
+                    switchToFragmentHome();
                     return true;
 
                 case R.id.navigation_settings:
@@ -78,7 +78,7 @@ public class MainViewActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main_view);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setSelectedItemId(R.id.navigation_home);
-        //switchToFragmentHome();
+        switchToFragmentHome();
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
