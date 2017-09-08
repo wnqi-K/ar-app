@@ -23,11 +23,10 @@ import android.widget.Toast;
 
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.utils.LocationPermissionHelper;
-import com.comp30022.arrrrr.utils.LocationRequestManager;
 import com.comp30022.arrrrr.utils.LocationSettingsHelper;
+import com.comp30022.arrrrr.utils.MapUIManager;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -62,11 +61,6 @@ public class MapContainerFragment extends Fragment implements
     private final static String KEY_SELF_LOCATION = "self_location";
 
     /**
-     * Default zoom level value of the map camera
-     */
-    private final static float DEFAULT_CAMERA_ZOOM_LEVEL = 15;
-
-    /**
      * Tracks the status of the location updates request. Value changes when the user presses the
      * Start Updates and Stop Updates buttons.
      */
@@ -81,11 +75,6 @@ public class MapContainerFragment extends Fragment implements
      * The main map using Google Map.
      */
     private GoogleMap mGoogleMap;
-
-    /**
-     * Marker on the map of the user's device.
-     */
-    private Marker mSelfMarker;
 
     /**
      * Receiver for self positioning service.
@@ -106,6 +95,11 @@ public class MapContainerFragment extends Fragment implements
      * Used for checking location permission.
      */
     private LocationPermissionHelper mPermissionChecker;
+
+    /**
+     * UI manager for the google maps
+     */
+    private MapUIManager mMapUIManager;
 
     public MapContainerFragment() {
         // Required empty public constructor
@@ -175,7 +169,7 @@ public class MapContainerFragment extends Fragment implements
         super.onPause();
 
         unregisterReceivers();
-        saveCurrentMapView();
+        mMapUIManager.saveCurrentMapView(mCurrentLocation);
     }
 
     @Override
@@ -204,9 +198,9 @@ public class MapContainerFragment extends Fragment implements
     public void onMapReady(GoogleMap googleMap) {
         this.mGoogleMap = googleMap;
         Toast.makeText(mContext, "Map ready", Toast.LENGTH_SHORT).show();
-        initializeMapUI();
-        updateLocations();
-        restoreCurrentMapView();
+
+        mMapUIManager = new MapUIManager(this, mContext, mGoogleMap);
+        mMapUIManager.initializeMapUI();
     }
 
     @Override
@@ -249,15 +243,6 @@ public class MapContainerFragment extends Fragment implements
                 break;
         }
 
-    }
-
-    /**
-     * Initialize map interface.
-     */
-    private void initializeMapUI() {
-        mGoogleMap.setMinZoomPreference(5);
-        mGoogleMap.setMaxZoomPreference(20);
-        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
     }
 
     /**
@@ -308,20 +293,7 @@ public class MapContainerFragment extends Fragment implements
      */
     private void updateLocations() {
         if (mCurrentLocation != null) {
-            // Add a marker in Sydney, Australia,
-            // and move the map's camera to the same location.
-            Double latitude = mCurrentLocation.getLatitude();
-            Double longitude = mCurrentLocation.getLongitude();
-            LatLng currLatLng = new LatLng(latitude, longitude);
-
-            if(mSelfMarker == null) {
-                mSelfMarker = mGoogleMap.addMarker(new MarkerOptions()
-                        .title("My position")
-                        .position(currLatLng));
-            } else {
-                mSelfMarker.setPosition(currLatLng);
-            }
-            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
+            mMapUIManager.onSelfLocationUpdate(mCurrentLocation);
         }
     }
 
@@ -391,31 +363,6 @@ public class MapContainerFragment extends Fragment implements
         mContext.unregisterReceiver(mPositioningReceiver);
     }
 
-    /**
-     * Save current view of the map into shared preferences.
-     */
-    public void restoreCurrentMapView() {
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        double latitude = sharedPref.getFloat(getString(R.string.saved_camera_lat), (float) -37.8141);
-        double longitude = sharedPref.getFloat(getString(R.string.saved_camera_long), (float) 144.9633);
-        LatLng currLatLng = new LatLng(latitude, longitude);
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
-        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
-
-    }
-
-    /**
-     * Save current view of the map into shared preferences.
-     */
-    public void saveCurrentMapView() {
-        if(mCurrentLocation != null) {
-            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putFloat(getString(R.string.saved_camera_lat), (float) mCurrentLocation.getLatitude());
-            editor.putFloat(getString(R.string.saved_camera_long), (float) mCurrentLocation.getLongitude());
-            editor.apply();
-        }
-    }
 
     public interface OnMapContainerFragmentInteractionListener {
         // TODO: Update argument type and name
