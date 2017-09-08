@@ -69,7 +69,7 @@ public class MainViewActivity extends AppCompatActivity implements
     private void switchToFragmentSetting() {
         FragmentManager manager = getFragmentManager();
         manager.beginTransaction().replace(R.id.fragment_container,
-                SettingFragment.newInstance("Eddie", "Frank")).commit();
+                SettingFragment.newInstance()).commit();
     }
 
     @Override

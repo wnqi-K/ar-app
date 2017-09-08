@@ -43,7 +43,7 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         findViewById(R.id.email_sign_in_button).setOnClickListener(this);
         findViewById(R.id.email_create_account_button).setOnClickListener(this);
         findViewById(R.id.sign_out_button).setOnClickListener(this);
-        findViewById(R.id.verify_email_button).setOnClickListener(this);
+        //findViewById(R.id.verify_email_button).setOnClickListener(this);
 
         mAuth = FirebaseAuth.getInstance();
     }
@@ -134,7 +134,7 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         updateUI(null);
     }
 
-    private void sendEmailVerification() {
+/*    private void sendEmailVerification() {
         // Disable button
         findViewById(R.id.verify_email_button).setEnabled(false);
 
@@ -163,7 +163,7 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
                     }
                 });
         // [END send_email_verification]
-    }
+    }*/
 
     private boolean validateForm() {
         boolean valid = true;
@@ -194,14 +194,9 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
             startActivity(intent);
 /*          mStatusTextView.setText(getString(R.string.emailpassword_status_fmt,
                     user.getEmail(), user.isEmailVerified()));
-            mDetailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));
+            mDetailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));*/
 
-            findViewById(R.id.sign_in_layout).setVisibility(View.GONE);
-            findViewById(R.id.create_account_layout).setVisibility(View.GONE);
-            findViewById(R.id.email_password_fields).setVisibility(View.GONE);
-            findViewById(R.id.signed_in_buttons).setVisibility(View.VISIBLE);*/
-
-            findViewById(R.id.verify_email_button).setEnabled(!user.isEmailVerified());
+            //findViewById(R.id.verify_email_button).setEnabled(!user.isEmailVerified());
         } else {
             mStatusTextView.setText(R.string.signed_out);
             mDetailTextView.setText(null);
@@ -209,7 +204,7 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
             findViewById(R.id.sign_in_layout).setVisibility(View.VISIBLE);
             findViewById(R.id.create_account_layout).setVisibility(View.VISIBLE);
             findViewById(R.id.email_password_fields).setVisibility(View.VISIBLE);
-            findViewById(R.id.signed_in_buttons).setVisibility(View.GONE);
+            //findViewById(R.id.signed_in_buttons).setVisibility(View.GONE);
         }
     }
 
@@ -225,9 +220,11 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
             signIn(mEmailField.getText().toString(), mPasswordField.getText().toString());
         } else if (i == R.id.sign_out_button) {
             signOut();
-        } else if (i == R.id.verify_email_button) {
-            sendEmailVerification();
         }
+
+        /*else if (i == R.id.verify_email_button) {
+            sendEmailVerification();
+        }*/
     }
 
     public void showProgressDialog() {
