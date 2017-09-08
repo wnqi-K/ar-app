@@ -1,9 +1,11 @@
-package com.comp30022.arrrrr;
+package com.comp30022.arrrrr.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+
+import com.comp30022.arrrrr.PositioningService;
 
 /**
  * A {@link BroadcastReceiver} that specifically designed for receiving device location from
@@ -16,10 +18,10 @@ public class SelfPositionReceiver extends BroadcastReceiver {
     /**
      * The context that is using broadcast receiver
      */
-    SelfPositionUpdateListener mContext;
+    SelfPositionUpdateListener mListener;
 
-    public SelfPositionReceiver(SelfPositionUpdateListener mContext) {
-        this.mContext = mContext;
+    public SelfPositionReceiver(SelfPositionUpdateListener listener) {
+        this.mListener = listener;
     }
 
     @Override
@@ -29,7 +31,7 @@ public class SelfPositionReceiver extends BroadcastReceiver {
             throw new UnknownError("Location not sent/received properly.");
         }
         // Notify listener.
-        mContext.onSelfLocationUpdate(location);
+        mListener.onSelfLocationUpdate(location);
     }
 
     /**
