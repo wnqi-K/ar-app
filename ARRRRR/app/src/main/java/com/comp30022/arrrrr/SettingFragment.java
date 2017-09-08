@@ -52,9 +52,8 @@ public class SettingFragment extends Fragment {
         TextView mDetailView = (TextView) view.findViewById(R.id.detail_view);
 
 
-        mStatusView.setText(getString(R.string.emailpassword_status_fmt,
-                currentUser.getEmail(), currentUser.isEmailVerified()));
-        mDetailView.setText(getString(R.string.firebase_status_fmt, currentUser.getUid()));
+        mStatusView.setText("Email User: " + currentUser.getEmail());
+        mDetailView.setText("Firebase Uid: " + currentUser.getUid());
 
 
 
@@ -113,8 +112,4 @@ public class SettingFragment extends Fragment {
         // TODO: Update argument type and name
         void onSettingFragmentInteraction(Uri uri);
     }
-
-    /*public String getUid() {
-        return FirebaseAuth.getInstance().getCurrentUser().getUid();
-    }*/
 }

@@ -59,8 +59,6 @@
     <string name="facebook_status_fmt">Facebook User: %s</string>
     <string name="facebook_title_text">Facebook Login</string>
 
-    <string name="emailpassword_status_fmt">Email User: %1$s (verified: %2$b)</string>
-
     <string name="phone_title_text">Phone Number</string>
 
     <string name="twitter_status_fmt">Twitter User: %s</string>

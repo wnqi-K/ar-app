@@ -192,9 +192,6 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         if (user != null) {
             Intent intent = new Intent(this, MainViewActivity.class);
             startActivity(intent);
-/*          mStatusTextView.setText(getString(R.string.emailpassword_status_fmt,
-                    user.getEmail(), user.isEmailVerified()));
-            mDetailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));*/
 
             //findViewById(R.id.verify_email_button).setEnabled(!user.isEmailVerified());
         } else {
