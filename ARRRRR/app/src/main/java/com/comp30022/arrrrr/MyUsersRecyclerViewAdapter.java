@@ -1,10 +1,12 @@
 package com.comp30022.arrrrr;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.comp30022.arrrrr.UsersFragment.OnListFragmentInteractionListener;
 import com.comp30022.arrrrr.models.User;
@@ -15,11 +17,11 @@ import java.util.List;
 public class MyUsersRecyclerViewAdapter extends RecyclerView.Adapter<MyUsersRecyclerViewAdapter.ViewHolder> {
 
     private final List<User> users_list;
-    private final OnListFragmentInteractionListener mListener;
+    private final Context mContext;
 
-    public MyUsersRecyclerViewAdapter(List<User> users, OnListFragmentInteractionListener listener) {
+    public MyUsersRecyclerViewAdapter(List<User> users, Context context) {
         users_list = users;
-        mListener = listener;
+        mContext = context;
     }
 
     @Override
@@ -32,17 +34,21 @@ public class MyUsersRecyclerViewAdapter extends RecyclerView.Adapter<MyUsersRecy
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mUser = users_list.get(position);
-        holder.mIdView.setText("1");
+        // set icon
+        holder.mIdView.setText(Integer.toString(position+1));
+        // set email
         holder.mContentView.setText(users_list.get(position).email);
+        holder.mContentView.setOnClickListener(new View.OnClickListener(){
 
-        holder.mView.setOnClickListener(new View.OnClickListener() {
+            // click event
             @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mUser);
-                }
+            public void onClick(View v){
+//                ChatActivity.startActivity(mContext,
+//                        holder.mUser.email,
+//                        holder.mUser.uid,
+//                        holder.mUser.firebaseToken);
+                Toast.makeText(mContext, "hello", Toast.LENGTH_SHORT).show();
+
             }
         });
     }

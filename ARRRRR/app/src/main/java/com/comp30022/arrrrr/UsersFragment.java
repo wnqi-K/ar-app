@@ -1,8 +1,10 @@
 package com.comp30022.arrrrr;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.annotation.RequiresApi;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -74,6 +76,7 @@ public class UsersFragment extends Fragment{
         final View view = inflater.inflate(R.layout.fragment_users_list, container, false);
 
         FirebaseDatabase.getInstance().getReference().child(Constants.ARG_USERS).addListenerForSingleValueEvent(new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // get all the children of users from database
@@ -101,7 +104,7 @@ public class UsersFragment extends Fragment{
                     } else {
                         recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
                     }
-                    recyclerView.setAdapter(new MyUsersRecyclerViewAdapter(users, mListener));
+                    recyclerView.setAdapter(new MyUsersRecyclerViewAdapter(users, getContext()));
                 }
             }
 
