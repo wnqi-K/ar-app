@@ -396,21 +396,25 @@ public class MapContainerFragment extends Fragment implements
      */
     public void restoreCurrentMapView() {
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        double latitude = sharedPref.getLong(getString(R.string.saved_camera_lat), (long) -37.8141);
-        double longitude = sharedPref.getLong(getString(R.string.saved_camera_long), (long) 144.9633);
+        double latitude = sharedPref.getFloat(getString(R.string.saved_camera_lat), (float) -37.8141);
+        double longitude = sharedPref.getFloat(getString(R.string.saved_camera_long), (float) 144.9633);
         LatLng currLatLng = new LatLng(latitude, longitude);
-        //mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
+        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
+
     }
 
     /**
      * Save current view of the map into shared preferences.
      */
     public void saveCurrentMapView() {
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putFloat(getString(R.string.saved_camera_lat), (float) mCurrentLocation.getLatitude());
-        editor.putFloat(getString(R.string.saved_camera_long), (float) mCurrentLocation.getLongitude());
-        editor.apply();
+        if(mCurrentLocation != null) {
+            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putFloat(getString(R.string.saved_camera_lat), (float) mCurrentLocation.getLatitude());
+            editor.putFloat(getString(R.string.saved_camera_long), (float) mCurrentLocation.getLongitude());
+            editor.apply();
+        }
     }
 
     public interface OnMapContainerFragmentInteractionListener {
