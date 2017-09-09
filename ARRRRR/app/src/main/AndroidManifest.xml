@@ -27,19 +27,14 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity
-            android:name=".MapsActivity"
-            android:label="@string/title_activity_maps" />
+
         <activity android:name=".EmailLoginActivity"></activity>
         <activity android:name=".GoogleLoginActivity"></activity>
         <activity android:name=".RegisterActivity"></activity>
         <activity
             android:name=".MainViewActivity"
             android:label="@string/title_activity_main_view"></activity>
-        <activity
-            android:name=".UserListingActivity"
-            android:label="@string/title_activity_user_listing"
-            android:theme="@style/AppTheme"></activity>
+        <activity android:name=".ChatActivity"></activity>
         <service
             android:name=".PositioningService"
             android:exported="false"/>

@@ -1,4 +1,4 @@
-package com.comp30022.arrrrr;
+package com.comp30022.arrrrr.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -8,8 +8,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.comp30022.arrrrr.UsersFragment.OnListFragmentInteractionListener;
+import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.ChatActivity;
 
 import java.util.List;
 
@@ -43,11 +44,11 @@ public class MyUsersRecyclerViewAdapter extends RecyclerView.Adapter<MyUsersRecy
             // click event
             @Override
             public void onClick(View v){
-//                ChatActivity.startActivity(mContext,
-//                        holder.mUser.email,
-//                        holder.mUser.uid,
-//                        holder.mUser.firebaseToken);
-                Toast.makeText(mContext, "hello", Toast.LENGTH_SHORT).show();
+                ChatActivity.startActivity(mContext,
+                        holder.mUser.email,
+                        holder.mUser.uid,
+                        holder.mUser.firebaseToken);
+//                Toast.makeText(mContext, "hello", Toast.LENGTH_SHORT).show();
 
             }
         });

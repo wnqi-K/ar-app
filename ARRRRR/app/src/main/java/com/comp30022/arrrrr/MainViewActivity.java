@@ -17,7 +17,7 @@ import com.comp30022.arrrrr.models.User;
 public class MainViewActivity extends AppCompatActivity implements
         MapContainerFragment.OnMapContainerFragmentInteractionListener,
         SettingFragment.OnSettingFragmentInteractionListener,
-        UsersFragment.OnListFragmentInteractionListener {
+        UsersFragment.OnListFragmentInteractionListener{
 
     /**
      * Sets OnNavigationItemSelectedListener for the bottom navigation.
