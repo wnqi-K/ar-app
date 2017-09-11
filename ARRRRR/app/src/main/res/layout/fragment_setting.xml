@@ -10,6 +10,18 @@
         android:layout_weight="1"
         android:orientation="vertical">
 
+        <Button
+            android:id="@+id/profileButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:background="@drawable/textlines"
+            android:elevation="0dp"
+            android:gravity="left|center_vertical"
+            android:text="Personal Profile"
+            android:textColor="@android:color/holo_blue_light"/>
+
+
         <TextView
             android:id="@+id/login_status_view"
             android:layout_width="match_parent"
