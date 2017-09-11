@@ -40,6 +40,8 @@
             android:name=".UserListingActivity"
             android:label="@string/title_activity_user_listing"
             android:theme="@style/AppTheme"></activity>
+        <activity android:name=".UserProfile"></activity>
+        <activity android:name=".EditProfileActivity"></activity>
         <service
             android:name=".PositioningService"
             android:exported="false"/>
