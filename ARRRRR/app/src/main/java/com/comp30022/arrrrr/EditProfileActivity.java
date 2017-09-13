@@ -108,10 +108,13 @@ public class EditProfileActivity extends AppCompatActivity{
 
                 if(!mGender.equals("")){
                     myRef.child("users").child(userID).child("gender").setValue(mGender);
+                    toastMessage("New Information has been saved.");
+
                 }
 
                 if(!mAddress.equals("")){
                     myRef.child("users").child(userID).child("address").setValue(mAddress);
+                    toastMessage("New Information has been saved.");
                 }
             }
         });
