@@ -20,6 +20,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.VisibleRegion;
 
 /**
  * Manages GooglesMaps UI.
@@ -41,6 +42,7 @@ public class MapUIManager {
     private Circle mSelfCircle;
     private Context mContext;
     private Fragment mFragment;
+    private OnSelfMarkerMoveListener onSelfMarkerMoveListener;
 
     public MapUIManager(Fragment fragment, Context context, GoogleMap googleMap) {
         mContext = context;
@@ -57,6 +59,14 @@ public class MapUIManager {
         mGoogleMap.setMaxZoomPreference(20);
         mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
         restoreCurrentMapView();
+    }
+
+    /**
+     * Get marker location for location query
+     * @return current marker position
+     */
+    private LatLng getSelfMarkerPosition() {
+        return mSelfMarker.getPosition();
     }
 
     /**
@@ -88,8 +98,25 @@ public class MapUIManager {
         }
 
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
+
+        // Notify listener for marker movement
+        onSelfMarkerMoveListener.onSelfMarkerMove(getSelfMarkerPosition());
     }
 
+    /**
+     * Set listener for marker move event.
+     * @param listener
+     */
+    public void setOnSelfMarkerMoveListener(OnSelfMarkerMoveListener listener) {
+        this.onSelfMarkerMoveListener = listener;
+    }
+
+    public interface OnSelfMarkerMoveListener {
+        /**
+         * Called when the self marker position has changed.
+         */
+        void onSelfMarkerMove(LatLng position);
+    }
 
     /**
      * Save current view of the map into shared preferences.
@@ -136,4 +163,40 @@ public class MapUIManager {
         Double longitude = location.getLongitude();
         return new LatLng(latitude, longitude);
     }
+
+//    /**
+//     * Credit to https://stackoverflow.com/questions/29222864/get-radius-of-visible-map-in-android
+//     * @param visibleRegion
+//     * @return Approximate visible radius of the visible region
+//     */
+//    private double calculateVisibleRadius(VisibleRegion visibleRegion) {
+//        float[] distanceWidth = new float[1];
+//        float[] distanceHeight = new float[1];
+//
+//        LatLng farRight = visibleRegion.farRight;
+//        LatLng farLeft = visibleRegion.farLeft;
+//        LatLng nearRight = visibleRegion.nearRight;
+//        LatLng nearLeft = visibleRegion.nearLeft;
+//
+//        //calculate the distance width (left <-> right of map on screen)
+//        Location.distanceBetween(
+//                (farLeft.latitude + nearLeft.latitude) / 2,
+//                farLeft.longitude,
+//                (farRight.latitude + nearRight.latitude) / 2,
+//                farRight.longitude,
+//                distanceWidth
+//        );
+//
+//        //calculate the distance height (top <-> bottom of map on screen)
+//        Location.distanceBetween(
+//                farRight.latitude,
+//                (farRight.longitude + farLeft.longitude) / 2,
+//                nearRight.latitude,
+//                (nearRight.longitude + nearLeft.longitude) / 2,
+//                distanceHeight
+//        );
+//
+//        //visible radius is (smaller distance) / 2:
+//        return (distanceWidth[0] < distanceHeight[0]) ? distanceWidth[0] / 2 : distanceHeight[0] / 2;
+//    }
 }

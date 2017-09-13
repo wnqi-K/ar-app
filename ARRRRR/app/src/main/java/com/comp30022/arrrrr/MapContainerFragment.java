@@ -97,6 +97,8 @@ public class MapContainerFragment extends Fragment implements
      */
     private MapUIManager mMapUIManager;
 
+    private UserLocationController mUserLocationController;
+
     public MapContainerFragment() {
         // Required empty public constructor
     }
@@ -113,6 +115,7 @@ public class MapContainerFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         mCurrentLocation = null;
         mRequestingLocationUpdates = false;
+        mUserLocationController = new UserLocationController();
 
         //Update values using data stored in the Bundle.
         updateValuesFromBundle(savedInstanceState);
@@ -196,6 +199,7 @@ public class MapContainerFragment extends Fragment implements
 
         mMapUIManager = new MapUIManager(this, getActivity(), mGoogleMap);
         mMapUIManager.initializeMapUI();
+        mMapUIManager.setOnSelfMarkerMoveListener(mUserLocationController);
     }
 
     @Override
