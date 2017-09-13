@@ -85,7 +85,7 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     }
 
     private void init() {
-        mProgressDialog = new ProgressDialog(getActivity());
+        mProgressDialog = new ProgressDialog(getContext());
         mProgressDialog.setTitle(getString(R.string.loading));
         mProgressDialog.setMessage(getString(R.string.please_wait));
         mProgressDialog.setIndeterminate(true);
@@ -119,7 +119,7 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
                 receiverUid,
                 message,
                 System.currentTimeMillis());
-        mChatPresenter.sendMessage(getActivity().getApplicationContext(),
+        mChatPresenter.sendMessage(getContext().getApplicationContext(),
                 chat,
                 receiverFirebaseToken);
     }
@@ -127,12 +127,12 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     @Override
     public void onSendMessageSuccess() {
         mETxtMessage.setText("");
-        Toast.makeText(getActivity(), "Message sent", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Message sent", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onSendMessageFailure(String message) {
-        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -147,7 +147,7 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
 
     @Override
     public void onGetMessagesFailure(String message) {
-        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     @Subscribe

@@ -17,11 +17,11 @@ import java.util.List;
 
 public class MyUsersRecyclerViewAdapter extends RecyclerView.Adapter<MyUsersRecyclerViewAdapter.ViewHolder> {
 
-    private final List<User> users_list;
+    private final List<User> mlist;
     private final Context mContext;
 
     public MyUsersRecyclerViewAdapter(List<User> users, Context context) {
-        users_list = users;
+        mlist = users;
         mContext = context;
     }
 
@@ -34,11 +34,11 @@ public class MyUsersRecyclerViewAdapter extends RecyclerView.Adapter<MyUsersRecy
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mUser = users_list.get(position);
+        holder.mUser = mlist.get(position);
         // set icon
         holder.mIdView.setText(Integer.toString(position+1));
         // set email
-        holder.mContentView.setText(users_list.get(position).email);
+        holder.mContentView.setText(mlist.get(position).email);
         holder.mContentView.setOnClickListener(new View.OnClickListener(){
 
             // click event
@@ -56,7 +56,7 @@ public class MyUsersRecyclerViewAdapter extends RecyclerView.Adapter<MyUsersRecy
 
     @Override
     public int getItemCount() {
-        return users_list.size();
+        return mlist.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
