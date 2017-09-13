@@ -25,7 +25,7 @@ public class GeoLocationInfo {
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.put(, time);
+        result.put("time", time);
 
         return result;
     }
