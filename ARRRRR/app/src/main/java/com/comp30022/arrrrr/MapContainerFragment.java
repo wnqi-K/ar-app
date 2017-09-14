@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
@@ -22,9 +21,12 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
+import com.comp30022.arrrrr.services.LocationSharingService;
+import com.comp30022.arrrrr.services.PositioningService;
 import com.comp30022.arrrrr.utils.LocationPermissionHelper;
 import com.comp30022.arrrrr.utils.LocationSettingsHelper;
 import com.comp30022.arrrrr.utils.MapUIManager;
+import com.comp30022.arrrrr.utils.ServiceManager;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationSettingsResponse;
@@ -43,7 +45,7 @@ import java.util.Date;
  */
 public class MapContainerFragment extends Fragment implements
         OnMapReadyCallback,
-        SelfPositionReceiver.SelfPositionUpdateListener,
+        SelfPositionReceiver.SelfLocationListener,
         LocationSettingsHelper.OnLocationSettingsResultListener {
 
     private static final String TAG = MapContainerFragment.class.getSimpleName();
@@ -97,8 +99,6 @@ public class MapContainerFragment extends Fragment implements
      */
     private MapUIManager mMapUIManager;
 
-    private UserLocationController mUserLocationController;
-
     public MapContainerFragment() {
         // Required empty public constructor
     }
@@ -115,7 +115,6 @@ public class MapContainerFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         mCurrentLocation = null;
         mRequestingLocationUpdates = false;
-        mUserLocationController = new UserLocationController();
 
         //Update values using data stored in the Bundle.
         updateValuesFromBundle(savedInstanceState);
@@ -150,6 +149,8 @@ public class MapContainerFragment extends Fragment implements
     public void onResume() {
         super.onResume();
         registerReceivers();
+
+        ServiceManager.startLocationSharingService(getActivity());
 
         // Sets up permission checker.
         mPermissionChecker = new LocationPermissionHelper((AppCompatActivity)getActivity());
@@ -199,11 +200,10 @@ public class MapContainerFragment extends Fragment implements
 
         mMapUIManager = new MapUIManager(this, getActivity(), mGoogleMap);
         mMapUIManager.initializeMapUI();
-        mMapUIManager.setOnSelfMarkerMoveListener(mUserLocationController);
     }
 
     @Override
-    public void onSelfLocationUpdate(Location location) {
+    public void onSelfLocationChanged(Location location) {
         mCurrentLocation = location;
         Toast.makeText(getActivity(), DateFormat.getTimeInstance().format(
                 new Date(mCurrentLocation.getTime())),
@@ -334,11 +334,7 @@ public class MapContainerFragment extends Fragment implements
      */
     private void startPositioningService() {
         mRequestingLocationUpdates = true;
-
-        Intent mPositioningServiceIntent = new Intent(getActivity(), PositioningService.class);
-        mPositioningServiceIntent.putExtra(PositioningService.PARAM_IN_PERM_GRANTED, true);
-        getActivity().startService(mPositioningServiceIntent);
-        Toast.makeText(getActivity(), "Starting positioning service...", Toast.LENGTH_SHORT).show();
+        ServiceManager.startPositioningService(getActivity());
     }
 
     /**

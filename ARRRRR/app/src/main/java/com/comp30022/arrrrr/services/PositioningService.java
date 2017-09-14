@@ -1,6 +1,5 @@
-package com.comp30022.arrrrr;
+package com.comp30022.arrrrr.services;
 
-import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
 import android.location.Location;

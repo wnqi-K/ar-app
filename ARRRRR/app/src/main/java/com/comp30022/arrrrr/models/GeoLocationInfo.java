@@ -1,6 +1,5 @@
 package com.comp30022.arrrrr.models;
 
-import com.comp30022.arrrrr.UserLocationController;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
@@ -8,10 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Jay on 13/9/17.
+ * Model for extra info for geo location
  */
 @IgnoreExtraProperties
 public class GeoLocationInfo {
+    /**
+     * Time when the location was updated.
+     */
     public Long time;
 
     public GeoLocationInfo() {
