@@ -11,12 +11,14 @@ import android.util.Log;
 
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
-import com.comp30022.arrrrr.receivers.ServerLocationsReceiver;
+import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
+import com.comp30022.arrrrr.receivers.SingleUserLocationReceiver;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.firebase.geofire.core.GeoHash;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -30,13 +32,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Dafu Ai
  * A backend location sharing service:
  * - Runs in the background.
  * - Constantly listen for location updates from other users from the server
  * -    when there is a update, it will be broadcasted to the receivers.
  * - Constantly listen for self location change and,
  * -    when there is a change, it will send new self location to the server.
+ *
+ * @author Dafu Ai
  */
 
 public class LocationSharingService extends Service implements
@@ -66,6 +69,9 @@ public class LocationSharingService extends Service implements
     public static final String PARAM_OUT_LOCATIONS = "OUT_LOCATIONS";
     public static final String PARAM_OUT_LOCATION_INFOS = "OUT_LOCATION_INFOS";
 
+    public static final String PARAM_OUT_UID = "OUT_UID";
+    public static final String PARAM_OUT_LOCATION = "OUT_LOCATION";
+    public static final String PARAM_OUT_LOCATION_INFO = "OUT_LOCATION_INFO";
 
     /**
      * TODO: Consider change radius to dynamic
@@ -83,10 +89,19 @@ public class LocationSharingService extends Service implements
      */
     private GeoQuery mGeoQuery;
 
-    private HashMap<String, GeoLocation> mGeoLocations;
+    /**
+     * Contains all current geo locations of other users.
+     * We use LatLng instead since it is parcelable.
+     */
+    private HashMap<String, LatLng> mGeoLocations;
+
+    /**
+     * Contains all current detailed information about a geo location
+     */
     private HashMap<String, GeoLocationInfo> mGeoInfos;
     private HashMap<String, DatabaseReference> mUserLocationRefs;
     private HashMap<String, ValueEventListener> mUserLocationListeners;
+    private HashMap<String, GeoLocationInfo> mInfoBuffer;
 
     public LocationSharingService() {
     }
@@ -104,7 +119,8 @@ public class LocationSharingService extends Service implements
         }
 
         mUserLocationRefs = new HashMap<>();
-        mUserLocationListeners = new HashMap<>();
+        mInfoBuffer = new HashMap<>();
+
         registerReceivers();
     }
 
@@ -128,7 +144,7 @@ public class LocationSharingService extends Service implements
 
     @Override
     public void onKeyEntered(String key, GeoLocation location) {
-        mGeoLocations.put(key, location);
+        mGeoLocations.put(key, geoToLatLng(location));
         updateGeoLocationInfo(key);
     }
 
@@ -141,7 +157,7 @@ public class LocationSharingService extends Service implements
 
     @Override
     public void onKeyMoved(String key, GeoLocation location) {
-        mGeoLocations.put(key, location);
+        mGeoLocations.put(key, geoToLatLng(location));
         updateGeoLocationInfo(key);
     }
 
@@ -217,7 +233,7 @@ public class LocationSharingService extends Service implements
      */
     public void broadcastGeoLocationsUpdate(GeoQueryEventType eventType, @Nullable String key) {
         Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(ServerLocationsReceiver.ACTION_LOCATIONS_FROM_SERVER);
+        broadcastIntent.setAction(GeoQueryLocationsReceiver.ACTION_GEOQUERY_LOCATIONS);
 
         broadcastIntent.putExtra(PARAM_OUT_REFER_EVENT, eventType);
         broadcastIntent.putExtra(PARAM_OUT_REFER_KEY, key);
@@ -290,15 +306,39 @@ public class LocationSharingService extends Service implements
     }
 
     /**
+     * Intentionally made public to be used in the method registerLocationListenerForUser().
+     */
+    public ValueEventListener mSingleGeoLocationListener;
+
+    /**
      * Register location update listener for a given user.
      * @param uid user id
      */
     public void registerLocationListenerForUser(String uid) {
         DatabaseReference ref = mRootRef.child(getUserRefPath(RefType.GEO_INFO, uid));
-        ValueEventListener listener = new ValueEventListener() {
+        mSingleGeoLocationListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // TODO
+                String uid = dataSnapshot.getKey();
+                GeoLocation geoLocation = dataSnapshot.getValue(GeoLocation.class);
+                broadcastSingleUserLocation(uid, geoLocation);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.v(TAG, "Unable to retrieve detailed location info from a location update.");
+            }
+        };
+
+        ValueEventListener geoInfoListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String uid = dataSnapshot.getKey();
+                GeoLocationInfo info = dataSnapshot.getValue(GeoLocationInfo.class);
+                mInfoBuffer.put(uid, info);
+
+                mRootRef.child(getUserRefPath(RefType.GEO_LOCATION, uid))
+                        .addListenerForSingleValueEvent(mSingleGeoLocationListener);
             }
 
             @Override
@@ -306,23 +346,57 @@ public class LocationSharingService extends Service implements
                 Log.v(TAG, "Unable to retrieve location.");
             }
         };
-        ref.addValueEventListener(listener);
+
+        // Register geo info listener with the reference corresponding to the uid
+        ref.addValueEventListener(geoInfoListener);
+        // Save reference object
         mUserLocationRefs.put(uid, ref);
-        mUserLocationListeners.put(uid, listener);
     }
+
+    /**
+     * Broadcast a single user location update to the receivers.
+     * @param uid user id
+     * @param geoLocation updated geolocation
+     */
+    public void broadcastSingleUserLocation(String uid, GeoLocation geoLocation) {
+        GeoLocationInfo info = mInfoBuffer.get(uid);
+
+        if (info == null) {
+            Log.v(TAG, "You are trying to broadcast a location with no information. Aborted.");
+            return;
+        }
+
+        // Construct and send broadcast.
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(SingleUserLocationReceiver.ACTION_SINGE_USER_LOCATION);
+
+        broadcastIntent.putExtra(PARAM_OUT_UID, uid);
+        // Pass LatLng since it is parcelable.
+        broadcastIntent.putExtra(PARAM_OUT_LOCATION, geoToLatLng(geoLocation));
+        broadcastIntent.putExtra(PARAM_OUT_LOCATION_INFO, info);
+
+        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(broadcastIntent);
+    }
+
 
     /**
      * Unregister location update listener for a given user.
      * @param uid user id
      */
-    public void unragisterLocationListenerForUser(String uid) {
+    public void unregisterLocationListenerForUser(String uid) {
         DatabaseReference ref = mUserLocationRefs.get(uid);
         // Safety check
         if (ref == null) {
             Log.v(TAG, "Cannot find listener for userID=" + uid);
             return;
+
         }
+        // IMPORTANT: Remove event listener to stop receiving update
         ref.removeEventListener(mUserLocationListeners.get(uid));
+
+        // Not as important but necessary enough to remove
+        mUserLocationRefs.remove(uid);
         mUserLocationListeners.remove(uid);
     }
 
@@ -343,5 +417,13 @@ public class LocationSharingService extends Service implements
                 break;
         }
         return path;
+    }
+
+    /**
+     * Convert a GeoLocation object to a LatLng object (to make it parcelable)
+     * We can do this since geolocation contains essentially the same information with LatLng.
+     */
+    public static LatLng geoToLatLng(GeoLocation geoLocation) {
+        return new LatLng(geoLocation.latitude, geoLocation.longitude);
     }
 }

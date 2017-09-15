@@ -20,8 +20,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 /**
- * An intent service that (runs in the background)
- * and it is responsible for getting position updates (of user's device).
+ * A service that (runs in the background)
+ * and it is responsible for positioning current user's device and send new location
+ * by broadcasting intents.
  *
  * @author Dafu Ai
  */

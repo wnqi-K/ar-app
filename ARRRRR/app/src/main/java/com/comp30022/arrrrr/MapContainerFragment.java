@@ -21,7 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
-import com.comp30022.arrrrr.receivers.ServerLocationsReceiver;
+import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
 import com.comp30022.arrrrr.utils.LocationPermissionHelper;
 import com.comp30022.arrrrr.utils.LocationSettingsHelper;
 import com.comp30022.arrrrr.utils.MapUIManager;
@@ -81,7 +81,7 @@ public class MapContainerFragment extends Fragment implements
     /**
      * Receiver for location information from server
      */
-    private ServerLocationsReceiver mServerLocationsReceiver;
+    private GeoQueryLocationsReceiver mServerLocationsReceiver;
 
     /**
      * Context that this fragment is running under.
@@ -358,9 +358,9 @@ public class MapContainerFragment extends Fragment implements
     }
 
     public void registerServerLocationsReceiver() {
-        IntentFilter filter = new IntentFilter(ServerLocationsReceiver.ACTION_LOCATIONS_FROM_SERVER);
+        IntentFilter filter = new IntentFilter(GeoQueryLocationsReceiver.ACTION_GEOQUERY_LOCATIONS);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
-        mServerLocationsReceiver = new ServerLocationsReceiver();
+        mServerLocationsReceiver = new GeoQueryLocationsReceiver();
         getActivity().registerReceiver(mServerLocationsReceiver, filter);
     }
 
