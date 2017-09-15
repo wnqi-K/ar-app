@@ -5,26 +5,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.annotation.RequiresApi;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 
+import com.comp30022.arrrrr.adapters.MyUsersRecyclerViewAdapter;
 import com.comp30022.arrrrr.models.User;
-import com.comp30022.arrrrr.utils.Constants;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * A fragment representing a list of Items.
@@ -34,13 +22,7 @@ import java.util.List;
  */
 public class UsersFragment extends Fragment{
 
-    // TODO: Customize parameter argument names
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
-    private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
-
-    private List<User> users = new ArrayList<User>();
 
 
     /**
@@ -52,22 +34,14 @@ public class UsersFragment extends Fragment{
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static UsersFragment newInstance(int columnCount) {
+    public static UsersFragment newInstance() {
         UsersFragment fragment = new UsersFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
-
     }
 
     @Override
@@ -75,43 +49,13 @@ public class UsersFragment extends Fragment{
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_users_list, container, false);
 
-        FirebaseDatabase.getInstance().getReference().child(Constants.ARG_USERS).addListenerForSingleValueEvent(new ValueEventListener() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // get all the children of users from database
-                Iterator<DataSnapshot> dataSnapshots = dataSnapshot.getChildren().iterator();
 
-                // iterate each child
-                while (dataSnapshots.hasNext()) {
-                    DataSnapshot dataSnapshotChild = dataSnapshots.next();
-                    User user = dataSnapshotChild.getValue(User.class);
-                    if (!TextUtils.equals(user.uid, FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                        users.add(user);
-                    }
-                }
+        if (view instanceof RecyclerView) {
+            Context context = view.getContext();
+            RecyclerView recyclerView = (RecyclerView) view;
 
-//                Iterator<User> userIterator = users.iterator();
-//                while(userIterator.hasNext()){
-//                    User user = userIterator.next();
-//                    System.out.println(user.email);
-//                }
-                if (view instanceof RecyclerView) {
-                    Context context = view.getContext();
-                    RecyclerView recyclerView = (RecyclerView) view;
-                    if (mColumnCount <= 1) {
-                        recyclerView.setLayoutManager(new LinearLayoutManager(context));
-                    } else {
-                        recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-                    }
-                    recyclerView.setAdapter(new MyUsersRecyclerViewAdapter(users, getContext()));
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
+            recyclerView.setAdapter(new MyUsersRecyclerViewAdapter(((MainViewActivity)getActivity()).getmUsersManagment().getAllUsers(), context));
+        }
 
         return view;
     }
