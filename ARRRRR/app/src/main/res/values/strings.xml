@@ -47,4 +47,6 @@
 
     <string name="saved_camera_lat">SAVED_CAMERA_LAT</string>
     <string name="saved_camera_long">SAVED_CAMERA_LONG</string>
+    <string name="type_a_message">Type a message</string>
+
 </resources>
