@@ -11,6 +11,9 @@ import android.location.Location;
 import android.support.v4.content.ContextCompat;
 
 import com.comp30022.arrrrr.R;
+import com.comp30022.arrrrr.models.GeoLocationInfo;
+import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
+import com.comp30022.arrrrr.services.LocationSharingService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -22,13 +25,15 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
+import java.util.HashMap;
+
 /**
  * Manages GooglesMaps UI.
  *
  * @author Dafu Ai
  */
 
-public class MapUIManager {
+public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocationsListener {
 
     // Default parameters
     private final static float DEFAULT_CAMERA_ZOOM_LEVEL = 15;
@@ -47,6 +52,11 @@ public class MapUIManager {
         mContext = context;
         mGoogleMap = googleMap;
         mFragment = fragment;
+    }
+
+    @Override
+    public void onGeoQueryEvent(LocationSharingService.GeoQueryEventType type, String key, HashMap<String, LatLng> geoLocations, HashMap<String, GeoLocationInfo> geoLocationInfos) {
+        // TODO: Implement this method.
     }
 
     /**

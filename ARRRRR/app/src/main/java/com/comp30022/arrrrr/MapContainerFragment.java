@@ -360,7 +360,7 @@ public class MapContainerFragment extends Fragment implements
     public void registerServerLocationsReceiver() {
         IntentFilter filter = new IntentFilter(GeoQueryLocationsReceiver.ACTION_GEOQUERY_LOCATIONS);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
-        mServerLocationsReceiver = new GeoQueryLocationsReceiver();
+        mServerLocationsReceiver = new GeoQueryLocationsReceiver(mMapUIManager);
         getActivity().registerReceiver(mServerLocationsReceiver, filter);
     }
 
