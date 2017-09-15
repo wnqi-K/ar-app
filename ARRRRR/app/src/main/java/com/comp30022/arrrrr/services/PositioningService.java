@@ -1,8 +1,9 @@
-package com.comp30022.arrrrr;
+package com.comp30022.arrrrr.services;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
+import android.os.IBinder;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,7 +26,7 @@ import com.google.android.gms.tasks.Task;
  * @author Dafu Ai
  */
 
-public class PositioningService extends IntentService {
+public class PositioningService extends Service {
 
     // Keys for intent extras
     public static final String PARAM_OUT_LOCATION = "OUT_LOCATION";
@@ -57,18 +58,11 @@ public class PositioningService extends IntentService {
     private Location mCurrentLocation;
 
     public PositioningService() {
-        super("PositioningService");
+
     }
 
-    public PositioningService(String name) {
-        super(name);
-    }
-
-    /**
-     * Handles starting intent service.
-     */
     @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
+    public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
         Log.v(TAG, "PositioningService has started.");
         // Check for permission requests.
         // Only start location updates when permission has been granted.
@@ -82,10 +76,16 @@ public class PositioningService extends IntentService {
 
                 createLocationCallback();
                 startLocationUpdates();
-                // Keep service alive.
-                Looper.loop();
             }
         }
+
+        return START_STICKY;
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     /**

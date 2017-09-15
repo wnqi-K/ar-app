@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
@@ -22,20 +21,19 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
+import com.comp30022.arrrrr.services.LocationSharingService;
+import com.comp30022.arrrrr.services.PositioningService;
 import com.comp30022.arrrrr.utils.LocationPermissionHelper;
 import com.comp30022.arrrrr.utils.LocationSettingsHelper;
 import com.comp30022.arrrrr.utils.MapUIManager;
+import com.comp30022.arrrrr.utils.ServiceManager;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -47,7 +45,7 @@ import java.util.Date;
  */
 public class MapContainerFragment extends Fragment implements
         OnMapReadyCallback,
-        SelfPositionReceiver.SelfPositionUpdateListener,
+        SelfPositionReceiver.SelfLocationListener,
         LocationSettingsHelper.OnLocationSettingsResultListener {
 
     private static final String TAG = MapContainerFragment.class.getSimpleName();
@@ -152,6 +150,10 @@ public class MapContainerFragment extends Fragment implements
         super.onResume();
         registerReceivers();
 
+        ServiceManager.startLocationSharingService(getActivity());
+
+        // Sets up permission checker.
+        mPermissionChecker = new LocationPermissionHelper((AppCompatActivity)getActivity());
         // 1. Check location permissions.
         Boolean permissionGranted = mPermissionChecker.checkPermissions();
 
@@ -183,9 +185,6 @@ public class MapContainerFragment extends Fragment implements
             throw new RuntimeException(mContext.toString()
                     + " must implement OnFragmentInteractionListener");
         }
-
-        // Sets up permission checker.
-        mPermissionChecker = new LocationPermissionHelper(mContext);
     }
 
     @Override
@@ -197,16 +196,16 @@ public class MapContainerFragment extends Fragment implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.mGoogleMap = googleMap;
-        Toast.makeText(mContext, "Map ready", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), "Map ready", Toast.LENGTH_SHORT).show();
 
-        mMapUIManager = new MapUIManager(this, mContext, mGoogleMap);
+        mMapUIManager = new MapUIManager(this, getActivity(), mGoogleMap);
         mMapUIManager.initializeMapUI();
     }
 
     @Override
-    public void onSelfLocationUpdate(Location location) {
+    public void onSelfLocationChanged(Location location) {
         mCurrentLocation = location;
-        Toast.makeText(mContext, DateFormat.getTimeInstance().format(
+        Toast.makeText(getActivity(), DateFormat.getTimeInstance().format(
                 new Date(mCurrentLocation.getTime())),
                 Toast.LENGTH_SHORT)
                 .show();
@@ -230,7 +229,7 @@ public class MapContainerFragment extends Fragment implements
                     // Show the dialog by calling startResolutionForResult(), and check the
                     // result in onActivityResult().
                     ResolvableApiException rae = (ResolvableApiException) e;
-                    rae.startResolutionForResult(mContext, REQUEST_CHECK_SETTINGS);
+                    rae.startResolutionForResult(getActivity(), REQUEST_CHECK_SETTINGS);
                 } catch (IntentSender.SendIntentException sie) {
                     Log.i(TAG, "PendingIntent unable to execute request.");
                 }
@@ -254,14 +253,14 @@ public class MapContainerFragment extends Fragment implements
             // Update the value of mCurrentLocation from the Bundle
             if (savedInstanceState.keySet().contains(KEY_SELF_LOCATION)) {
                 mCurrentLocation = savedInstanceState.getParcelable(KEY_SELF_LOCATION);
-                Toast.makeText(mContext, "Location updated from savedInstanceState", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Location updated from savedInstanceState", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
     public void checkLocationSettings() {
         //LocationRequest request = LocationRequestManager.getRequest();
-        LocationSettingsHelper helper = new LocationSettingsHelper(this, mContext);
+        LocationSettingsHelper helper = new LocationSettingsHelper(this, getActivity());
         helper.checkLocationSettings();
     }
 
@@ -316,7 +315,7 @@ public class MapContainerFragment extends Fragment implements
                 }
             } else {
                 // Permission denied.
-                Toast.makeText(mContext, R.string.permission_denied_explanation_location, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), R.string.permission_denied_explanation_location, Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent();
                 intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -335,11 +334,7 @@ public class MapContainerFragment extends Fragment implements
      */
     private void startPositioningService() {
         mRequestingLocationUpdates = true;
-
-        Intent mPositioningServiceIntent = new Intent(mContext, PositioningService.class);
-        mPositioningServiceIntent.putExtra(PositioningService.PARAM_IN_PERM_GRANTED, true);
-        mContext.startService(mPositioningServiceIntent);
-        Toast.makeText(mContext, "Starting positioning service...", Toast.LENGTH_SHORT).show();
+        ServiceManager.startPositioningService(getActivity());
     }
 
     /**
@@ -353,14 +348,14 @@ public class MapContainerFragment extends Fragment implements
         IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         mPositioningReceiver = new SelfPositionReceiver(this);
-        mContext.registerReceiver(mPositioningReceiver, filter);
+        getActivity().registerReceiver(mPositioningReceiver, filter);
     }
 
     /**
      * Unregister all receives. Should be called in onPause().
      */
     public void unregisterReceivers() {
-        mContext.unregisterReceiver(mPositioningReceiver);
+        getActivity().unregisterReceiver(mPositioningReceiver);
     }
 
 

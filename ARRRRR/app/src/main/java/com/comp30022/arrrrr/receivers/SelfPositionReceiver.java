@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 
-import com.comp30022.arrrrr.PositioningService;
+import com.comp30022.arrrrr.services.PositioningService;
 
 /**
  * A {@link BroadcastReceiver} that specifically designed for receiving device location from
@@ -18,9 +18,9 @@ public class SelfPositionReceiver extends BroadcastReceiver {
     /**
      * The context that is using broadcast receiver
      */
-    SelfPositionUpdateListener mListener;
+    SelfLocationListener mListener;
 
-    public SelfPositionReceiver(SelfPositionUpdateListener listener) {
+    public SelfPositionReceiver(SelfLocationListener listener) {
         this.mListener = listener;
     }
 
@@ -31,17 +31,17 @@ public class SelfPositionReceiver extends BroadcastReceiver {
             throw new UnknownError("Location not sent/received properly.");
         }
         // Notify listener.
-        mListener.onSelfLocationUpdate(location);
+        mListener.onSelfLocationChanged(location);
     }
 
     /**
      * The interface that a context must implement in order to use this broadcast receiver.
      */
-    public interface SelfPositionUpdateListener {
+    public interface SelfLocationListener {
         /**
          * Handles when listener recieves new location update
          * @param location New location
          */
-        void onSelfLocationUpdate(Location location);
+        void onSelfLocationChanged(Location location);
     }
 }
