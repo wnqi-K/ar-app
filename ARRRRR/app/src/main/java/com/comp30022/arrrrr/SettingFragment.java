@@ -68,11 +68,20 @@ public class SettingFragment extends Fragment {
                 //getActivity().finish();
             }
         });
-
+        //Go user profile
+        Button userprofileButton = (Button)view.findViewById(R.id.profileButton);
+        userprofileButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Intent intent = new Intent(getActivity(),UserProfile.class);
+                startActivity(intent);
+            }
+        });
 
 
         return view;
     }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
