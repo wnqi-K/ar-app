@@ -11,6 +11,9 @@ import android.location.Location;
 import android.support.v4.content.ContextCompat;
 
 import com.comp30022.arrrrr.R;
+import com.comp30022.arrrrr.models.GeoLocationInfo;
+import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
+import com.comp30022.arrrrr.services.LocationSharingService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -22,13 +25,15 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
+import java.util.HashMap;
+
 /**
  * Manages GooglesMaps UI.
  *
  * @author Dafu Ai
  */
 
-public class MapUIManager {
+public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocationsListener {
 
     // Default parameters
     private final static float DEFAULT_CAMERA_ZOOM_LEVEL = 15;
@@ -42,12 +47,16 @@ public class MapUIManager {
     private Circle mSelfCircle;
     private Context mContext;
     private Fragment mFragment;
-    private OnSelfMarkerMoveListener onSelfMarkerMoveListener;
 
     public MapUIManager(Fragment fragment, Context context, GoogleMap googleMap) {
         mContext = context;
         mGoogleMap = googleMap;
         mFragment = fragment;
+    }
+
+    @Override
+    public void onGeoQueryEvent(LocationSharingService.GeoQueryEventType type, String key, HashMap<String, LatLng> geoLocations, HashMap<String, GeoLocationInfo> geoLocationInfos) {
+        // TODO: Implement this method.
     }
 
     /**
@@ -76,7 +85,7 @@ public class MapUIManager {
     public void onSelfLocationUpdate(Location location) {
         LatLng currLatLng = locationToLatLng(location);
 
-        if(mSelfCircle == null) {
+        if (mSelfCircle == null) {
             mSelfCircle = mGoogleMap.addCircle(new CircleOptions()
                     .center(currLatLng)
                     .radius(CIRCLE_RADIUS)
@@ -87,7 +96,7 @@ public class MapUIManager {
             mSelfCircle.setCenter(currLatLng);
         }
 
-        if(mSelfMarker == null) {
+        if (mSelfMarker == null) {
             mSelfMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .title("My position")
                     .position(currLatLng)
@@ -98,24 +107,6 @@ public class MapUIManager {
         }
 
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
-
-        // Notify listener for marker movement
-        onSelfMarkerMoveListener.onSelfMarkerMove(getSelfMarkerPosition());
-    }
-
-    /**
-     * Set listener for marker move event.
-     * @param listener
-     */
-    public void setOnSelfMarkerMoveListener(OnSelfMarkerMoveListener listener) {
-        this.onSelfMarkerMoveListener = listener;
-    }
-
-    public interface OnSelfMarkerMoveListener {
-        /**
-         * Called when the self marker position has changed.
-         */
-        void onSelfMarkerMove(LatLng position);
     }
 
     /**

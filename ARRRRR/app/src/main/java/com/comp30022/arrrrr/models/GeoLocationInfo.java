@@ -1,5 +1,8 @@
 package com.comp30022.arrrrr.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
@@ -10,7 +13,7 @@ import java.util.Map;
  * Model for extra info for geo location
  */
 @IgnoreExtraProperties
-public class GeoLocationInfo {
+public class GeoLocationInfo implements Parcelable {
     /**
      * Time when the location was updated.
      */
@@ -22,6 +25,32 @@ public class GeoLocationInfo {
 
     public GeoLocationInfo(Long time) {
         this.time = time;
+    }
+
+    protected GeoLocationInfo(Parcel in) {
+        this.time = in.readLong();
+    }
+
+    public static final Creator<GeoLocationInfo> CREATOR = new Creator<GeoLocationInfo>() {
+        @Override
+        public GeoLocationInfo createFromParcel(Parcel in) {
+            return new GeoLocationInfo(in);
+        }
+
+        @Override
+        public GeoLocationInfo[] newArray(int size) {
+            return new GeoLocationInfo[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeLong(time);
     }
 
     @Exclude

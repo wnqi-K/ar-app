@@ -10,7 +10,10 @@ import com.comp30022.arrrrr.services.PositioningService;
 /**
  * A {@link BroadcastReceiver} that specifically designed for receiving device location from
  * {@link PositioningService}
+ *
+ * @author Dafu Ai
  */
+
 public class SelfPositionReceiver extends BroadcastReceiver {
     public static final String ACTION_SELF_POSITION =
             "com.comp30022.arrrrr.intent.action.SELF_POSITION_RECEIVED";
@@ -27,9 +30,11 @@ public class SelfPositionReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Location location = intent.getParcelableExtra(PositioningService.PARAM_OUT_LOCATION);
+
         if (location == null) {
             throw new UnknownError("Location not sent/received properly.");
         }
+
         // Notify listener.
         mListener.onSelfLocationChanged(location);
     }

@@ -21,8 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
-import com.comp30022.arrrrr.services.LocationSharingService;
-import com.comp30022.arrrrr.services.PositioningService;
+import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
 import com.comp30022.arrrrr.utils.LocationPermissionHelper;
 import com.comp30022.arrrrr.utils.LocationSettingsHelper;
 import com.comp30022.arrrrr.utils.MapUIManager;
@@ -78,6 +77,11 @@ public class MapContainerFragment extends Fragment implements
      * Receiver for self positioning service.
      */
     private SelfPositionReceiver mPositioningReceiver;
+
+    /**
+     * Receiver for location information from server
+     */
+    private GeoQueryLocationsReceiver mServerLocationsReceiver;
 
     /**
      * Context that this fragment is running under.
@@ -342,6 +346,8 @@ public class MapContainerFragment extends Fragment implements
      */
     public void registerReceivers() {
         registerPositioningReceiver();
+        registerServerLocationsReceiver();
+
     }
 
     public void registerPositioningReceiver() {
@@ -349,6 +355,13 @@ public class MapContainerFragment extends Fragment implements
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         mPositioningReceiver = new SelfPositionReceiver(this);
         getActivity().registerReceiver(mPositioningReceiver, filter);
+    }
+
+    public void registerServerLocationsReceiver() {
+        IntentFilter filter = new IntentFilter(GeoQueryLocationsReceiver.ACTION_GEOQUERY_LOCATIONS);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        mServerLocationsReceiver = new GeoQueryLocationsReceiver(mMapUIManager);
+        getActivity().registerReceiver(mServerLocationsReceiver, filter);
     }
 
     /**
