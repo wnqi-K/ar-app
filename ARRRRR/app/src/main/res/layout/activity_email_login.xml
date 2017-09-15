@@ -61,7 +61,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:hint="@string/hint_email"
-                android:inputType="textEmailAddress"/>
+                android:inputType="textEmailAddress"
+                android:text="123456@qq.com" />
 
             <EditText
                 android:id="@+id/field_password"
@@ -69,7 +70,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:hint="@string/hint_password"
-                android:inputType="textPassword"/>
+                android:inputType="textPassword"
+                android:text="123456" />
         </LinearLayout>
 
         <LinearLayout
