@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -26,15 +25,27 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.security.Key;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+/**
+ * @author Dafu Ai
+ * A backend location sharing service:
+ * - Runs in the background.
+ * - Constantly listen for location updates from other users from the server
+ * -    when there is a update, it will be broadcasted to the receivers.
+ * - Constantly listen for self location change and,
+ * -    when there is a change, it will send new self location to the server.
+ */
 
 public class LocationSharingService extends Service implements
         GeoQueryEventListener,
         SelfPositionReceiver.SelfLocationListener {
 
+    /**
+     * Indicates the type of GeoQueryEvent for broadcasting purposes.
+     */
     public enum GeoQueryEventType {
         ON_KEY_ENTERED, ON_KEY_EXITED, ON_KEY_MOVED
     }
@@ -50,10 +61,10 @@ public class LocationSharingService extends Service implements
     private final static String DB_REF_GEO = "userlocations_geo";
     private final static String INFO_LABEL_TIME = "time";
 
-    private final String PARAM_OUT_REFER_EVENT = "OUT_REFER_TO_EVENT";
-    private final String PARAM_OUT_REFER_KEY = "OUT_REFER_TO_KEY";
-    private final String PARAM_OUT_LOCATIONS = "OUT_LOCATIONS";
-    private final String PARAM_OUT_LOCATION_INFOS = "OUT_LOCATION_INFOS";
+    public static final String PARAM_OUT_REFER_EVENT = "OUT_REFER_TO_EVENT";
+    public static final String PARAM_OUT_REFER_KEY = "OUT_REFER_TO_KEY";
+    public static final String PARAM_OUT_LOCATIONS = "OUT_LOCATIONS";
+    public static final String PARAM_OUT_LOCATION_INFOS = "OUT_LOCATION_INFOS";
 
 
     /**
@@ -74,6 +85,8 @@ public class LocationSharingService extends Service implements
 
     private HashMap<String, GeoLocation> mGeoLocations;
     private HashMap<String, GeoLocationInfo> mGeoInfos;
+    private HashMap<String, DatabaseReference> mUserLocationRefs;
+    private HashMap<String, ValueEventListener> mUserLocationListeners;
 
     public LocationSharingService() {
     }
@@ -89,6 +102,10 @@ public class LocationSharingService extends Service implements
             mGeoLocations = new HashMap<>();
             mGeoInfos = new HashMap<>();
         }
+
+        mUserLocationRefs = new HashMap<>();
+        mUserLocationListeners = new HashMap<>();
+        registerReceivers();
     }
 
     @Override
@@ -119,6 +136,7 @@ public class LocationSharingService extends Service implements
     public void onKeyExited(String key) {
         mGeoLocations.remove(key);
         mGeoInfos.remove(key);
+        broadcastGeoLocationsUpdate(GeoQueryEventType.ON_KEY_EXITED, key);
     }
 
     @Override
@@ -169,7 +187,18 @@ public class LocationSharingService extends Service implements
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         GeoLocationInfo geoLocationInfo = dataSnapshot.getValue(GeoLocationInfo.class);
-                        mGeoInfos.put(dataSnapshot.getKey(), geoLocationInfo);
+                        String key = dataSnapshot.getKey();
+                        GeoQueryEventType type;
+
+                        // Determine which query event was fired
+                        if (mGeoInfos.containsKey(key)) {
+                            type = GeoQueryEventType.ON_KEY_MOVED;
+                        } else {
+                            type = GeoQueryEventType.ON_KEY_ENTERED;
+                        }
+
+                        mGeoInfos.put(key, geoLocationInfo);
+                        broadcastGeoLocationsUpdate(type, key);
                     }
 
                     @Override
@@ -186,7 +215,7 @@ public class LocationSharingService extends Service implements
      * @param eventType indicates which type of GeoQueryEvent is fired
      * @param key indicates the key to referred to
      */
-    public void broadcastGeoLocationsUpdate(GeoQueryEventType eventType, @Nullable Key key) {
+    public void broadcastGeoLocationsUpdate(GeoQueryEventType eventType, @Nullable String key) {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(ServerLocationsReceiver.ACTION_LOCATIONS_FROM_SERVER);
 
@@ -261,6 +290,43 @@ public class LocationSharingService extends Service implements
     }
 
     /**
+     * Register location update listener for a given user.
+     * @param uid user id
+     */
+    public void registerLocationListenerForUser(String uid) {
+        DatabaseReference ref = mRootRef.child(getUserRefPath(RefType.GEO_INFO, uid));
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // TODO
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.v(TAG, "Unable to retrieve location.");
+            }
+        };
+        ref.addValueEventListener(listener);
+        mUserLocationRefs.put(uid, ref);
+        mUserLocationListeners.put(uid, listener);
+    }
+
+    /**
+     * Unregister location update listener for a given user.
+     * @param uid user id
+     */
+    public void unragisterLocationListenerForUser(String uid) {
+        DatabaseReference ref = mUserLocationRefs.get(uid);
+        // Safety check
+        if (ref == null) {
+            Log.v(TAG, "Cannot find listener for userID=" + uid);
+            return;
+        }
+        ref.removeEventListener(mUserLocationListeners.get(uid));
+        mUserLocationListeners.remove(uid);
+    }
+
+    /**
      * Get specific reference path (of UserLocation data) by user id
      * @param refType   Type of the database reference
      * @param uid       User id
@@ -279,5 +345,3 @@ public class LocationSharingService extends Service implements
         return path;
     }
 }
-
-

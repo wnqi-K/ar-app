@@ -42,7 +42,6 @@ public class MapUIManager {
     private Circle mSelfCircle;
     private Context mContext;
     private Fragment mFragment;
-    private OnSelfMarkerMoveListener onSelfMarkerMoveListener;
 
     public MapUIManager(Fragment fragment, Context context, GoogleMap googleMap) {
         mContext = context;
@@ -76,7 +75,7 @@ public class MapUIManager {
     public void onSelfLocationUpdate(Location location) {
         LatLng currLatLng = locationToLatLng(location);
 
-        if(mSelfCircle == null) {
+        if (mSelfCircle == null) {
             mSelfCircle = mGoogleMap.addCircle(new CircleOptions()
                     .center(currLatLng)
                     .radius(CIRCLE_RADIUS)
@@ -87,7 +86,7 @@ public class MapUIManager {
             mSelfCircle.setCenter(currLatLng);
         }
 
-        if(mSelfMarker == null) {
+        if (mSelfMarker == null) {
             mSelfMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .title("My position")
                     .position(currLatLng)
@@ -98,24 +97,6 @@ public class MapUIManager {
         }
 
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
-
-        // Notify listener for marker movement
-        onSelfMarkerMoveListener.onSelfMarkerMove(getSelfMarkerPosition());
-    }
-
-    /**
-     * Set listener for marker move event.
-     * @param listener
-     */
-    public void setOnSelfMarkerMoveListener(OnSelfMarkerMoveListener listener) {
-        this.onSelfMarkerMoveListener = listener;
-    }
-
-    public interface OnSelfMarkerMoveListener {
-        /**
-         * Called when the self marker position has changed.
-         */
-        void onSelfMarkerMove(LatLng position);
     }
 
     /**
