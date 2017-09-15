@@ -17,7 +17,14 @@ import com.comp30022.arrrrr.models.User;
 public class MainViewActivity extends AppCompatActivity implements
         MapContainerFragment.OnMapContainerFragmentInteractionListener,
         SettingFragment.OnSettingFragmentInteractionListener,
-        UsersFragment.OnListFragmentInteractionListener {
+        UsersFragment.OnListFragmentInteractionListener{
+
+    /**
+     *  Users management like getting all user.
+     */
+    private UsersManagement mUsersManagment;
+    private GetAllUsersFromFirebase mGetAllUsersFromFirebase;
+
 
     /**
      * Sets OnNavigationItemSelectedListener for the bottom navigation.
@@ -51,7 +58,7 @@ public class MainViewActivity extends AppCompatActivity implements
     private void switchToFragmentFriends() {
         FragmentManager manager = getFragmentManager();
         manager.beginTransaction().replace(R.id.fragment_container,
-                UsersFragment.newInstance(1)).commit();
+                UsersFragment.newInstance()).commit();
     }
 
     /**
@@ -80,6 +87,12 @@ public class MainViewActivity extends AppCompatActivity implements
         navigation.setSelectedItemId(R.id.navigation_home);
         switchToFragmentHome();
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+
+        this.mUsersManagment = new UsersManagement();
+        //get all users from datebase
+        this.mGetAllUsersFromFirebase = new GetAllUsersFromFirebase(mUsersManagment);
+
     }
 
     @Override
@@ -119,5 +132,9 @@ public class MainViewActivity extends AppCompatActivity implements
         if (fragment != null) {
             fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+    }
+
+    public UsersManagement getmUsersManagment() {
+        return mUsersManagment;
     }
 }

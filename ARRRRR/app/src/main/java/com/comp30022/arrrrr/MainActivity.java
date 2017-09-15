@@ -7,6 +7,8 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static boolean sIsChatActivityOpen = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,6 +23,14 @@ public class MainActivity extends AppCompatActivity {
     public void googleLogin(View view) {
         Intent intent = new Intent(this, GoogleLoginActivity.class);
         startActivity(intent);
+    }
+
+    public static boolean isChatActivityOpen() {
+        return sIsChatActivityOpen;
+    }
+
+    public static void setChatActivityOpen(boolean isChatActivityOpen) {
+        MainActivity.sIsChatActivityOpen = isChatActivityOpen;
     }
 
 //    public void facebookLogin(View view) {
