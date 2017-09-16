@@ -101,8 +101,20 @@ public class LocationSharingService extends Service implements
      * Contains all current detailed information about a geo location
      */
     private HashMap<String, GeoLocationInfo> mGeoInfos;
+
+    /**
+     * Contains all database references to user location
+     */
     private HashMap<String, DatabaseReference> mUserLocationRefs;
+
+    /**
+     * Contains all listeners to user location updates.
+     */
     private HashMap<String, ValueEventListener> mUserLocationListeners;
+
+    /**
+     * Information buffer for send broadcast.
+     */
     private HashMap<String, GeoLocationInfo> mInfoBuffer;
 
     public LocationSharingService() {
@@ -381,7 +393,6 @@ public class LocationSharingService extends Service implements
         sendBroadcast(broadcastIntent);
     }
 
-
     /**
      * Unregister location update listener for a given user.
      * @param uid user id
@@ -436,7 +447,7 @@ public class LocationSharingService extends Service implements
      * @return the distance in meters
      */
     public static double distanceBetween(LatLng x, LatLng y) {
-        // Use GeoFire libraray
+        // Using GeoFire utility function
         return GeoUtils.distance(x.latitude, x.longitude, y.latitude, y.longitude);
     }
 
