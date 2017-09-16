@@ -10,7 +10,7 @@ import java.util.List;
  */
 
 class UsersManagement {
-    public List<User> mUsers =  new ArrayList<User>();
+    public List<User> mUsers =  new ArrayList<>();
 
     public UsersManagement(){}
 

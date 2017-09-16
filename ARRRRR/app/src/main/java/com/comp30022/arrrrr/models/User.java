@@ -2,9 +2,6 @@ package com.comp30022.arrrrr.models;
 
 import java.util.ArrayList;
 
-/**
- * Created by delaroy on 4/13/17.
- */
 public class User {
     public String uid;
     public String email;
