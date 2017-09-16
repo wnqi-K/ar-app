@@ -64,7 +64,6 @@ public class PositioningService extends Service {
 
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
-        Log.v(TAG, "PositioningService has started.");
         // Check for permission requests.
         // Only start location updates when permission has been granted.
         if (intent != null && intent.getBooleanExtra(PARAM_IN_PERM_GRANTED, true)) {
@@ -77,6 +76,7 @@ public class PositioningService extends Service {
 
                 createLocationCallback();
                 startLocationUpdates();
+                Log.v(TAG, "PositioningService has started.");
             }
         }
 
@@ -87,6 +87,13 @@ public class PositioningService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopLocationUpdates();
+        Log.v(TAG, "Service stopped.");
     }
 
     /**
