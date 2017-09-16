@@ -57,7 +57,6 @@ public class UserProfile extends AppCompatActivity {
 
             }
         });
-
     }
 
     private void showData(DataSnapshot dataSnapshot) {
@@ -102,8 +101,6 @@ public class UserProfile extends AppCompatActivity {
                 UserAddress.setText("Address:");
 
         }
-
-
     }
 
     public void EditProfile(View v){
@@ -118,7 +115,4 @@ public class UserProfile extends AppCompatActivity {
         startActivity(intent);
         overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
     }
-
-
-
 }
