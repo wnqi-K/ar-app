@@ -18,6 +18,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+/**
+ * Login via email account, lead to registration if no account exists.
+ *
+ * Created by Wenqiang Kuang on 26/08/2017.
+ */
 public class EmailLoginActivity extends AppCompatActivity implements View.OnClickListener{
 
     private static final String TAG = "EmailPassword";

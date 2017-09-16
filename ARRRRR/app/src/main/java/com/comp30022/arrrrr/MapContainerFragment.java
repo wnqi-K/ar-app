@@ -16,6 +16,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -116,11 +117,20 @@ public class MapContainerFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+
         mCurrentLocation = null;
         mRequestingLocationUpdates = false;
 
         //Update values using data stored in the Bundle.
         updateValuesFromBundle(savedInstanceState);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        // Hide the adding friends option in mapContainer fragment
+        menu.findItem(R.id.adding_friends).setVisible(false);
+        super.onPrepareOptionsMenu(menu);
     }
 
     @Override

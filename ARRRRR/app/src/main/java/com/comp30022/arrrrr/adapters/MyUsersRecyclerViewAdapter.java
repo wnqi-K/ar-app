@@ -13,14 +13,13 @@ import com.comp30022.arrrrr.ChatActivity;
 
 import java.util.List;
 
-
 public class MyUsersRecyclerViewAdapter extends RecyclerView.Adapter<MyUsersRecyclerViewAdapter.ViewHolder> {
 
-    private final List<User> mlist;
+    private final List<User> mList;
     private final Context mContext;
 
     public MyUsersRecyclerViewAdapter(List<User> users, Context context) {
-        mlist = users;
+        mList = users;
         mContext = context;
     }
 
@@ -33,11 +32,11 @@ public class MyUsersRecyclerViewAdapter extends RecyclerView.Adapter<MyUsersRecy
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mUser = mlist.get(position);
+        holder.mUser = mList.get(position);
         // set icon
         holder.mIdView.setText(Integer.toString(position+1));
         // set email
-        holder.mContentView.setText(mlist.get(position).email);
+        holder.mContentView.setText(mList.get(position).email);
         holder.mContentView.setOnClickListener(new View.OnClickListener(){
 
             // click event
@@ -47,15 +46,13 @@ public class MyUsersRecyclerViewAdapter extends RecyclerView.Adapter<MyUsersRecy
                         holder.mUser.email,
                         holder.mUser.uid,
                         holder.mUser.firebaseToken);
-//                Toast.makeText(mContext, "hello", Toast.LENGTH_SHORT).show();
-
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return mlist.size();
+        return mList.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

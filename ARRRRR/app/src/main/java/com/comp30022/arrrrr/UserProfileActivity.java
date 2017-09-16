@@ -17,7 +17,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
 
-public class UserProfile extends AppCompatActivity {
+public class UserProfileActivity extends AppCompatActivity {
 
     public final static String EXTRA_NAME = "com.comp30022.EXTRA_NAME_MESSAGE";
 
