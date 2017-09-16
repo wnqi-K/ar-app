@@ -27,10 +27,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,13 +49,6 @@ import java.util.Map;
 public class LocationSharingService extends Service implements
         GeoQueryEventListener,
         SelfPositionReceiver.SelfLocationListener {
-
-    /**
-     * Indicates the type of GeoQueryEvent for broadcasting purposes.
-     */
-    public enum GeoQueryEventType {
-        ON_KEY_ENTERED, ON_KEY_EXITED, ON_KEY_MOVED
-    }
 
     /**
      * Type of database reference for the user location records.
@@ -75,10 +70,15 @@ public class LocationSharingService extends Service implements
     public static final String PARAM_OUT_LOCATION = "OUT_LOCATION";
     public static final String PARAM_OUT_LOCATION_INFO = "OUT_LOCATION_INFO";
 
+    // Indicates the type of GeoQueryEvent for broadcasting purposes.
+    public static final String ON_KEY_ENTERED = "ON_KEY_ENTERED";
+    public static final String ON_KEY_EXITED = "ON_KEY_EXITED";
+    public static final String ON_KEY_MOVED = "ON_KEY_MOVED";
+
     /**
      * TODO: Consider change radius to dynamic
      */
-    private final static Double GEO_QUERY_RADIUS = 1.0;
+    private final static Double GEO_QUERY_RADIUS = 2.0;
 
     private final String TAG = LocationSharingService.class.getSimpleName();
 
@@ -152,25 +152,40 @@ public class LocationSharingService extends Service implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-
+        Log.v(TAG, "Service stopped.");
         unregisterReceivers();
     }
 
     @Override
     public void onKeyEntered(String key, GeoLocation location) {
+        //Log.v(TAG, "GeoQueryEvent: Key entered.");
+        if (key.equals(getCurrentUserUID())) {
+            // No need to know self location
+            return;
+        }
         mGeoLocations.put(key, geoToLatLng(location));
         updateGeoLocationInfo(key);
     }
 
     @Override
     public void onKeyExited(String key) {
+        //Log.v(TAG, "GeoQueryEvent: Key exited.");
+        if (key.equals(getCurrentUserUID())) {
+            // No need to know self location
+            return;
+        }
         mGeoLocations.remove(key);
         mGeoInfos.remove(key);
-        broadcastGeoLocationsUpdate(GeoQueryEventType.ON_KEY_EXITED, key);
+        broadcastGeoLocationsUpdate(ON_KEY_EXITED, key);
     }
 
     @Override
     public void onKeyMoved(String key, GeoLocation location) {
+        //Log.v(TAG, "GeoQueryEvent: Key moved.");
+        if (key.equals(getCurrentUserUID())) {
+            // No need to know self location
+            return;
+        }
         mGeoLocations.put(key, geoToLatLng(location));
         updateGeoLocationInfo(key);
     }
@@ -199,6 +214,9 @@ public class LocationSharingService extends Service implements
 
         if (mGeoQuery == null) {
             mGeoQuery = mGeoFire.queryAtLocation(geoLocation, radius);
+            mGeoQuery.addGeoQueryEventListener(this);
+            //String testUser = "iD2ZusuPN3ZAC3gZLGrgRjPbCJB3";
+            //registerLocationListenerForUser(testUser);
         } else {
             mGeoQuery.setLocation(geoLocation, radius);
         }
@@ -218,13 +236,13 @@ public class LocationSharingService extends Service implements
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         GeoLocationInfo geoLocationInfo = dataSnapshot.getValue(GeoLocationInfo.class);
                         String key = dataSnapshot.getKey();
-                        GeoQueryEventType type;
+                        String type;
 
                         // Determine which query event was fired
                         if (mGeoInfos.containsKey(key)) {
-                            type = GeoQueryEventType.ON_KEY_MOVED;
+                            type = ON_KEY_MOVED;
                         } else {
-                            type = GeoQueryEventType.ON_KEY_ENTERED;
+                            type = ON_KEY_ENTERED;
                         }
 
                         mGeoInfos.put(key, geoLocationInfo);
@@ -245,7 +263,7 @@ public class LocationSharingService extends Service implements
      * @param eventType indicates which type of GeoQueryEvent is fired
      * @param key indicates the key to referred to
      */
-    public void broadcastGeoLocationsUpdate(GeoQueryEventType eventType, @Nullable String key) {
+    public void broadcastGeoLocationsUpdate(String eventType, @Nullable String key) {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(GeoQueryLocationsReceiver.ACTION_GEOQUERY_LOCATIONS);
 
@@ -281,17 +299,7 @@ public class LocationSharingService extends Service implements
      * @param location New location update
      */
     public void sendNewSelfLocation(@NonNull Location location){
-        // Get current user('s id).
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseUser user = auth.getCurrentUser();
-
-        // Safety check
-        if (user == null) {
-            Log.v(TAG, "Failure: CurrentUser is null.");
-            return;
-        }
-
-        String uid = user.getUid();
+        String uid = getCurrentUserUID();
         Double latitude = location.getLatitude();
         Double longitude = location.getLongitude();
 
@@ -334,7 +342,7 @@ public class LocationSharingService extends Service implements
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String uid = dataSnapshot.getKey();
-                GeoLocation geoLocation = dataSnapshot.getValue(GeoLocation.class);
+                GeoLocation geoLocation = getLocationValue(dataSnapshot);
                 broadcastSingleUserLocation(uid, geoLocation);
             }
 
@@ -414,6 +422,18 @@ public class LocationSharingService extends Service implements
     }
 
     /**
+     * Retrieve current user's uid.
+     * @return user uid
+     */
+    private String getCurrentUserUID(){
+        // Get current user('s id).
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser user = auth.getCurrentUser();
+        return user.getUid();
+    }
+
+
+    /**
      * Get specific reference path (of UserLocation data) by user id
      * @param refType   Type of the database reference
      * @param uid       User id
@@ -462,6 +482,54 @@ public class LocationSharingService extends Service implements
             return String.valueOf(distInt) + "m";
         } else {
             return String.valueOf(distInt/1000) + "km";
+        }
+    }
+
+    /*
+     * Firebase GeoFire Java Library
+     *
+     * Copyright © 2014 Firebase - All Rights Reserved
+     * https://www.firebase.com
+     *
+     * Redistribution and use in source and binary forms, with or without
+     * modification, are permitted provided that the following conditions are met:
+     *
+     * 1. Redistributions of source code must retain the above copyright notice, this
+     * list of conditions and the following disclaimer.
+     *
+     * 2. Redistributions in binaryform must reproduce the above copyright notice,
+     * this list of conditions and the following disclaimer in the documentation
+     * and/or other materials provided with the distribution.
+     *
+     * THIS SOFTWARE IS PROVIDED BY FIREBASE AS IS AND ANY EXPRESS OR
+     * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+     * EVENT SHALL FIREBASE BE LIABLE FOR ANY DIRECT,
+     * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+     * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+     * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+     * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+     * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     */
+    private GeoLocation getLocationValue(DataSnapshot dataSnapshot) {
+        try {
+            GenericTypeIndicator<Map<String, Object>> typeIndicator = new GenericTypeIndicator<Map<String, Object>>() {};
+            Map<String, Object> data = dataSnapshot.getValue(typeIndicator);
+            List<?> location = (List<?>) data.get("l");
+            Number latitudeObj = (Number) location.get(0);
+            Number longitudeObj = (Number) location.get(1);
+            double latitude = latitudeObj.doubleValue();
+            double longitude = longitudeObj.doubleValue();
+            if (location.size() == 2 && GeoLocation.coordinatesValid(latitude, longitude)) {
+                return new GeoLocation(latitude, longitude);
+            } else {
+                return null;
+            }
+        } catch (NullPointerException e) {
+            return null;
+        } catch (ClassCastException e) {
+            return null;
         }
     }
 }

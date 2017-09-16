@@ -61,23 +61,28 @@ public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocations
     }
 
     @Override
-    public void onGeoQueryEvent(LocationSharingService.GeoQueryEventType type, String key, HashMap<String, LatLng> geoLocations, HashMap<String, GeoLocationInfo> geoLocationInfos) {
+    public void onGeoQueryEvent(String type, String key, HashMap<String, LatLng> geoLocations, HashMap<String, GeoLocationInfo> geoLocationInfos) {
         if (type == null) {
             Log.v(TAG, "Error receiving intent content.");
             return;
         }
-        if (type == LocationSharingService.GeoQueryEventType.ON_KEY_ENTERED) {
+        if (type.equals(LocationSharingService.ON_KEY_ENTERED) ) {
             // Create new marker
             LatLng position = geoLocations.get(key);
+            Log.v(TAG, "Found a friend at ("
+                    + String.valueOf(position.latitude)
+                    + ", "
+                    + String.valueOf(position.longitude)
+                    + ").");
             // TODO: Customize marker styles
             Marker userMarker = mGoogleMap.addMarker(new MarkerOptions().position(position));
             mUserMarkers.put(key, userMarker);
             this.mUserGeoLocationInfos = geoLocationInfos;
-        } else if (type == LocationSharingService.GeoQueryEventType.ON_KEY_EXITED) {
+        } else if (type.equals(LocationSharingService.ON_KEY_EXITED) ) {
             // Remove marker
             mUserMarkers.get(key).remove();
             mUserMarkers.remove(key);
-        } else if (type == LocationSharingService.GeoQueryEventType.ON_KEY_MOVED) {
+        } else if (type.equals(LocationSharingService.ON_KEY_MOVED)) {
             // Move marker
             LatLng position = geoLocations.get(key);
             mUserMarkers.get(key).setPosition(position);

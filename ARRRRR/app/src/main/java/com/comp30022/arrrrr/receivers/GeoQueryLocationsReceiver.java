@@ -3,6 +3,7 @@ package com.comp30022.arrrrr.receivers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.services.LocationSharingService;
@@ -31,17 +32,17 @@ public class GeoQueryLocationsReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // Get information in the intent
-        LocationSharingService.GeoQueryEventType type = intent
-                .getParcelableExtra(LocationSharingService.PARAM_OUT_REFER_EVENT);
+        String type = intent
+                .getStringExtra(LocationSharingService.PARAM_OUT_REFER_EVENT);
 
         String key = intent
                 .getStringExtra(LocationSharingService.PARAM_OUT_REFER_KEY);
 
-        HashMap<String, LatLng> geoLocations = intent
-                .getParcelableExtra(LocationSharingService.PARAM_OUT_LOCATIONS);
+        HashMap<String, LatLng> geoLocations = (HashMap)intent
+                .getSerializableExtra(LocationSharingService.PARAM_OUT_LOCATIONS);
 
-        HashMap<String, GeoLocationInfo> geoLocationInfos = intent
-                .getParcelableExtra(LocationSharingService.PARAM_OUT_LOCATION_INFOS);
+        HashMap<String, GeoLocationInfo> geoLocationInfos = (HashMap)intent
+                .getSerializableExtra(LocationSharingService.PARAM_OUT_LOCATION_INFOS);
 
         // Notify listener.
         mListener.onGeoQueryEvent(type, key, geoLocations, geoLocationInfos);
@@ -51,7 +52,7 @@ public class GeoQueryLocationsReceiver extends BroadcastReceiver {
      * Required interface in order to use this receiver.
      */
     public interface GeoQueryLocationsListener {
-        void onGeoQueryEvent(LocationSharingService.GeoQueryEventType type,
+        void onGeoQueryEvent(String type,
                              String key,
                              HashMap<String, LatLng> geoLocations,
                              HashMap<String, GeoLocationInfo> geoLocationInfos);
