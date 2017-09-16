@@ -7,13 +7,18 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
-
 import com.comp30022.arrrrr.models.User;
 
 /**
- * Main view of the application after user has logged in.
+ * Main view of the application after user has logged in. This contains three
+ * fragments, friends map and settings.
+ *
+ * Created by Wenqiang Kuang on 1/09/2017.
  */
+
 public class MainViewActivity extends AppCompatActivity implements
         MapContainerFragment.OnMapContainerFragmentInteractionListener,
         SettingFragment.OnSettingFragmentInteractionListener,
@@ -25,6 +30,44 @@ public class MainViewActivity extends AppCompatActivity implements
     private UsersManagement mUsersManagment;
     private GetAllUsersFromFirebase mGetAllUsersFromFirebase;
 
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main_view);
+
+        /*Set up the bottom navigation bar*/
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setSelectedItemId(R.id.navigation_home);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        /* Set the default fragment to be map */
+        switchToFragmentHome();
+
+        /* Get all users from database */
+        this.mUsersManagment = new UsersManagement();
+        this.mGetAllUsersFromFirebase = new GetAllUsersFromFirebase(mUsersManagment);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.action_bar_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.adding_friends:
+                addingNewFriend();
+                break;
+            case R.id.quick_ar_entry:
+                quickArEntry();
+                break;
+        }
+        return true;
+    }
 
     /**
      * Sets OnNavigationItemSelectedListener for the bottom navigation.
@@ -79,20 +122,19 @@ public class MainViewActivity extends AppCompatActivity implements
                 SettingFragment.newInstance()).commit();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_view);
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setSelectedItemId(R.id.navigation_home);
-        switchToFragmentHome();
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+    /**
+     * Quickly start the AR mode, to be done.
+     */
+    private void quickArEntry() {
+        //TODO
+    }
 
-
-        this.mUsersManagment = new UsersManagement();
-        //get all users from datebase
-        this.mGetAllUsersFromFirebase = new GetAllUsersFromFirebase(mUsersManagment);
-
+    /**
+     * Switch to addingFriendActivity.
+     */
+    private void addingNewFriend() {
+        Intent intent = new Intent(this, AddingNewFriendsActivity.class);
+        startActivity(intent);
     }
 
     @Override

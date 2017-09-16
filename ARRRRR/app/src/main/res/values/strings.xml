@@ -18,6 +18,9 @@
     <string name="google_title_text">Google Sign In</string>
 
 
+    <string name="view_my_profile">View My Profile</string>
+
+
     <string name="app_name">ARRRRR</string>
     <string name="title_activity_maps">Map</string>
 
@@ -48,5 +51,7 @@
     <string name="saved_camera_lat">SAVED_CAMERA_LAT</string>
     <string name="saved_camera_long">SAVED_CAMERA_LONG</string>
     <string name="type_a_message">Type a message</string>
+    <string name="adding_new_friend">Adding new friend</string>
+    <string name="quick_ar_entry">Quick AR entry</string>
 
 </resources>
