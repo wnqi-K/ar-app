@@ -159,6 +159,10 @@ public class LocationSharingService extends Service implements
     @Override
     public void onKeyEntered(String key, GeoLocation location) {
         //Log.v(TAG, "GeoQueryEvent: Key entered.");
+        if (key.equals(getCurrentUserUID())) {
+            // No need to know self location
+            return;
+        }
         mGeoLocations.put(key, geoToLatLng(location));
         updateGeoLocationInfo(key);
     }
@@ -166,6 +170,10 @@ public class LocationSharingService extends Service implements
     @Override
     public void onKeyExited(String key) {
         //Log.v(TAG, "GeoQueryEvent: Key exited.");
+        if (key.equals(getCurrentUserUID())) {
+            // No need to know self location
+            return;
+        }
         mGeoLocations.remove(key);
         mGeoInfos.remove(key);
         broadcastGeoLocationsUpdate(ON_KEY_EXITED, key);
@@ -174,6 +182,10 @@ public class LocationSharingService extends Service implements
     @Override
     public void onKeyMoved(String key, GeoLocation location) {
         //Log.v(TAG, "GeoQueryEvent: Key moved.");
+        if (key.equals(getCurrentUserUID())) {
+            // No need to know self location
+            return;
+        }
         mGeoLocations.put(key, geoToLatLng(location));
         updateGeoLocationInfo(key);
     }
@@ -287,17 +299,7 @@ public class LocationSharingService extends Service implements
      * @param location New location update
      */
     public void sendNewSelfLocation(@NonNull Location location){
-        // Get current user('s id).
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseUser user = auth.getCurrentUser();
-
-        // Safety check
-        if (user == null) {
-            Log.v(TAG, "Failure: CurrentUser is null.");
-            return;
-        }
-
-        String uid = user.getUid();
+        String uid = getCurrentUserUID();
         Double latitude = location.getLatitude();
         Double longitude = location.getLongitude();
 
@@ -418,6 +420,18 @@ public class LocationSharingService extends Service implements
         mUserLocationRefs.remove(uid);
         mUserLocationListeners.remove(uid);
     }
+
+    /**
+     * Retrieve current user's uid.
+     * @return user uid
+     */
+    private String getCurrentUserUID(){
+        // Get current user('s id).
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser user = auth.getCurrentUser();
+        return user.getUid();
+    }
+
 
     /**
      * Get specific reference path (of UserLocation data) by user id
