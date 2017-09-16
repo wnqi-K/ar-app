@@ -36,15 +36,15 @@ public class MainViewActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_view);
 
-        /*Set up the bottom navigation bar*/
+        // Set up the bottom navigation bar
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setSelectedItemId(R.id.navigation_home);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        /* Set the default fragment to be map */
+        // Set the default fragment to be map
         switchToFragmentHome();
 
-        /* Get all users from database */
+        // Get all users from database
         this.mUsersManagment = new UsersManagement();
         this.mGetAllUsersFromFirebase = new GetAllUsersFromFirebase(mUsersManagment);
     }
