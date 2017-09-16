@@ -209,7 +209,7 @@ public class MapContainerFragment extends Fragment implements
     public void onSelfLocationChanged(Location location) {
         mCurrentLocation = location;
         Log.v(TAG, "New self position at" + DateFormat.getTimeInstance().format(
-                new Date(mCurrentLocation.getTime()));
+                new Date(mCurrentLocation.getTime())));
         updateLocations();
     }
 
