@@ -44,7 +44,7 @@
             android:name=".UserListingActivity"
             android:label="@string/title_activity_user_listing"
             android:theme="@style/AppTheme"/>
-        <activity android:name=".UserProfile"/>
+        <activity android:name=".UserProfileActivity"/>
         <activity android:name=".EditProfileActivity"/>
         <activity android:name=".ChatActivity"/>
 
