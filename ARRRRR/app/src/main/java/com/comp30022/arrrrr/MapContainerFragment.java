@@ -18,7 +18,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
@@ -200,7 +199,7 @@ public class MapContainerFragment extends Fragment implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.mGoogleMap = googleMap;
-        Toast.makeText(getActivity(), "Map ready", Toast.LENGTH_SHORT).show();
+        Log.v(TAG, "Map ready");
 
         mMapUIManager = new MapUIManager(this, getActivity(), mGoogleMap);
         mMapUIManager.initializeMapUI();
@@ -209,10 +208,8 @@ public class MapContainerFragment extends Fragment implements
     @Override
     public void onSelfLocationChanged(Location location) {
         mCurrentLocation = location;
-        Toast.makeText(getActivity(), DateFormat.getTimeInstance().format(
-                new Date(mCurrentLocation.getTime())),
-                Toast.LENGTH_SHORT)
-                .show();
+        Log.v(TAG, "New self position at" + DateFormat.getTimeInstance().format(
+                new Date(mCurrentLocation.getTime()));
         updateLocations();
     }
 
@@ -257,7 +254,7 @@ public class MapContainerFragment extends Fragment implements
             // Update the value of mCurrentLocation from the Bundle
             if (savedInstanceState.keySet().contains(KEY_SELF_LOCATION)) {
                 mCurrentLocation = savedInstanceState.getParcelable(KEY_SELF_LOCATION);
-                Toast.makeText(getActivity(), "Location updated from savedInstanceState", Toast.LENGTH_SHORT).show();
+                Log.v(TAG, "Location updated from savedInstanceState");
             }
         }
     }
@@ -319,7 +316,7 @@ public class MapContainerFragment extends Fragment implements
                 }
             } else {
                 // Permission denied.
-                Toast.makeText(getActivity(), R.string.permission_denied_explanation_location, Toast.LENGTH_SHORT).show();
+                Log.v(TAG,"" + R.string.permission_denied_explanation_location);
 
                 Intent intent = new Intent();
                 intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
