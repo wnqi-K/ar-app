@@ -10,6 +10,8 @@
     android:orientation="vertical"
     tools:context="com.comp30022.arrrrr.MainViewActivity">
 
+
+
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
