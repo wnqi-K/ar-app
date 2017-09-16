@@ -1,29 +1,20 @@
 package com.comp30022.arrrrr;
 
 import android.content.Context;
-import android.location.Address;
-import android.location.Geocoder;
-import android.test.mock.MockContext;
 
 import com.comp30022.arrrrr.services.LocationSharingService;
-import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.model.LatLng;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.junit.runners.model.InitializationError;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.util.List;
-
 /**
- * Created by Jay on 16/9/17.
+ * Test utility functions related to geo locations
+ * @author Dafu Ai
  */
 
 @RunWith(MockitoJUnitRunner.class)
