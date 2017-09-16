@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
@@ -35,6 +36,8 @@ import java.util.HashMap;
 
 public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocationsListener {
 
+    private final String TAG = MapUIManager.class.getSimpleName();
+
     // Default parameters
     private final static float DEFAULT_CAMERA_ZOOM_LEVEL = 15;
     private final double CIRCLE_RADIUS = 80;
@@ -44,6 +47,8 @@ public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocations
 
     private GoogleMap mGoogleMap;
     private Marker mSelfMarker;
+    private HashMap<String, Marker> mUserMarkers;
+    private HashMap<String, GeoLocationInfo> mUserGeoLocationInfos;
     private Circle mSelfCircle;
     private Context mContext;
     private Fragment mFragment;
@@ -52,11 +57,32 @@ public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocations
         mContext = context;
         mGoogleMap = googleMap;
         mFragment = fragment;
+        mUserMarkers = new HashMap<>();
     }
 
     @Override
     public void onGeoQueryEvent(LocationSharingService.GeoQueryEventType type, String key, HashMap<String, LatLng> geoLocations, HashMap<String, GeoLocationInfo> geoLocationInfos) {
-        // TODO: Implement this method.
+        if (type == null) {
+            Log.v(TAG, "Error receiving intent content.");
+            return;
+        }
+        if (type == LocationSharingService.GeoQueryEventType.ON_KEY_ENTERED) {
+            // Create new marker
+            LatLng position = geoLocations.get(key);
+            // TODO: Customize marker styles
+            Marker userMarker = mGoogleMap.addMarker(new MarkerOptions().position(position));
+            mUserMarkers.put(key, userMarker);
+            this.mUserGeoLocationInfos = geoLocationInfos;
+        } else if (type == LocationSharingService.GeoQueryEventType.ON_KEY_EXITED) {
+            // Remove marker
+            mUserMarkers.get(key).remove();
+            mUserMarkers.remove(key);
+        } else if (type == LocationSharingService.GeoQueryEventType.ON_KEY_MOVED) {
+            // Move marker
+            LatLng position = geoLocations.get(key);
+            mUserMarkers.get(key).setPosition(position);
+            this.mUserGeoLocationInfos = geoLocationInfos;
+        }
     }
 
     /**
