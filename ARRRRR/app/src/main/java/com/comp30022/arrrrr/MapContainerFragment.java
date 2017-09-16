@@ -151,7 +151,7 @@ public class MapContainerFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
-        registerReceivers();
+        registerPositioningReceiver(this);
 
         ServiceManager.startLocationSharingService(getActivity());
 
@@ -160,7 +160,7 @@ public class MapContainerFragment extends Fragment implements
         // 1. Check location permissions.
         Boolean permissionGranted = mPermissionChecker.checkPermissions();
 
-        if (!mRequestingLocationUpdates && permissionGranted) {
+        if (permissionGranted) {
             // 2. Check location settings.
             // 3. Will start positioning service after checking is passed.
             checkLocationSettings();
@@ -203,6 +203,9 @@ public class MapContainerFragment extends Fragment implements
 
         mMapUIManager = new MapUIManager(this, getActivity(), mGoogleMap);
         mMapUIManager.initializeMapUI();
+        
+        // Do this after mMapUIManager has been initialized
+        registerServerLocationsReceiver(mMapUIManager);
     }
 
     @Override
@@ -338,26 +341,20 @@ public class MapContainerFragment extends Fragment implements
         ServiceManager.startPositioningService(getActivity());
     }
 
-    /**
-     * Register all receivers. Should be called in onResume().
-     */
-    public void registerReceivers() {
-        registerPositioningReceiver();
-        registerServerLocationsReceiver();
+    public void registerPositioningReceiver(
+            @NonNull SelfPositionReceiver.SelfLocationListener listener) {
 
-    }
-
-    public void registerPositioningReceiver() {
         IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
-        mPositioningReceiver = new SelfPositionReceiver(this);
+        mPositioningReceiver = new SelfPositionReceiver(listener);
         getActivity().registerReceiver(mPositioningReceiver, filter);
     }
 
-    public void registerServerLocationsReceiver() {
+    public void registerServerLocationsReceiver(
+            @NonNull GeoQueryLocationsReceiver.GeoQueryLocationsListener listener) {
         IntentFilter filter = new IntentFilter(GeoQueryLocationsReceiver.ACTION_GEOQUERY_LOCATIONS);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
-        mServerLocationsReceiver = new GeoQueryLocationsReceiver(mMapUIManager);
+        mServerLocationsReceiver = new GeoQueryLocationsReceiver(listener);
         getActivity().registerReceiver(mServerLocationsReceiver, filter);
     }
 
@@ -366,6 +363,7 @@ public class MapContainerFragment extends Fragment implements
      */
     public void unregisterReceivers() {
         getActivity().unregisterReceiver(mPositioningReceiver);
+        getActivity().unregisterReceiver(mServerLocationsReceiver);
     }
 
 
