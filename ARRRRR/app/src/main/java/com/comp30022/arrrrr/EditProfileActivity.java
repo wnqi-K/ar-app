@@ -16,7 +16,8 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 
-import com.comp30022.arrrrr.models.Users;
+import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -95,25 +96,25 @@ public class EditProfileActivity extends AppCompatActivity{
 
 
                 if(changeName==true && validateName(name)==true){
-                    myRef.child("users").child(userID).child("username").setValue(name);
+                    myRef.child(Constants.ARG_USERS).child(userID).child(Constants.ARG_USER_NAME).setValue(name);
                     toastMessage("New Information has been saved.");
                     mName.setText("");
                 }
 
                 if(changePhoneNum==true && validatePhoneNumber(phoneNum)==true){
-                    myRef.child("users").child(userID).child("phoneNum").setValue(phoneNum);
+                    myRef.child(Constants.ARG_USERS).child(userID).child(Constants.ARG_PHONE_NUM).setValue(phoneNum);
                     toastMessage("New Information has been saved.");
                     mPhoneNum.setText("");
                 }
 
                 if(!mGender.equals("")){
-                    myRef.child("users").child(userID).child("gender").setValue(mGender);
+                    myRef.child(Constants.ARG_USERS).child(userID).child(Constants.ARG_GENDER).setValue(mGender);
                     toastMessage("New Information has been saved.");
 
                 }
 
                 if(!mAddress.equals("")){
-                    myRef.child("users").child(userID).child("address").setValue(mAddress);
+                    myRef.child(Constants.ARG_USERS).child(userID).child(Constants.ARG_ADDRESS).setValue(mAddress);
                     toastMessage("New Information has been saved.");
                 }
             }

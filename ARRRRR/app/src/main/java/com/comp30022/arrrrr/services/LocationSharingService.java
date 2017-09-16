@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
@@ -18,6 +19,7 @@ import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.firebase.geofire.core.GeoHash;
+import com.firebase.geofire.util.GeoUtils;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -99,8 +101,20 @@ public class LocationSharingService extends Service implements
      * Contains all current detailed information about a geo location
      */
     private HashMap<String, GeoLocationInfo> mGeoInfos;
+
+    /**
+     * Contains all database references to user location
+     */
     private HashMap<String, DatabaseReference> mUserLocationRefs;
+
+    /**
+     * Contains all listeners to user location updates.
+     */
     private HashMap<String, ValueEventListener> mUserLocationListeners;
+
+    /**
+     * Information buffer for send broadcast.
+     */
     private HashMap<String, GeoLocationInfo> mInfoBuffer;
 
     public LocationSharingService() {
@@ -379,7 +393,6 @@ public class LocationSharingService extends Service implements
         sendBroadcast(broadcastIntent);
     }
 
-
     /**
      * Unregister location update listener for a given user.
      * @param uid user id
@@ -425,5 +438,30 @@ public class LocationSharingService extends Service implements
      */
     public static LatLng geoToLatLng(GeoLocation geoLocation) {
         return new LatLng(geoLocation.latitude, geoLocation.longitude);
+    }
+
+    /**
+     * Calculate distance between two LatLng positions
+     * @param x one position
+     * @param y the other position
+     * @return the distance in meters
+     */
+    public static double distanceBetween(LatLng x, LatLng y) {
+        // Using GeoFire utility function
+        return GeoUtils.distance(x.latitude, x.longitude, y.latitude, y.longitude);
+    }
+
+    /**
+     * Given a distance (in meters), convert to a user friendly string for display.
+     * @param dist distance in meters
+     * @return distance in string
+     */
+    public static String distanceToReadable(double dist) {
+        int distInt = (int) dist;
+        if (distInt < 1000) {
+            return String.valueOf(distInt) + "m";
+        } else {
+            return String.valueOf(distInt/1000) + "km";
+        }
     }
 }
