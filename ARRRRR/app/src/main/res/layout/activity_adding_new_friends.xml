@@ -11,12 +11,12 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:inputType="text"
-        android:hint="Please enter the email account. "/>
+        android:hint="@string/enter_email_account"/>
 
     <Button
         android:id="@+id/search_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Search"/>
+        android:text="@string/search_id"/>
 
 </LinearLayout>

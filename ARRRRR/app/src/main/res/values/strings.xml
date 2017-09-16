@@ -53,5 +53,7 @@
     <string name="type_a_message">Type a message</string>
     <string name="adding_new_friend">Adding new friend</string>
     <string name="quick_ar_entry">Quick AR entry</string>
+    <string name="search_id">Search</string>
+    <string name="enter_email_account">Please enter the email account.</string>
 
 </resources>
