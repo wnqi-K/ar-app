@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.models.User;
@@ -28,7 +27,7 @@ public class MyUsersRecyclerViewAdapter extends RecyclerView.Adapter<MyUsersRecy
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_users, parent, false);
+                .inflate(R.layout.item_user, parent, false);
         return new ViewHolder(view);
     }
 
