@@ -22,7 +22,6 @@ public class Chat  {
         this.receiverUid = receiverUid;
         this.message = message;
         this.timestamp = timestamp;
-
     }
 
 

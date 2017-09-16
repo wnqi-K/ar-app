@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
-import com.comp30022.arrrrr.models.Users;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -15,8 +14,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.utils.Constants;
 
-public class UserProfile extends AppCompatActivity {
+public class UserProfileActivity extends AppCompatActivity {
 
     public final static String EXTRA_NAME = "com.comp30022.EXTRA_NAME_MESSAGE";
 
@@ -26,7 +27,7 @@ public class UserProfile extends AppCompatActivity {
     private FirebaseUser currentUser;
     private DatabaseReference myRef;
     private  String userID;
-    Users uInfo = new Users();
+    User uInfo = new User();
 
 
     /**-------------------------------------**/
@@ -37,8 +38,8 @@ public class UserProfile extends AppCompatActivity {
         setContentView(R.layout.fragment_user_profile);
 
         //declare the database reference object.
-
         mAuth = FirebaseAuth.getInstance();
+
         currentUser = mAuth.getCurrentUser();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         myRef = mFirebaseDatabase.getReference();
@@ -57,7 +58,6 @@ public class UserProfile extends AppCompatActivity {
 
             }
         });
-
     }
 
     private void showData(DataSnapshot dataSnapshot) {
@@ -68,42 +68,39 @@ public class UserProfile extends AppCompatActivity {
         TextView UserGender = (TextView)findViewById(R.id.gender);
         TextView UserAddress = (TextView)findViewById(R.id.address);
 
-        //Users uInfo = new Users();
 
         for(DataSnapshot ds : dataSnapshot.getChildren()) {
-            if (ds.child(userID).hasChild("username")) {
-                uInfo.setUsername(ds.child(userID).getValue(Users.class).getUsername()); //set the name
+            if (ds.child(userID).hasChild(Constants.ARG_USER_NAME)) {
+                uInfo.setUsername(ds.child(userID).getValue(User.class).getUsername()); //set the name
                 UserId.setText("Name:  "+ uInfo.getUsername());
             }else {
                 UserId.setText("Name: please complete your profile by clicking Edit");
             }
 
-            if (ds.child(userID).hasChild("phoneNum")) {
-                uInfo.setPhoneNum(ds.child(userID).getValue(Users.class).getPhoneNum()); //set the phone_num
+            if (ds.child(userID).hasChild(Constants.ARG_PHONE_NUM)) {
+                uInfo.setPhoneNum(ds.child(userID).getValue(User.class).getPhoneNum()); //set the phone_num
                 UserPhone.setText("Phone Number: "+uInfo.getPhoneNum());
             }else
                 UserPhone.setText("Phone Number:");
 
-            if (ds.child(userID).hasChild("gender")) {
-                uInfo.setGender(ds.child(userID).getValue(Users.class).getGender()); //set the gender
+            if (ds.child(userID).hasChild(Constants.ARG_GENDER)) {
+                uInfo.setGender(ds.child(userID).getValue(User.class).getGender()); //set the gender
                 UserGender.setText("Gender: "+uInfo.getGender());
             }else
                 UserGender.setText("Gender:");
 
-            if (ds.child(userID).hasChild("email")) {
+            if (ds.child(userID).hasChild(Constants.ARG_EMAIL)) {
                 UserEmail.setText("Email: "+currentUser.getEmail());
             }else
                 UserEmail.setText("Email:");
 
-            if (ds.child(userID).hasChild("address")) {
-                uInfo.setAddress(ds.child(userID).getValue(Users.class).getAddress()); //set the gender
+            if (ds.child(userID).hasChild(Constants.ARG_ADDRESS)) {
+                uInfo.setAddress(ds.child(userID).getValue(User.class).getAddress()); //set the gender
                 UserAddress.setText("Address: "+uInfo.getAddress());
             }else
                 UserAddress.setText("Address:");
 
         }
-
-
     }
 
     public void EditProfile(View v){
@@ -118,7 +115,4 @@ public class UserProfile extends AppCompatActivity {
         startActivity(intent);
         overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
     }
-
-
-
 }

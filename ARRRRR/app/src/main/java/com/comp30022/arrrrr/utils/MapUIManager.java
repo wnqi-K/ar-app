@@ -74,8 +74,15 @@ public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocations
                     + ", "
                     + String.valueOf(position.longitude)
                     + ").");
+
             // TODO: Customize marker styles
-            Marker userMarker = mGoogleMap.addMarker(new MarkerOptions().position(position));
+            BitmapDescriptor friendIcon = MapUIManager
+                    .bitmapDescriptorFromVector(mContext, R.drawable.ic_face_purple_24dp);
+
+            Marker userMarker = mGoogleMap.addMarker(new MarkerOptions()
+                    .position(position)
+                    .icon(friendIcon));
+
             mUserMarkers.put(key, userMarker);
             this.mUserGeoLocationInfos = geoLocationInfos;
         } else if (type.equals(LocationSharingService.ON_KEY_EXITED) ) {

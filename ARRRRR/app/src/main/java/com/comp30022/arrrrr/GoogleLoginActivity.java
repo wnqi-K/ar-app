@@ -28,7 +28,10 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 /**
  * Demonstrate Firebase Authentication using a Google ID Token.
+ *
+ * Created by Wenqiang Kuang on 1/09/2017.
  */
+
 public class GoogleLoginActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener {

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/adding_friends"
+        android:title="@string/adding_new_friend"
+        android:icon="@drawable/ic_action_add"/>
+
+    <item
+        android:id="@+id/quick_ar_entry"
+        android:title="@string/quick_ar_entry"
+        android:icon="@drawable/ic_action_globe"/>
+
+</menu>

@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -39,6 +40,8 @@ public class SettingFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
     }
@@ -68,18 +71,25 @@ public class SettingFragment extends Fragment {
                 //getActivity().finish();
             }
         });
+
         //Go user profile
         Button userprofileButton = (Button)view.findViewById(R.id.profileButton);
         userprofileButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                Intent intent = new Intent(getActivity(),UserProfile.class);
+                Intent intent = new Intent(getActivity(),UserProfileActivity.class);
                 startActivity(intent);
             }
         });
-
-
         return view;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        // Hide the adding friends and ar entry options in setting fragment
+        menu.findItem(R.id.adding_friends).setVisible(false);
+        menu.findItem(R.id.quick_ar_entry).setVisible(false);
+        super.onPrepareOptionsMenu(menu);
     }
 
 
