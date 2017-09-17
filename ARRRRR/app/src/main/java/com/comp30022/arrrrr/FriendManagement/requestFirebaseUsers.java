@@ -1,4 +1,4 @@
-package com.comp30022.arrrrr;
+package com.comp30022.arrrrr.FriendManagement;
 
 import android.text.TextUtils;
 
@@ -18,11 +18,16 @@ import java.util.List;
  * Created by rondo on 9/12/17.
  */
 
-public class GetAllUsersFromFirebase {
-    public UsersManagement mUsersManagement;
+public class requestFirebaseUsers {
+    //public UsersManagement mUsersManagement;
+    private FriendManagement mFriendManagement;
 
-    public GetAllUsersFromFirebase(UsersManagement usersManagement){
-        mUsersManagement = usersManagement;
+    public FriendManagement getFriendManagement() {
+        return mFriendManagement;
+    }
+
+    public requestFirebaseUsers(FriendManagement friendManagement){
+        mFriendManagement = friendManagement;
         init();
     }
 
@@ -35,7 +40,7 @@ public class GetAllUsersFromFirebase {
                 Iterator<DataSnapshot> dataSnapshots = dataSnapshot.getChildren().iterator();
 
                 //an arrayList stores users
-                List<User> users = new ArrayList<User>();
+                List<User> users = new ArrayList<>();
 
                 // iterate each child
                 while (dataSnapshots.hasNext()) {
@@ -45,13 +50,12 @@ public class GetAllUsersFromFirebase {
                         users.add(user);
                     }
                 }
-
-                mUsersManagement.getUsersSuccessfully(users);
+                mFriendManagement.addingAllUsers(users);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                mUsersManagement.getUsersUnsuccessfully(databaseError.getMessage());
+                mFriendManagement.getUsersUnsuccessfully(databaseError.getMessage());
             }
         });
     }

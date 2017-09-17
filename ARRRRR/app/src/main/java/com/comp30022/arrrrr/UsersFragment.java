@@ -42,7 +42,7 @@ public class UsersFragment extends Fragment{
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
-            recyclerView.setAdapter(new MyUsersRecyclerViewAdapter(((MainViewActivity)getActivity()).getmUsersManagment().getAllUsers(), context));
+            recyclerView.setAdapter(new MyUsersRecyclerViewAdapter(((MainViewActivity)getActivity()).getRequestUsers().getFriendManagement().getAllFriends(), context));
         }
         return view;
     }
