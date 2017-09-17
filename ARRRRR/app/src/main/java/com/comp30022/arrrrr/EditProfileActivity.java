@@ -117,7 +117,6 @@ public class EditProfileActivity extends AppCompatActivity{
 
     }
 
-
     public void TextViewClicked(View view){
 
         // Declare in and out animations and load them using AnimationUtils class
