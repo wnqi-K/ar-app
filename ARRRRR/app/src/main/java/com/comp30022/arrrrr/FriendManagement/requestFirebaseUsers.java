@@ -15,11 +15,13 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by rondo on 9/12/17.
+ * This function takes a friendManagement object as input and adding users to the object.
+ * To get the friend list, using getFriendManagement.getFriendList.
+ * This is also responsible for searching users from the firebase database.
+ * Created by Wenqiang Kuang on 9/17/17.
  */
 
 public class requestFirebaseUsers {
-    //public UsersManagement mUsersManagement;
     private FriendManagement mFriendManagement;
 
     public FriendManagement getFriendManagement() {
