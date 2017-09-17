@@ -33,6 +33,7 @@ public class PositioningService extends Service {
     public static final String PARAM_OUT_LOCATION = "OUT_LOCATION";
     public static final String PARAM_IN_PERM_GRANTED = "IN_PERMISSION_GRANTED";
     private static final String TAG = PositioningService.class.getSimpleName();
+
     /**
      * Provides access to the Fused Location Provider API.
      */

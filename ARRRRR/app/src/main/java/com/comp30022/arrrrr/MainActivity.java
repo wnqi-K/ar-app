@@ -5,6 +5,13 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+/**
+ * The logIn page for the app, providing three login option, email account
+ * google and facebook account.
+ *
+ * Created by Wenqiang Kuang on 26/08/2017.
+ */
+
 public class MainActivity extends AppCompatActivity {
 
     private static boolean sIsChatActivityOpen = false;

@@ -16,16 +16,11 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 
-import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
 
 
 public class EditProfileActivity extends AppCompatActivity{
@@ -62,8 +57,8 @@ public class EditProfileActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
-        //Value passed by UserProfile.class
-        //String UserName  = getIntent().getStringExtra(UserProfile.EXTRA_NAME);
+        //Value passed by UserProfileActivity.class
+        //String UserName  = getIntent().getStringExtra(UserProfileActivity.EXTRA_NAME);
 
         mName = (EditText) findViewById(R.id.etName);
         mPhoneNum = (EditText) findViewById(R.id.etPhone);
@@ -121,7 +116,6 @@ public class EditProfileActivity extends AppCompatActivity{
         });
 
     }
-
 
     public void TextViewClicked(View view){
 
@@ -250,7 +244,7 @@ public class EditProfileActivity extends AppCompatActivity{
 
 
     public void back_UserProfile(View v){
-        Intent intent = new Intent(this, UserProfile.class);
+        Intent intent = new Intent(this, UserProfileActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
     }

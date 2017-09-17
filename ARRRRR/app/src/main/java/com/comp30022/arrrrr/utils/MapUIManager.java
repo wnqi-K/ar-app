@@ -8,12 +8,17 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.comp30022.arrrrr.BuildConfig;
 import com.comp30022.arrrrr.R;
+import com.comp30022.arrrrr.animations.LatLngInterpolator;
+import com.comp30022.arrrrr.animations.MarkerAnimation;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
+import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.services.LocationSharingService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,7 +39,9 @@ import java.util.HashMap;
  * @author Dafu Ai
  */
 
-public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocationsListener {
+public class MapUIManager implements
+        GeoQueryLocationsReceiver.GeoQueryLocationsListener,
+        SelfPositionReceiver.SelfLocationListener {
 
     private final String TAG = MapUIManager.class.getSimpleName();
 
@@ -92,7 +99,10 @@ public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocations
         } else if (type.equals(LocationSharingService.ON_KEY_MOVED)) {
             // Move marker
             LatLng position = geoLocations.get(key);
-            mUserMarkers.get(key).setPosition(position);
+            // mUserMarkers.get(key).setPosition(position);
+            // Animate marker intead of simply changing its location
+            LatLngInterpolator interpolator = new LatLngInterpolator.LinearFixed();
+            MarkerAnimation.animateMarkerToICS(mUserMarkers.get(key), position, interpolator);
             this.mUserGeoLocationInfos = geoLocationInfos;
         }
     }
@@ -109,18 +119,11 @@ public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocations
     }
 
     /**
-     * Get marker location for location query
-     * @return current marker position
-     */
-    private LatLng getSelfMarkerPosition() {
-        return mSelfMarker.getPosition();
-    }
-
-    /**
      * Handles when there is a location update.
      * Adjust marker's and circle's locations in accordance with the new location.
      */
-    public void onSelfLocationUpdate(Location location) {
+    @Override
+    public void onSelfLocationChanged(Location location) {
         LatLng currLatLng = locationToLatLng(location);
 
         if (mSelfCircle == null) {
@@ -162,12 +165,12 @@ public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocations
     /**
      * Save current view of the map into shared preferences.
      */
-    public void saveCurrentMapView(Location currentLocation) {
-        if(currentLocation != null) {
+    public void saveCurrentMapView() {
+        if(mSelfMarker.getPosition() != null) {
             SharedPreferences sharedPref = mFragment.getActivity().getPreferences(Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putFloat(mFragment.getString(R.string.saved_camera_lat), (float) currentLocation.getLatitude());
-            editor.putFloat(mFragment.getString(R.string.saved_camera_long), (float) currentLocation.getLongitude());
+            editor.putFloat(mFragment.getString(R.string.saved_camera_lat), (float) mSelfMarker.getPosition().latitude);
+            editor.putFloat(mFragment.getString(R.string.saved_camera_long), (float) mSelfMarker.getPosition().longitude);
             editor.apply();
         }
     }
