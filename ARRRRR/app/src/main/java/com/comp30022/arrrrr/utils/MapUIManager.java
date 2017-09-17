@@ -8,10 +8,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.comp30022.arrrrr.BuildConfig;
 import com.comp30022.arrrrr.R;
+import com.comp30022.arrrrr.animations.LatLngInterpolator;
+import com.comp30022.arrrrr.animations.MarkerAnimation;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
@@ -95,7 +99,10 @@ public class MapUIManager implements
         } else if (type.equals(LocationSharingService.ON_KEY_MOVED)) {
             // Move marker
             LatLng position = geoLocations.get(key);
-            mUserMarkers.get(key).setPosition(position);
+            // mUserMarkers.get(key).setPosition(position);
+            // Animate marker intead of simply changing its location
+            LatLngInterpolator interpolator = new LatLngInterpolator.LinearFixed();
+            MarkerAnimation.animateMarkerToICS(mUserMarkers.get(key), position, interpolator);
             this.mUserGeoLocationInfos = geoLocationInfos;
         }
     }

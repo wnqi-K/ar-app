@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -22,7 +21,6 @@ import android.view.ViewGroup;
 
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
-import com.comp30022.arrrrr.services.LocationSharingService;
 import com.comp30022.arrrrr.utils.LocationPermissionHelper;
 import com.comp30022.arrrrr.utils.LocationSettingsHelper;
 import com.comp30022.arrrrr.utils.MapUIManager;
@@ -62,11 +60,6 @@ public class MapContainerFragment extends Fragment implements
      * Start Updates and Stop Updates buttons.
      */
     private Boolean mRequestingLocationUpdates;
-
-    /**
-     * The main map using Google Map.
-     */
-    private GoogleMap mGoogleMap;
 
     /**
      * Receiver for self positioning service.
@@ -146,6 +139,8 @@ public class MapContainerFragment extends Fragment implements
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
+        // TODO: Consider saving current map view
     }
 
     @Override
@@ -197,10 +192,9 @@ public class MapContainerFragment extends Fragment implements
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        this.mGoogleMap = googleMap;
         Log.v(TAG, "Map ready");
 
-        mMapUIManager = new MapUIManager(this, getActivity(), mGoogleMap);
+        mMapUIManager = new MapUIManager(this, getActivity(), googleMap);
         mMapUIManager.initializeMapUI();
         
         // Do this after mMapUIManager has been initialized
