@@ -36,16 +36,16 @@ public class MyUsersRecyclerViewAdapter extends RecyclerView.Adapter<MyUsersRecy
         // set icon
         holder.mIdView.setText(Integer.toString(position+1));
         // set email
-        holder.mContentView.setText(mList.get(position).email);
+        holder.mContentView.setText(mList.get(position).getEmail());
         holder.mContentView.setOnClickListener(new View.OnClickListener(){
 
             // click event
             @Override
             public void onClick(View v){
                 ChatActivity.startActivity(mContext,
-                        holder.mUser.email,
-                        holder.mUser.uid,
-                        holder.mUser.firebaseToken);
+                        holder.mUser.getEmail(),
+                        holder.mUser.getUid(),
+                        holder.mUser.getFirebaseToken());
             }
         });
     }
@@ -64,8 +64,8 @@ public class MyUsersRecyclerViewAdapter extends RecyclerView.Adapter<MyUsersRecy
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.id);
-            mContentView = (TextView) view.findViewById(R.id.content);
+            mIdView = (TextView) view.findViewById(R.id.user_id);
+            mContentView = (TextView) view.findViewById(R.id.user_content);
         }
 
         @Override

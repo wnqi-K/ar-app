@@ -11,19 +11,23 @@ import android.view.ViewGroup;
 import com.comp30022.arrrrr.adapters.MyUsersRecyclerViewAdapter;
 import com.comp30022.arrrrr.models.User;
 
-public class UsersFragment extends Fragment{
+import java.util.ArrayList;
+import java.util.HashMap;
+
+/**
+ * This fragment is to contain five admin friends and newly added friends.
+ * Created by Wenqiang Kuang on 01/09/2017.
+ */
+
+public class FriendsFragment extends Fragment{
 
     private OnListFragmentInteractionListener mListener;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
-    public UsersFragment() {
+    public FriendsFragment() {
     }
 
-    public static UsersFragment newInstance() {
-        UsersFragment fragment = new UsersFragment();
+    public static FriendsFragment newInstance() {
+        FriendsFragment fragment = new FriendsFragment();
         return fragment;
     }
 
@@ -34,16 +38,20 @@ public class UsersFragment extends Fragment{
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_users_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_users_list, container, false);
 
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            recyclerView.setAdapter(new MyUsersRecyclerViewAdapter(((MainViewActivity)getActivity()).getRequestUsers().getFriendManagement().getFriendList(), context));
-        }
+        RecyclerView recyclerView = (RecyclerView)view.findViewById(R.id.added_friend_list);
+        Context context = view.getContext();
+        ArrayList<User> friendList = (ArrayList<User>) ((MainViewActivity)getActivity()).getRequestUsers().getFriendManagement().getFriendList();
+        ArrayList<User> adminList = (ArrayList<User>) ((MainViewActivity)getActivity()).getRequestUsers().getAdminFriends().getFriendList();
+
+        HashMap<String, ArrayList<User>> expandableList = new HashMap<>();
+        expandableList.put("Pre-set Friends", adminList);
+        expandableList.put("All_Users", friendList);
+
+        recyclerView.setAdapter(new MyUsersRecyclerViewAdapter(adminList, context));
         return view;
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -76,5 +84,4 @@ public class UsersFragment extends Fragment{
         // TODO: Update argument type and name
         void onListFragmentInteraction(User user);
     }
-
 }
