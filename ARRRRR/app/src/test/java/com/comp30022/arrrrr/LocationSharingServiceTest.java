@@ -8,7 +8,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 /**
- * Test time helper functions
+ * Test location sharing service functions
  * @author Dafu Ai
  */
 
