@@ -168,7 +168,10 @@ public class MapContainerFragment extends Fragment implements
         super.onPause();
 
         unregisterReceivers();
-        mMapUIManager.saveCurrentMapView();
+        if (mMapUIManager != null) {
+            // mMapUIManager may not have been initialized.
+            mMapUIManager.saveCurrentMapView();
+        }
     }
 
     @Override
