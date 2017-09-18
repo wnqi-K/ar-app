@@ -10,6 +10,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import com.comp30022.arrrrr.FriendManagement.FriendManagement;
+import com.comp30022.arrrrr.FriendManagement.requestFirebaseUsers;
 import com.comp30022.arrrrr.models.User;
 
 /**
@@ -27,9 +30,12 @@ public class MainViewActivity extends AppCompatActivity implements
     /**
      *  Users management like getting all user.
      */
-    private UsersManagement mUsersManagment;
-    private GetAllUsersFromFirebase mGetAllUsersFromFirebase;
+    private FriendManagement mFriendManagement;
+    private requestFirebaseUsers mRequestUsers;
 
+    public requestFirebaseUsers getRequestUsers() {
+        return mRequestUsers;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +51,8 @@ public class MainViewActivity extends AppCompatActivity implements
         switchToFragmentHome();
 
         // Get all users from database
-        this.mUsersManagment = new UsersManagement();
-        this.mGetAllUsersFromFirebase = new GetAllUsersFromFirebase(mUsersManagment);
+        this.mFriendManagement = new FriendManagement();
+        this.mRequestUsers = new requestFirebaseUsers(mFriendManagement);
     }
 
     @Override
@@ -174,9 +180,5 @@ public class MainViewActivity extends AppCompatActivity implements
         if (fragment != null) {
             fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-    }
-
-    public UsersManagement getmUsersManagment() {
-        return mUsersManagment;
     }
 }

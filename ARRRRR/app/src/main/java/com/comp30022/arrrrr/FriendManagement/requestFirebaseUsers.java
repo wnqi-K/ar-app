@@ -1,4 +1,4 @@
-package com.comp30022.arrrrr;
+package com.comp30022.arrrrr.FriendManagement;
 
 import android.text.TextUtils;
 
@@ -15,14 +15,21 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by rondo on 9/12/17.
+ * This function takes a friendManagement object as input and adding users to the object.
+ * To get the friend list, using getFriendManagement.getFriendList.
+ * This is also responsible for searching users from the firebase database.
+ * Created by Wenqiang Kuang on 9/17/17.
  */
 
-public class GetAllUsersFromFirebase {
-    public UsersManagement mUsersManagement;
+public class requestFirebaseUsers {
+    private FriendManagement mFriendManagement;
 
-    public GetAllUsersFromFirebase(UsersManagement usersManagement){
-        mUsersManagement = usersManagement;
+    public FriendManagement getFriendManagement() {
+        return mFriendManagement;
+    }
+
+    public requestFirebaseUsers(FriendManagement friendManagement){
+        mFriendManagement = friendManagement;
         init();
     }
 
@@ -35,7 +42,7 @@ public class GetAllUsersFromFirebase {
                 Iterator<DataSnapshot> dataSnapshots = dataSnapshot.getChildren().iterator();
 
                 //an arrayList stores users
-                List<User> users = new ArrayList<User>();
+                List<User> users = new ArrayList<>();
 
                 // iterate each child
                 while (dataSnapshots.hasNext()) {
@@ -45,13 +52,12 @@ public class GetAllUsersFromFirebase {
                         users.add(user);
                     }
                 }
-
-                mUsersManagement.getUsersSuccessfully(users);
+                mFriendManagement.addingAllUsers(users);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                mUsersManagement.getUsersUnsuccessfully(databaseError.getMessage());
+                mFriendManagement.getUsersUnsuccessfully(databaseError.getMessage());
             }
         });
     }

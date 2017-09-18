@@ -1,12 +1,9 @@
 package com.comp30022.arrrrr;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +39,7 @@ public class UsersFragment extends Fragment{
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
-            recyclerView.setAdapter(new MyUsersRecyclerViewAdapter(((MainViewActivity)getActivity()).getmUsersManagment().getAllUsers(), context));
+            recyclerView.setAdapter(new MyUsersRecyclerViewAdapter(((MainViewActivity)getActivity()).getRequestUsers().getFriendManagement().getFriendList(), context));
         }
         return view;
     }
