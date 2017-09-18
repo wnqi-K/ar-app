@@ -74,8 +74,8 @@ public class FriendsFragment extends Fragment{
 
 
     private HashMap<String, ArrayList<User>> getFriendLists() {
-        ArrayList<User> friendList = (ArrayList<User>) ((MainViewActivity)getActivity()).getRequestUsers().getFriendManagement().getFriendList();
-        ArrayList<User> adminList = (ArrayList<User>) ((MainViewActivity)getActivity()).getRequestUsers().getAdminFriends().getFriendList();
+        ArrayList<User> friendList = (ArrayList<User>) ((MainViewActivity)getActivity()).getmDatabaseManager().getAllUsers();
+        ArrayList<User> adminList = (ArrayList<User>) ((MainViewActivity)getActivity()).getmDatabaseManager().getAdminFriends();
         HashMap<String, ArrayList<User>> expandableList = new HashMap<>();
         expandableList.put("Pre-placed Friends", adminList);
         expandableList.put("Users", friendList);
