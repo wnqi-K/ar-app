@@ -14,6 +14,7 @@ import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
 import com.comp30022.arrrrr.receivers.SingleUserLocationReceiver;
+import com.comp30022.arrrrr.utils.TimeHelper;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -60,6 +61,11 @@ public class LocationSharingService extends Service implements
     private final static String DB_REF_GEO_INFO = "userlocations_info";
     private final static String DB_REF_GEO = "userlocations_geo";
     private final static String INFO_LABEL_TIME = "time";
+
+    public static final String PARAM_IN_REQUEST_TYPE = "IN_REQUEST_TYPE";
+    public static final String REQUEST_ADD_LISTENER = "REQUEST_ADD_LISTENER";
+    public static final String REQUEST_REMOVE_LISTENER = "REQUEST_REMOVE_LISTENER";
+    public static final String PARAM_IN_REFER_KEY = "IN_REFER_KEY";
 
     public static final String PARAM_OUT_REFER_EVENT = "OUT_REFER_TO_EVENT";
     public static final String PARAM_OUT_REFER_KEY = "OUT_REFER_TO_KEY";
@@ -117,6 +123,11 @@ public class LocationSharingService extends Service implements
      */
     private HashMap<String, GeoLocationInfo> mInfoBuffer;
 
+    /**
+     * Intentionally made public to be used in the method registerLocationListenerForUser().
+     */
+    public ValueEventListener mSingleGeoLocationListener;
+
     public LocationSharingService() {
     }
 
@@ -134,8 +145,13 @@ public class LocationSharingService extends Service implements
 
         mUserLocationRefs = new HashMap<>();
         mInfoBuffer = new HashMap<>();
+        mUserLocationListeners = new HashMap<>();
 
+        createSingleGeoLocationListener();
         registerReceivers();
+
+        String testUser = "4yP0T1QjH3ZIraUIHIuoQpYhOkU2";
+        registerLocationListenerForUser(testUser);
     }
 
     @Override
@@ -146,6 +162,24 @@ public class LocationSharingService extends Service implements
 
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
+        if (intent != null) {
+            String requestType = intent.getStringExtra(PARAM_IN_REQUEST_TYPE);
+            if (requestType != null && requestType.equals(REQUEST_ADD_LISTENER)) {
+                String key = intent.getStringExtra(PARAM_IN_REFER_KEY);
+                if (key == null) {
+                    Log.v(TAG, "Failed registering listener. Missing parameter in intent: PARAM_OUT_REFER_KEY.");
+                }
+                registerLocationListenerForUser(key);
+            }
+            if (requestType != null && requestType.equals(REQUEST_REMOVE_LISTENER)) {
+                String key = intent.getStringExtra(PARAM_IN_REFER_KEY);
+                if (key == null) {
+                    Log.v(TAG, "Failed registering listener. Missing parameter in intent: PARAM_OUT_REFER_KEY.");
+                }
+                unregisterLocationListenerForUser(key);
+            }
+        }
+
         return START_STICKY;
     }
 
@@ -215,14 +249,32 @@ public class LocationSharingService extends Service implements
         if (mGeoQuery == null) {
             mGeoQuery = mGeoFire.queryAtLocation(geoLocation, radius);
             mGeoQuery.addGeoQueryEventListener(this);
-            //String testUser = "iD2ZusuPN3ZAC3gZLGrgRjPbCJB3";
-            //registerLocationListenerForUser(testUser);
         } else {
             mGeoQuery.setLocation(geoLocation, radius);
         }
 
         // Send new location to server
         sendNewSelfLocation(location);
+    }
+
+    /**
+     * Create listener for single geo location value event
+     */
+    public void createSingleGeoLocationListener() {
+        // Child listener
+        mSingleGeoLocationListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String uid = dataSnapshot.getKey();
+                GeoLocation geoLocation = getLocationValue(dataSnapshot);
+                broadcastSingleUserLocation(uid, geoLocation);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.v(TAG, "Unable to retrieve detailed location info from a location update.");
+            }
+        };
     }
 
     /**
@@ -237,6 +289,7 @@ public class LocationSharingService extends Service implements
                         GeoLocationInfo geoLocationInfo = dataSnapshot.getValue(GeoLocationInfo.class);
                         String key = dataSnapshot.getKey();
                         String type;
+                        Boolean isInfoExpired = false;
 
                         // Determine which query event was fired
                         if (mGeoInfos.containsKey(key)) {
@@ -245,8 +298,15 @@ public class LocationSharingService extends Service implements
                             type = ON_KEY_ENTERED;
                         }
 
-                        mGeoInfos.put(key, geoLocationInfo);
-                        broadcastGeoLocationsUpdate(type, key);
+                        if (geoLocationInfo != null && isGeoInfoExpired(geoLocationInfo)) {
+                            // Throw away a expired location info
+                            mGeoLocations.remove(key);
+                            isInfoExpired = true;
+                        } else {
+                            // Only send broadcast if geo info is not expired
+                            mGeoInfos.put(key, geoLocationInfo);
+                            broadcastGeoLocationsUpdate(type, key);
+                        }
                     }
 
                     @Override
@@ -328,39 +388,26 @@ public class LocationSharingService extends Service implements
     }
 
     /**
-     * Intentionally made public to be used in the method registerLocationListenerForUser().
-     */
-    public ValueEventListener mSingleGeoLocationListener;
-
-    /**
      * Register location update listener for a given user.
      * @param uid user id
      */
     public void registerLocationListenerForUser(String uid) {
         DatabaseReference ref = mRootRef.child(getUserRefPath(RefType.GEO_INFO, uid));
-        mSingleGeoLocationListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String uid = dataSnapshot.getKey();
-                GeoLocation geoLocation = getLocationValue(dataSnapshot);
-                broadcastSingleUserLocation(uid, geoLocation);
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.v(TAG, "Unable to retrieve detailed location info from a location update.");
-            }
-        };
-
+        // Parent listener
         ValueEventListener geoInfoListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String uid = dataSnapshot.getKey();
                 GeoLocationInfo info = dataSnapshot.getValue(GeoLocationInfo.class);
-                mInfoBuffer.put(uid, info);
 
-                mRootRef.child(getUserRefPath(RefType.GEO_LOCATION, uid))
-                        .addListenerForSingleValueEvent(mSingleGeoLocationListener);
+                // Check for expiry of geoinfo
+                if(info != null && !isGeoInfoExpired(info)) {
+                    mInfoBuffer.put(uid, info);
+
+                    mRootRef.child(getUserRefPath(RefType.GEO_LOCATION, uid))
+                            .addListenerForSingleValueEvent(mSingleGeoLocationListener);
+                }
             }
 
             @Override
@@ -373,6 +420,8 @@ public class LocationSharingService extends Service implements
         ref.addValueEventListener(geoInfoListener);
         // Save reference object
         mUserLocationRefs.put(uid, ref);
+        mUserLocationListeners.put(uid, geoInfoListener);
+        Log.v(TAG, "Now listening user location update for uid = " + String.valueOf(uid));
     }
 
     /**
@@ -399,6 +448,8 @@ public class LocationSharingService extends Service implements
 
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(broadcastIntent);
+
+        Log.v(TAG, "Broadcast sent with a new location update from user " + String.valueOf(uid));
     }
 
     /**
@@ -409,10 +460,10 @@ public class LocationSharingService extends Service implements
         DatabaseReference ref = mUserLocationRefs.get(uid);
         // Safety check
         if (ref == null) {
-            Log.v(TAG, "Cannot find listener for userID=" + uid);
+            Log.v(TAG, "Failed registering listener: cannot find listener for userID = " + uid);
             return;
-
         }
+
         // IMPORTANT: Remove event listener to stop receiving update
         ref.removeEventListener(mUserLocationListeners.get(uid));
 
@@ -423,13 +474,17 @@ public class LocationSharingService extends Service implements
 
     /**
      * Retrieve current user's uid.
-     * @return user uid
+     * @return user uid (null if current user doesn't exist)
      */
     private String getCurrentUserUID(){
         // Get current user('s id).
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
-        return user.getUid();
+        if (user == null) {
+            return null;
+        } else {
+            return user.getUid();
+        }
     }
 
 
@@ -450,6 +505,14 @@ public class LocationSharingService extends Service implements
                 break;
         }
         return path;
+    }
+
+    /**
+     * Determines whether geo information has expired.
+     */
+    public static Boolean isGeoInfoExpired(@NonNull GeoLocationInfo info) {
+        // We check whether the timestamp of the geo information is earlier than today.
+        return TimeHelper.timeSinceNow(info.time, TimeHelper.TimeUnit.Day) >= 1;
     }
 
     /**

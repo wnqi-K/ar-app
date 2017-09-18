@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -44,7 +43,6 @@ import java.util.Date;
  */
 public class MapContainerFragment extends Fragment implements
         OnMapReadyCallback,
-        SelfPositionReceiver.SelfLocationListener,
         LocationSettingsHelper.OnLocationSettingsResultListener {
 
     private static final String TAG = MapContainerFragment.class.getSimpleName();
@@ -62,16 +60,6 @@ public class MapContainerFragment extends Fragment implements
      * Start Updates and Stop Updates buttons.
      */
     private Boolean mRequestingLocationUpdates;
-
-    /**
-     * Represents a geographical location.
-     */
-    private Location mCurrentLocation;
-
-    /**
-     * The main map using Google Map.
-     */
-    private GoogleMap mGoogleMap;
 
     /**
      * Receiver for self positioning service.
@@ -119,11 +107,9 @@ public class MapContainerFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        mCurrentLocation = null;
         mRequestingLocationUpdates = false;
 
-        //Update values using data stored in the Bundle.
-        updateValuesFromBundle(savedInstanceState);
+        // TODO: Update values using data stored in the Bundle.
     }
 
     @Override
@@ -152,16 +138,14 @@ public class MapContainerFragment extends Fragment implements
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (mCurrentLocation != null) {
-            outState.putParcelable(KEY_SELF_LOCATION, mCurrentLocation);
-        }
         super.onSaveInstanceState(outState);
+
+        // TODO: Consider saving current map view
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        registerPositioningReceiver(this);
 
         ServiceManager.startLocationSharingService(getActivity());
 
@@ -174,7 +158,7 @@ public class MapContainerFragment extends Fragment implements
             // 2. Check location settings.
             // 3. Will start positioning service after checking is passed.
             checkLocationSettings();
-        } else if (!permissionGranted) {
+        } else {
             mPermissionChecker.requestPermissions();
         }
     }
@@ -184,7 +168,10 @@ public class MapContainerFragment extends Fragment implements
         super.onPause();
 
         unregisterReceivers();
-        mMapUIManager.saveCurrentMapView(mCurrentLocation);
+        if (mMapUIManager != null) {
+            // mMapUIManager may not have been initialized.
+            mMapUIManager.saveCurrentMapView();
+        }
     }
 
     @Override
@@ -208,22 +195,14 @@ public class MapContainerFragment extends Fragment implements
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        this.mGoogleMap = googleMap;
         Log.v(TAG, "Map ready");
 
-        mMapUIManager = new MapUIManager(this, getActivity(), mGoogleMap);
+        mMapUIManager = new MapUIManager(this, getActivity(), googleMap);
         mMapUIManager.initializeMapUI();
         
         // Do this after mMapUIManager has been initialized
         registerServerLocationsReceiver(mMapUIManager);
-    }
-
-    @Override
-    public void onSelfLocationChanged(Location location) {
-        mCurrentLocation = location;
-        Log.v(TAG, "New self position at" + DateFormat.getTimeInstance().format(
-                new Date(mCurrentLocation.getTime())));
-        updateLocations();
+        registerPositioningReceiver(mMapUIManager);
     }
 
     @Override
@@ -255,21 +234,6 @@ public class MapContainerFragment extends Fragment implements
                 mRequestingLocationUpdates = false;
                 break;
         }
-
-    }
-
-    /**
-     * Updates fields based on data stored in the bundle.
-     * @param savedInstanceState The activity state saved in the Bundle.
-     */
-    private void updateValuesFromBundle(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            // Update the value of mCurrentLocation from the Bundle
-            if (savedInstanceState.keySet().contains(KEY_SELF_LOCATION)) {
-                mCurrentLocation = savedInstanceState.getParcelable(KEY_SELF_LOCATION);
-                Log.v(TAG, "Location updated from savedInstanceState");
-            }
-        }
     }
 
     public void checkLocationSettings() {
@@ -294,19 +258,9 @@ public class MapContainerFragment extends Fragment implements
                     case Activity.RESULT_CANCELED:
                         Log.i(TAG, "User chose not to make required location settings changes.");
                         mRequestingLocationUpdates = false;
-                        updateLocations();
                         break;
                 }
                 break;
-        }
-    }
-
-    /**
-     * Sets the value of the UI fields for the location latitude, longitude and last update time.
-     */
-    private void updateLocations() {
-        if (mCurrentLocation != null) {
-            mMapUIManager.onSelfLocationUpdate(mCurrentLocation);
         }
     }
 

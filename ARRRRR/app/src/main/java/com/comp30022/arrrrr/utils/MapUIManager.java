@@ -12,8 +12,11 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.comp30022.arrrrr.R;
+import com.comp30022.arrrrr.animations.LatLngInterpolator;
+import com.comp30022.arrrrr.animations.MarkerAnimation;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
+import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.services.LocationSharingService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -24,7 +27,6 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.VisibleRegion;
 
 import java.util.HashMap;
 
@@ -34,7 +36,9 @@ import java.util.HashMap;
  * @author Dafu Ai
  */
 
-public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocationsListener {
+public class MapUIManager implements
+        GeoQueryLocationsReceiver.GeoQueryLocationsListener,
+        SelfPositionReceiver.SelfLocationListener {
 
     private final String TAG = MapUIManager.class.getSimpleName();
 
@@ -74,8 +78,18 @@ public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocations
                     + ", "
                     + String.valueOf(position.longitude)
                     + ").");
+
+            BitmapDescriptor iconDescriptor;
+
             // TODO: Customize marker styles
-            Marker userMarker = mGoogleMap.addMarker(new MarkerOptions().position(position));
+            BitmapDescriptor friendIcon = MapUIManager
+                    .bitmapDescriptorFromVector(mContext, R.drawable.ic_face_purple_24dp, 2);
+
+            Marker userMarker = mGoogleMap.addMarker(new MarkerOptions()
+                    .position(position)
+                    .icon(friendIcon)
+            );
+
             mUserMarkers.put(key, userMarker);
             this.mUserGeoLocationInfos = geoLocationInfos;
         } else if (type.equals(LocationSharingService.ON_KEY_EXITED) ) {
@@ -85,7 +99,10 @@ public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocations
         } else if (type.equals(LocationSharingService.ON_KEY_MOVED)) {
             // Move marker
             LatLng position = geoLocations.get(key);
-            mUserMarkers.get(key).setPosition(position);
+            // mUserMarkers.get(key).setPosition(position);
+            // Animate marker intead of simply changing its location
+            LatLngInterpolator interpolator = new LatLngInterpolator.LinearFixed();
+            MarkerAnimation.animateMarkerToICS(mUserMarkers.get(key), position, interpolator);
             this.mUserGeoLocationInfos = geoLocationInfos;
         }
     }
@@ -102,18 +119,11 @@ public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocations
     }
 
     /**
-     * Get marker location for location query
-     * @return current marker position
-     */
-    private LatLng getSelfMarkerPosition() {
-        return mSelfMarker.getPosition();
-    }
-
-    /**
      * Handles when there is a location update.
      * Adjust marker's and circle's locations in accordance with the new location.
      */
-    public void onSelfLocationUpdate(Location location) {
+    @Override
+    public void onSelfLocationChanged(Location location) {
         LatLng currLatLng = locationToLatLng(location);
 
         if (mSelfCircle == null) {
@@ -131,7 +141,10 @@ public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocations
             mSelfMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .title("My position")
                     .position(currLatLng)
-                    .icon(MapUIManager.bitmapDescriptorFromVector(mContext, R.drawable.ic_radio_button_checked_dodgeblue_24dp))
+                    .icon(MapUIManager.bitmapDescriptorFromVector(
+                            mContext,
+                            R.drawable.ic_radio_button_checked_dodgeblue_24dp,
+                            1))
                     .anchor(0.5f, 0.5f));
         } else {
             mSelfMarker.setPosition(currLatLng);
@@ -155,23 +168,24 @@ public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocations
     /**
      * Save current view of the map into shared preferences.
      */
-    public void saveCurrentMapView(Location currentLocation) {
-        if(currentLocation != null) {
+    public void saveCurrentMapView() {
+        if(mSelfMarker != null && mSelfMarker.getPosition() != null) {
             SharedPreferences sharedPref = mFragment.getActivity().getPreferences(Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putFloat(mFragment.getString(R.string.saved_camera_lat), (float) currentLocation.getLatitude());
-            editor.putFloat(mFragment.getString(R.string.saved_camera_long), (float) currentLocation.getLongitude());
+            editor.putFloat(mFragment.getString(R.string.saved_camera_lat), (float) mSelfMarker.getPosition().latitude);
+            editor.putFloat(mFragment.getString(R.string.saved_camera_long), (float) mSelfMarker.getPosition().longitude);
             editor.apply();
         }
     }
 
     /**
      * Convert a vector asset resource to a {@link BitmapDescriptor}
+     * @param enlarge enlarge from original size
      */
-    public static BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
+    public static BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId, int enlarge) {
         Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
-        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
-        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth()*enlarge, vectorDrawable.getIntrinsicHeight()*enlarge);
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth()*enlarge, vectorDrawable.getIntrinsicHeight()*enlarge, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
@@ -203,7 +217,7 @@ public class MapUIManager implements GeoQueryLocationsReceiver.GeoQueryLocations
 //        //calculate the distance width (left <-> right of map on screen)
 //        Location.distanceBetween(
 //                (farLeft.latitude + nearLeft.latitude) / 2,
-//                farLeft.longitude,
+//                farLeft.longitude,2
 //                (farRight.latitude + nearRight.latitude) / 2,
 //                farRight.longitude,
 //                distanceWidth
