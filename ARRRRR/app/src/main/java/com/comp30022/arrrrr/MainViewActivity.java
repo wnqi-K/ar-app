@@ -13,6 +13,7 @@ import android.view.MenuItem;
 
 import com.comp30022.arrrrr.FriendManagement.FriendManagement;
 import com.comp30022.arrrrr.FriendManagement.requestFirebaseUsers;
+import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.models.User;
 
 /**
@@ -27,8 +28,7 @@ public class MainViewActivity extends AppCompatActivity implements
         SettingFragment.OnSettingFragmentInteractionListener,
         FriendsFragment.OnListFragmentInteractionListener{
 
-    private FriendManagement mFriendManagement;
-    private FriendManagement mAdminFriends;
+    private DatabaseManager mDatabaseManager;
     private requestFirebaseUsers mRequestUsers;
 
     public requestFirebaseUsers getRequestUsers() {
@@ -49,9 +49,8 @@ public class MainViewActivity extends AppCompatActivity implements
         switchToFragmentHome();
 
         // Get all users from database
-        this.mFriendManagement = new FriendManagement();
-        this.mAdminFriends = new FriendManagement();
-        this.mRequestUsers = new requestFirebaseUsers(mFriendManagement, mAdminFriends);
+        mDatabaseManager = new DatabaseManager(this,null,null,1);
+        this.mRequestUsers = new requestFirebaseUsers(mDatabaseManager);
     }
 
     @Override
@@ -179,5 +178,9 @@ public class MainViewActivity extends AppCompatActivity implements
         if (fragment != null) {
             fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+    }
+
+    public DatabaseManager getmDatabaseManager() {
+        return mDatabaseManager;
     }
 }
