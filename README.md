@@ -1,5 +1,5 @@
 # ARRRRR
-An Android app made for COMP30022 IT Project.
+An Android app made for COMP30022 IT Project by group Yunkai.
 
 This repository contains all source files of our application.
 
