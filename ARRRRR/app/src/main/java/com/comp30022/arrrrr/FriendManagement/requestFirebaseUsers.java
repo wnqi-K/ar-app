@@ -60,10 +60,8 @@ public class requestFirebaseUsers {
                     if (!TextUtils.equals(user.getUid(), FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                         if ((user.getAdmin() != null)&&(TextUtils.equals(user.getAdmin(), "True"))) {
                             admins.add(user);
-                            //Log.d("printf","adminssssssssss.");
                         }
                         users.add(user);
-                        //Log.d("printf","Normals.");
                     }
                 }
                 mFriendManagement.addingAllUsers(users);
