@@ -131,7 +131,8 @@ public class MainViewActivity extends AppCompatActivity implements
      * Quickly start the AR mode, to be done.
      */
     private void quickArEntry() {
-        //TODO
+        Intent intent = new Intent(this, ArViewActivity.class);
+        startActivity(intent);
     }
 
     /**

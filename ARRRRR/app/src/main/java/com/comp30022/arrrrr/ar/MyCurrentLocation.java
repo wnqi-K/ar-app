@@ -1,7 +1,12 @@
 package com.comp30022.arrrrr.ar;
+
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -24,7 +29,7 @@ public class MyCurrentLocation implements GoogleApiClient.ConnectionCallbacks, G
         this.onLocationChangedListener = onLocationChangedListener;
     }
 
-    protected synchronized void buildGoogleApiClient(Context context) {
+    public synchronized void buildGoogleApiClient(Context context) {
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -37,13 +42,14 @@ public class MyCurrentLocation implements GoogleApiClient.ConnectionCallbacks, G
                 .setFastestInterval(1 * 1000); // 1 second, in milliseconds
     }
 
-    public void start(){
+    public void start() {
         mGoogleApiClient.connect();
     }
 
-    public void stop(){
+    public void stop() {
         mGoogleApiClient.disconnect();
     }
+
     @Override
     public void onConnected(Bundle bundle) {
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
@@ -66,6 +72,7 @@ public class MyCurrentLocation implements GoogleApiClient.ConnectionCallbacks, G
 
     @Override
     public void onLocationChanged(Location location) {
+
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
         if (mLastLocation != null) {

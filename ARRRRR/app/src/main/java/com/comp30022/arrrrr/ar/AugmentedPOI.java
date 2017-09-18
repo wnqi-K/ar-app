@@ -2,18 +2,20 @@ package com.comp30022.arrrrr.ar;
 
 /**
  * Created by krzysztofjackowski on 24/09/15.
+ * Modified by Xiaoyu Guo on 18/09/17.
  */
+
 public class AugmentedPOI {
     private int mId;
     private String mName;
-    private String mDescription;
+    private String mdescription;
     private double mLatitude;
     private double mLongitude;
 
     public AugmentedPOI(String newName, String newDescription,
                         double newLatitude, double newLongitude) {
         this.mName = newName;
-        this.mDescription = newDescription;
+        this.mdescription = newDescription;
         this.mLatitude = newLatitude;
         this.mLongitude = newLongitude;
     }
@@ -30,12 +32,7 @@ public class AugmentedPOI {
     public void setPoiName(String poiName) {
         this.mName = poiName;
     }
-    public String getPoiDescription() {
-        return mDescription;
-    }
-    public void setPoiDescription(String poiDescription) {
-        this.mDescription = poiDescription;
-    }
+
     public double getPoiLatitude() {
         return mLatitude;
     }
