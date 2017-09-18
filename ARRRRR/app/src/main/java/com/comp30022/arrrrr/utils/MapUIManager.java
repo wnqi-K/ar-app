@@ -10,7 +10,11 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.animations.LatLngInterpolator;
@@ -39,7 +43,8 @@ import java.util.HashMap;
 
 public class MapUIManager implements
         GeoQueryLocationsReceiver.GeoQueryLocationsListener,
-        SelfPositionReceiver.SelfLocationListener {
+        SelfPositionReceiver.SelfLocationListener,
+        GoogleMap.OnMarkerClickListener {
 
     private final String TAG = MapUIManager.class.getSimpleName();
 
@@ -54,17 +59,64 @@ public class MapUIManager implements
 
     private GoogleMap mGoogleMap;
     private Marker mSelfMarker;
-    private HashMap<String, Marker> mUserMarkers;
+    private HashMap<String, Marker> mFriendMarkers;
     private HashMap<String, GeoLocationInfo> mUserGeoLocationInfos;
     private Circle mSelfCircle;
-    private Context mContext;
+    private AppCompatActivity mContext;
     private Fragment mFragment;
 
-    public MapUIManager(Fragment fragment, Context context, GoogleMap googleMap) {
+    public MapUIManager(Fragment fragment, AppCompatActivity context, GoogleMap googleMap) {
         mContext = context;
         mGoogleMap = googleMap;
         mFragment = fragment;
-        mUserMarkers = new HashMap<>();
+        mFriendMarkers = new HashMap<>();
+
+        mGoogleMap.setOnMarkerClickListener(this);
+        mGoogleMap.setInfoWindowAdapter(new FriendInfoWindowAdapter());
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        if (mFriendMarkers.containsValue(marker)) {
+            String uid = (String) marker.getTag();
+            marker.showInfoWindow();
+        }
+        return true;
+    }
+
+    /**
+     * Customized info window for display when a friend's marker is clicked.
+     */
+    private class FriendInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+        private final View mContents;
+
+        public FriendInfoWindowAdapter() {
+            this.mContents = mContext.getLayoutInflater().inflate(R.layout.friend_info_contents, null);
+        }
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return null;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+            render(marker, mContents);
+            return mContents;
+        }
+
+        private void render(Marker marker, View view) {
+            String uid = (String) marker.getTag();
+            Button button = (Button) view.findViewById(R.id.button_enter_ar);
+            TextView textViewUserName = (TextView) view.findViewById(R.id.text_view_user_name);
+            TextView textViewGeoInfo = (TextView) view.findViewById(R.id.text_view_location_info);
+            // Get time string (in local timezone)
+            String time = TimeUtil.getFriendlyTime(mUserGeoLocationInfos.get(uid).time);
+
+            button.setText(R.string.friend_info_window_button_enter_text);
+            textViewUserName.setText(uid);
+            textViewGeoInfo.setText(time);
+        }
     }
 
     @Override
@@ -89,24 +141,25 @@ public class MapUIManager implements
             Bitmap profileIconBitmap = BitmapUtil.getResizedBitmap(circleBitmap, PROFILE_ICON_WIDTH, PROFILE_ICON_HEIGHT);
             BitmapDescriptor iconDescriptor = BitmapDescriptorFactory.fromBitmap(profileIconBitmap);
 
-            Marker userMarker = mGoogleMap.addMarker(new MarkerOptions()
+            Marker FriendMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .position(position)
                     .icon(iconDescriptor)
             );
+            FriendMarker.setTag(key);
 
-            mUserMarkers.put(key, userMarker);
+            mFriendMarkers.put(key, FriendMarker);
             this.mUserGeoLocationInfos = geoLocationInfos;
         } else if (type.equals(LocationSharingService.ON_KEY_EXITED) ) {
             // Remove marker
-            mUserMarkers.get(key).remove();
-            mUserMarkers.remove(key);
+            mFriendMarkers.get(key).remove();
+            mFriendMarkers.remove(key);
         } else if (type.equals(LocationSharingService.ON_KEY_MOVED)) {
             // Move marker
             LatLng position = geoLocations.get(key);
-            // mUserMarkers.get(key).setPosition(position);
+            // mFriendMarkers.get(key).setPosition(position);
             // Animate marker intead of simply changing its location
             LatLngInterpolator interpolator = new LatLngInterpolator.LinearFixed();
-            MarkerAnimation.animateMarkerToICS(mUserMarkers.get(key), position, interpolator);
+            MarkerAnimation.animateMarkerToICS(mFriendMarkers.get(key), position, interpolator);
             this.mUserGeoLocationInfos = geoLocationInfos;
         }
     }

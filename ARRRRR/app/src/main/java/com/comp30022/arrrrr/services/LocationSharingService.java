@@ -511,7 +511,7 @@ public class LocationSharingService extends Service implements
      */
     public static Boolean isGeoInfoExpired(@NonNull GeoLocationInfo info) {
         // We check whether the timestamp of the geo information is earlier than today.
-        return TimeUtil.timeSinceNow(info.time, TimeUtil.TimeUnit.Day) >= 1;
+        return TimeUtil.getTimeDiffUntilNow(info.time, TimeUtil.TimeUnit.Day) >= 1;
     }
 
     /**
