@@ -197,7 +197,7 @@ public class MapContainerFragment extends Fragment implements
     public void onMapReady(GoogleMap googleMap) {
         Log.v(TAG, "Map ready");
 
-        mMapUIManager = new MapUIManager(this, getActivity(), googleMap);
+        mMapUIManager = new MapUIManager(this, (AppCompatActivity) getActivity(), googleMap);
         mMapUIManager.initializeMapUI();
         
         // Do this after mMapUIManager has been initialized
@@ -326,10 +326,14 @@ public class MapContainerFragment extends Fragment implements
      * Unregister all receives. Should be called in onPause().
      */
     public void unregisterReceivers() {
-        getActivity().unregisterReceiver(mPositioningReceiver);
-        getActivity().unregisterReceiver(mServerLocationsReceiver);
+        try {
+            // Note that receivers might not have been registered
+            getActivity().unregisterReceiver(mPositioningReceiver);
+            getActivity().unregisterReceiver(mServerLocationsReceiver);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
-
 
     public interface OnMapContainerFragmentInteractionListener {
         // TODO: Update argument type and name
