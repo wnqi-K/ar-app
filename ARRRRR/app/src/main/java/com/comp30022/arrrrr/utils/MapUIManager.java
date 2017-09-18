@@ -84,7 +84,7 @@ public class MapUIManager implements
 
             // TODO: Customize marker styles
             BitmapDescriptor friendIcon = MapUIManager
-                    .bitmapDescriptorFromVector(mContext, R.drawable.ic_face_purple_24dp);
+                    .bitmapDescriptorFromVector(mContext, R.drawable.ic_face_purple_24dp, 2);
 
             Marker userMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .position(position)
@@ -141,7 +141,10 @@ public class MapUIManager implements
             mSelfMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .title("My position")
                     .position(currLatLng)
-                    .icon(MapUIManager.bitmapDescriptorFromVector(mContext, R.drawable.ic_radio_button_checked_dodgeblue_24dp))
+                    .icon(MapUIManager.bitmapDescriptorFromVector(
+                            mContext,
+                            R.drawable.ic_radio_button_checked_dodgeblue_24dp,
+                            1))
                     .anchor(0.5f, 0.5f));
         } else {
             mSelfMarker.setPosition(currLatLng);
@@ -166,7 +169,7 @@ public class MapUIManager implements
      * Save current view of the map into shared preferences.
      */
     public void saveCurrentMapView() {
-        if(mSelfMarker.getPosition() != null) {
+        if(mSelfMarker != null && mSelfMarker.getPosition() != null) {
             SharedPreferences sharedPref = mFragment.getActivity().getPreferences(Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putFloat(mFragment.getString(R.string.saved_camera_lat), (float) mSelfMarker.getPosition().latitude);
@@ -177,11 +180,12 @@ public class MapUIManager implements
 
     /**
      * Convert a vector asset resource to a {@link BitmapDescriptor}
+     * @param enlarge enlarge from original size
      */
-    public static BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
+    public static BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId, int enlarge) {
         Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
-        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
-        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth()*enlarge, vectorDrawable.getIntrinsicHeight()*enlarge);
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth()*enlarge, vectorDrawable.getIntrinsicHeight()*enlarge, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
@@ -213,7 +217,7 @@ public class MapUIManager implements
 //        //calculate the distance width (left <-> right of map on screen)
 //        Location.distanceBetween(
 //                (farLeft.latitude + nearLeft.latitude) / 2,
-//                farLeft.longitude,
+//                farLeft.longitude,2
 //                (farRight.latitude + nearRight.latitude) / 2,
 //                farRight.longitude,
 //                distanceWidth
