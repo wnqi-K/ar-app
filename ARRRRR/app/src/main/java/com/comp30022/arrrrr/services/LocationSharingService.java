@@ -9,12 +9,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
 import com.comp30022.arrrrr.receivers.SingleUserLocationReceiver;
-import com.comp30022.arrrrr.utils.TimeHelper;
+import com.comp30022.arrrrr.utils.TimeUtil;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -512,7 +511,7 @@ public class LocationSharingService extends Service implements
      */
     public static Boolean isGeoInfoExpired(@NonNull GeoLocationInfo info) {
         // We check whether the timestamp of the geo information is earlier than today.
-        return TimeHelper.timeSinceNow(info.time, TimeHelper.TimeUnit.Day) >= 1;
+        return TimeUtil.timeSinceNow(info.time, TimeUtil.TimeUnit.Day) >= 1;
     }
 
     /**
