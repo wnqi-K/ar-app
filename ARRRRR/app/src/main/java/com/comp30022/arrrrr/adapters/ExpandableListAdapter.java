@@ -44,19 +44,19 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     @Override
     public View getChildView(int listPosition, final int expandedListPosition,
                              boolean isLastChild, View convertView, ViewGroup parent) {
-        final String userId = ((User) getChild(listPosition, expandedListPosition)).getUid();
+        final String userName = ((User) getChild(listPosition, expandedListPosition)).getUsername();
         final String userContent = ((User) getChild(listPosition, expandedListPosition)).getEmail();
         if (convertView == null) {
             LayoutInflater layoutInflater = (LayoutInflater) this.mContext
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = layoutInflater.inflate(R.layout.item_user, null);
         }
-        TextView expandedListTextViewOne = (TextView) convertView
-                .findViewById(R.id.user_id);
-        expandedListTextViewOne.setText(userId);
-        TextView expandedListTextViewTwo = (TextView) convertView
-                .findViewById(R.id.user_content);
-        expandedListTextViewTwo.setText(userContent);
+        TextView userNameView = (TextView) convertView
+                .findViewById(R.id.user_name);
+        userNameView.setText(userName);
+        TextView userEmailView = (TextView) convertView
+                .findViewById(R.id.user_email);
+        userEmailView.setText(userContent);
         return convertView;
     }
 
