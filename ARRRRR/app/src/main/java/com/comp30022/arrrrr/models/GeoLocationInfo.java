@@ -16,6 +16,7 @@ import java.util.Map;
 public class GeoLocationInfo implements Parcelable {
     /**
      * Time when the location was updated.
+     * (UTC time & in milliseconds since January 1, 1970)
      */
     public Long time;
 
