@@ -1,7 +1,5 @@
 package com.comp30022.arrrrr.adapters;
 
-import java.util.HashMap;
-import java.util.List;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
@@ -11,6 +9,9 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.models.User;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
 /**
@@ -19,69 +20,20 @@ import com.comp30022.arrrrr.models.User;
  */
 
 public class ExpandableListAdapter extends BaseExpandableListAdapter {
-    @Override
-    public int getGroupCount() {
-        return 0;
-    }
-
-    @Override
-    public int getChildrenCount(int groupPosition) {
-        return 0;
-    }
-
-    @Override
-    public Object getGroup(int groupPosition) {
-        return null;
-    }
-
-    @Override
-    public Object getChild(int groupPosition, int childPosition) {
-        return null;
-    }
-
-    @Override
-    public long getGroupId(int groupPosition) {
-        return 0;
-    }
-
-    @Override
-    public long getChildId(int groupPosition, int childPosition) {
-        return 0;
-    }
-
-    @Override
-    public boolean hasStableIds() {
-        return false;
-    }
-
-    @Override
-    public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-        return null;
-    }
-
-    @Override
-    public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        return null;
-    }
-
-    @Override
-    public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return false;
-    }
-    /*private Context mContext;
+    private Context mContext;
     private List<String> mListTitle;
-    private List<User> mAdminUsers;
+    private HashMap<String, ArrayList<User>> mUserFriends;
 
-    public ExpandableListAdapter(Context context, List<String> listTitle, List<User> adminUsers) {
+
+    public ExpandableListAdapter(Context context, List<String> listTitle, HashMap<String, ArrayList<User>> userFriends) {
         this.mContext = context;
         this.mListTitle = listTitle;
-        this.mAdminUsers = adminUsers;
+        this.mUserFriends = userFriends;
     }
 
     @Override
     public Object getChild(int listPosition, int expandedListPosition) {
-        return this.expandableListDetail.get(this.expandableListTitle.get(listPosition))
-                .get(expandedListPosition);
+        return this.mUserFriends.get(this.mListTitle.get(listPosition)).get(expandedListPosition);
     }
 
     @Override
@@ -92,32 +44,36 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     @Override
     public View getChildView(int listPosition, final int expandedListPosition,
                              boolean isLastChild, View convertView, ViewGroup parent) {
-        final String expandedListText = (String) getChild(listPosition, expandedListPosition);
+        final String userId = ((User) getChild(listPosition, expandedListPosition)).getUid();
+        final String userContent = ((User) getChild(listPosition, expandedListPosition)).getEmail();
         if (convertView == null) {
-            LayoutInflater layoutInflater = (LayoutInflater) this.context
+            LayoutInflater layoutInflater = (LayoutInflater) this.mContext
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = layoutInflater.inflate(R.layout.list_item, null);
+            convertView = layoutInflater.inflate(R.layout.item_user, null);
         }
-        TextView expandedListTextView = (TextView) convertView
-                .findViewById(R.id.expandedListItem);
-        expandedListTextView.setText(expandedListText);
+        TextView expandedListTextViewOne = (TextView) convertView
+                .findViewById(R.id.user_id);
+        expandedListTextViewOne.setText(userId);
+        TextView expandedListTextViewTwo = (TextView) convertView
+                .findViewById(R.id.user_content);
+        expandedListTextViewTwo.setText(userContent);
         return convertView;
     }
 
     @Override
     public int getChildrenCount(int listPosition) {
-        return this.expandableListDetail.get(this.expandableListTitle.get(listPosition))
+        return this.mUserFriends.get(this.mListTitle.get(listPosition))
                 .size();
     }
 
     @Override
     public Object getGroup(int listPosition) {
-        return this.expandableListTitle.get(listPosition);
+        return this.mListTitle.get(listPosition);
     }
 
     @Override
     public int getGroupCount() {
-        return this.expandableListTitle.size();
+        return this.mListTitle.size();
     }
 
     @Override
@@ -130,12 +86,12 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                              View convertView, ViewGroup parent) {
         String listTitle = (String) getGroup(listPosition);
         if (convertView == null) {
-            LayoutInflater layoutInflater = (LayoutInflater) this.context.
+            LayoutInflater layoutInflater = (LayoutInflater) this.mContext.
                     getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = layoutInflater.inflate(R.layout.list_group, null);
+            convertView = layoutInflater.inflate(R.layout.expandable_list_title, null);
         }
         TextView listTitleTextView = (TextView) convertView
-                .findViewById(R.id.listTitle);
+                .findViewById(R.id.group_title);
         listTitleTextView.setTypeface(null, Typeface.BOLD);
         listTitleTextView.setText(listTitle);
         return convertView;
@@ -149,5 +105,5 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int listPosition, int expandedListPosition) {
         return true;
-    }*/
+    }
 }

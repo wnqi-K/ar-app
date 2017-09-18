@@ -3,19 +3,20 @@ package com.comp30022.arrrrr;
 import android.content.Context;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ExpandableListView;
 
-import com.comp30022.arrrrr.adapters.MyUsersRecyclerViewAdapter;
+import com.comp30022.arrrrr.adapters.ExpandableListAdapter;
 import com.comp30022.arrrrr.models.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
- * This fragment is to contain five admin friends and newly added friends.
+ * This fragment is to contain five pre-placed friends and newly added friends.
  * Created by Wenqiang Kuang on 01/09/2017.
  */
 
@@ -40,17 +41,43 @@ public class FriendsFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_users_list, container, false);
 
-        RecyclerView recyclerView = (RecyclerView)view.findViewById(R.id.added_friend_list);
-        Context context = view.getContext();
+        final Context context = view.getContext();
+
+        //Used to contain all the friends, including pre-placed friends and new added ones.
+        final HashMap<String, ArrayList<User>> expandableList = getFriendLists();
+
+        //Set up the expandable view.
+        ExpandableListView expandableListView;
+        ExpandableListAdapter expandableListAdapter;
+        final List<String> expandableListTitle;
+        expandableListView = (ExpandableListView) view.findViewById(R.id.admin_friend_list);
+        expandableListTitle = new ArrayList<>(expandableList.keySet());
+        expandableListAdapter = new ExpandableListAdapter(context, expandableListTitle, expandableList);
+        expandableListView.setAdapter(expandableListAdapter);
+
+        //Start a new chat room once friend is clicked.
+        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                User user = expandableList.get(expandableListTitle.get(groupPosition)).get(childPosition);
+                ChatActivity.startActivity(context,
+                        user.getEmail(),
+                        user.getUid(),
+                        user.getFirebaseToken());
+                return false;
+            }
+        });
+        return view;
+    }
+
+
+    private HashMap<String, ArrayList<User>> getFriendLists() {
         ArrayList<User> friendList = (ArrayList<User>) ((MainViewActivity)getActivity()).getRequestUsers().getFriendManagement().getFriendList();
         ArrayList<User> adminList = (ArrayList<User>) ((MainViewActivity)getActivity()).getRequestUsers().getAdminFriends().getFriendList();
-
         HashMap<String, ArrayList<User>> expandableList = new HashMap<>();
-        expandableList.put("Pre-set Friends", adminList);
+        expandableList.put("Pre-placed Friends", adminList);
         expandableList.put("All_Users", friendList);
-
-        recyclerView.setAdapter(new MyUsersRecyclerViewAdapter(adminList, context));
-        return view;
+        return expandableList;
     }
 
     @Override
