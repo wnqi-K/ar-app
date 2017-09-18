@@ -110,6 +110,12 @@ public class UserProfileActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
     }
 
+    public void SelectPhoto(View v){
+        Intent intent = new Intent(this, SelectPhotoActivity.class);
+        startActivity(intent);
+        overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
+    }
+
     public void Back(View v){
         Intent intent = new Intent(this, MainViewActivity.class);
         startActivity(intent);
