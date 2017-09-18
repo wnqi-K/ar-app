@@ -1,12 +1,12 @@
 package com.comp30022.arrrrr.utils;
 
 /**
- * Helper class dealing with time
+ * Utility class dealing with time
  *
  * @author Dafu Ai
  */
 
-public class TimeHelper {
+public class TimeUtil {
     public enum TimeUnit {
         Day, Hour, Minute, Second
     }

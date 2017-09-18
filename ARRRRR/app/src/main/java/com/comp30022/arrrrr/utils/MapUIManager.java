@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -48,6 +49,8 @@ public class MapUIManager implements
     private final int CIRCLE_STROKE_COLOR = Color.argb(150, 0, 191, 255);
     private final int CIRCLE_FILL_COLOR = Color.argb(40, 0, 191, 255);
     private final int CIRCLE_STROKE_WIDTH = 3;
+    private final int PROFILE_ICON_WIDTH = 100;
+    private final int PROFILE_ICON_HEIGHT = 100;
 
     private GoogleMap mGoogleMap;
     private Marker mSelfMarker;
@@ -79,15 +82,16 @@ public class MapUIManager implements
                     + String.valueOf(position.longitude)
                     + ").");
 
-            BitmapDescriptor iconDescriptor;
 
-            // TODO: Customize marker styles
-            BitmapDescriptor friendIcon = MapUIManager
-                    .bitmapDescriptorFromVector(mContext, R.drawable.ic_face_purple_24dp, 2);
+            // TODO: use real profile photo when ready
+            Bitmap profileBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.portrait_photo);
+            Bitmap circleBitmap = BitmapUtil.getCircleCrop(profileBitmap);
+            Bitmap profileIconBitmap = BitmapUtil.getResizedBitmap(circleBitmap, PROFILE_ICON_WIDTH, PROFILE_ICON_HEIGHT);
+            BitmapDescriptor iconDescriptor = BitmapDescriptorFactory.fromBitmap(profileIconBitmap);
 
             Marker userMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .position(position)
-                    .icon(friendIcon)
+                    .icon(iconDescriptor)
             );
 
             mUserMarkers.put(key, userMarker);
