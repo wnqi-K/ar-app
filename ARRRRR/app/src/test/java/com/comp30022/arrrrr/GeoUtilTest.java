@@ -20,9 +20,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class GeoUtilTest{
 
-    @Mock
-    Context context;
-
     // 28 Bouverie St, Carlton, VIC 3053 Australia
     private LatLng home = new LatLng(-37.8058120, 144.9618550);
     // 8 Franklin St, Melbourne VIC 3004 Australia

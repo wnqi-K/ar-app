@@ -8,11 +8,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-import com.comp30022.arrrrr.BuildConfig;
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.animations.LatLngInterpolator;
 import com.comp30022.arrrrr.animations.MarkerAnimation;
@@ -29,7 +27,6 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.VisibleRegion;
 
 import java.util.HashMap;
 
@@ -82,13 +79,16 @@ public class MapUIManager implements
                     + String.valueOf(position.longitude)
                     + ").");
 
+            BitmapDescriptor iconDescriptor;
+
             // TODO: Customize marker styles
             BitmapDescriptor friendIcon = MapUIManager
                     .bitmapDescriptorFromVector(mContext, R.drawable.ic_face_purple_24dp, 2);
 
             Marker userMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .position(position)
-                    .icon(friendIcon));
+                    .icon(friendIcon)
+            );
 
             mUserMarkers.put(key, userMarker);
             this.mUserGeoLocationInfos = geoLocationInfos;
