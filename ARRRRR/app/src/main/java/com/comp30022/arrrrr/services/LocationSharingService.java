@@ -9,11 +9,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
 import com.comp30022.arrrrr.receivers.SingleUserLocationReceiver;
+import com.comp30022.arrrrr.utils.TimeUtil;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -288,6 +288,7 @@ public class LocationSharingService extends Service implements
                         GeoLocationInfo geoLocationInfo = dataSnapshot.getValue(GeoLocationInfo.class);
                         String key = dataSnapshot.getKey();
                         String type;
+                        Boolean isInfoExpired = false;
 
                         // Determine which query event was fired
                         if (mGeoInfos.containsKey(key)) {
@@ -296,8 +297,15 @@ public class LocationSharingService extends Service implements
                             type = ON_KEY_ENTERED;
                         }
 
-                        mGeoInfos.put(key, geoLocationInfo);
-                        broadcastGeoLocationsUpdate(type, key);
+                        if (geoLocationInfo != null && isGeoInfoExpired(geoLocationInfo)) {
+                            // Throw away a expired location info
+                            mGeoLocations.remove(key);
+                            isInfoExpired = true;
+                        } else {
+                            // Only send broadcast if geo info is not expired
+                            mGeoInfos.put(key, geoLocationInfo);
+                            broadcastGeoLocationsUpdate(type, key);
+                        }
                     }
 
                     @Override
@@ -391,10 +399,14 @@ public class LocationSharingService extends Service implements
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String uid = dataSnapshot.getKey();
                 GeoLocationInfo info = dataSnapshot.getValue(GeoLocationInfo.class);
-                mInfoBuffer.put(uid, info);
 
-                mRootRef.child(getUserRefPath(RefType.GEO_LOCATION, uid))
-                        .addListenerForSingleValueEvent(mSingleGeoLocationListener);
+                // Check for expiry of geoinfo
+                if(info != null && !isGeoInfoExpired(info)) {
+                    mInfoBuffer.put(uid, info);
+
+                    mRootRef.child(getUserRefPath(RefType.GEO_LOCATION, uid))
+                            .addListenerForSingleValueEvent(mSingleGeoLocationListener);
+                }
             }
 
             @Override
@@ -461,13 +473,17 @@ public class LocationSharingService extends Service implements
 
     /**
      * Retrieve current user's uid.
-     * @return user uid
+     * @return user uid (null if current user doesn't exist)
      */
     private String getCurrentUserUID(){
         // Get current user('s id).
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
-        return user.getUid();
+        if (user == null) {
+            return null;
+        } else {
+            return user.getUid();
+        }
     }
 
 
@@ -488,6 +504,14 @@ public class LocationSharingService extends Service implements
                 break;
         }
         return path;
+    }
+
+    /**
+     * Determines whether geo information has expired.
+     */
+    public static Boolean isGeoInfoExpired(@NonNull GeoLocationInfo info) {
+        // We check whether the timestamp of the geo information is earlier than today.
+        return TimeUtil.timeSinceNow(info.time, TimeUtil.TimeUnit.Day) >= 1;
     }
 
     /**

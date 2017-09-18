@@ -4,15 +4,14 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-import com.comp30022.arrrrr.BuildConfig;
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.animations.LatLngInterpolator;
 import com.comp30022.arrrrr.animations.MarkerAnimation;
@@ -29,7 +28,6 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.VisibleRegion;
 
 import java.util.HashMap;
 
@@ -51,6 +49,8 @@ public class MapUIManager implements
     private final int CIRCLE_STROKE_COLOR = Color.argb(150, 0, 191, 255);
     private final int CIRCLE_FILL_COLOR = Color.argb(40, 0, 191, 255);
     private final int CIRCLE_STROKE_WIDTH = 3;
+    private final int PROFILE_ICON_WIDTH = 100;
+    private final int PROFILE_ICON_HEIGHT = 100;
 
     private GoogleMap mGoogleMap;
     private Marker mSelfMarker;
@@ -82,13 +82,17 @@ public class MapUIManager implements
                     + String.valueOf(position.longitude)
                     + ").");
 
-            // TODO: Customize marker styles
-            BitmapDescriptor friendIcon = MapUIManager
-                    .bitmapDescriptorFromVector(mContext, R.drawable.ic_face_purple_24dp);
+
+            // TODO: use real profile photo when ready
+            Bitmap profileBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.portrait_photo);
+            Bitmap circleBitmap = BitmapUtil.getCircleCrop(profileBitmap);
+            Bitmap profileIconBitmap = BitmapUtil.getResizedBitmap(circleBitmap, PROFILE_ICON_WIDTH, PROFILE_ICON_HEIGHT);
+            BitmapDescriptor iconDescriptor = BitmapDescriptorFactory.fromBitmap(profileIconBitmap);
 
             Marker userMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .position(position)
-                    .icon(friendIcon));
+                    .icon(iconDescriptor)
+            );
 
             mUserMarkers.put(key, userMarker);
             this.mUserGeoLocationInfos = geoLocationInfos;
@@ -141,7 +145,10 @@ public class MapUIManager implements
             mSelfMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .title("My position")
                     .position(currLatLng)
-                    .icon(MapUIManager.bitmapDescriptorFromVector(mContext, R.drawable.ic_radio_button_checked_dodgeblue_24dp))
+                    .icon(MapUIManager.bitmapDescriptorFromVector(
+                            mContext,
+                            R.drawable.ic_radio_button_checked_dodgeblue_24dp,
+                            1))
                     .anchor(0.5f, 0.5f));
         } else {
             mSelfMarker.setPosition(currLatLng);
@@ -166,7 +173,7 @@ public class MapUIManager implements
      * Save current view of the map into shared preferences.
      */
     public void saveCurrentMapView() {
-        if(mSelfMarker.getPosition() != null) {
+        if(mSelfMarker != null && mSelfMarker.getPosition() != null) {
             SharedPreferences sharedPref = mFragment.getActivity().getPreferences(Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putFloat(mFragment.getString(R.string.saved_camera_lat), (float) mSelfMarker.getPosition().latitude);
@@ -177,11 +184,12 @@ public class MapUIManager implements
 
     /**
      * Convert a vector asset resource to a {@link BitmapDescriptor}
+     * @param enlarge enlarge from original size
      */
-    public static BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
+    public static BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId, int enlarge) {
         Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
-        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
-        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth()*enlarge, vectorDrawable.getIntrinsicHeight()*enlarge);
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth()*enlarge, vectorDrawable.getIntrinsicHeight()*enlarge, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
@@ -213,7 +221,7 @@ public class MapUIManager implements
 //        //calculate the distance width (left <-> right of map on screen)
 //        Location.distanceBetween(
 //                (farLeft.latitude + nearLeft.latitude) / 2,
-//                farLeft.longitude,
+//                farLeft.longitude,2
 //                (farRight.latitude + nearRight.latitude) / 2,
 //                farRight.longitude,
 //                distanceWidth

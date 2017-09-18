@@ -26,12 +26,6 @@ public class SettingFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance
-     *
-     * @return A new instance of fragment SettingFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static SettingFragment newInstance() {
         SettingFragment fragment = new SettingFragment();
         return fragment;

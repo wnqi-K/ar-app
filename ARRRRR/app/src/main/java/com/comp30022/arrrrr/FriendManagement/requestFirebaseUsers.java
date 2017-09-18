@@ -1,12 +1,15 @@
 package com.comp30022.arrrrr.FriendManagement;
 
 import android.text.TextUtils;
+import android.util.Log;
 
+import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -22,25 +25,21 @@ import java.util.List;
  */
 
 public class requestFirebaseUsers {
-    private FriendManagement mFriendManagement;
+    private DatabaseManager mDatabaseManager;
+    private DatabaseReference userlistReference;
 
-    public FriendManagement getFriendManagement() {
-        return mFriendManagement;
-    }
-
-    public requestFirebaseUsers(FriendManagement friendManagement){
-        mFriendManagement = friendManagement;
+    public requestFirebaseUsers(DatabaseManager databaseManager){
+        mDatabaseManager = databaseManager;
         init();
     }
 
     public void init() {
-        FirebaseDatabase.getInstance().getReference().child(Constants.ARG_USERS).addListenerForSingleValueEvent(new ValueEventListener() {
+        userlistReference = FirebaseDatabase.getInstance().getReference().child(Constants.ARG_USERS);
+        userlistReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
                 // get all the children of users from database
                 Iterator<DataSnapshot> dataSnapshots = dataSnapshot.getChildren().iterator();
-
                 //an arrayList stores users
                 List<User> users = new ArrayList<>();
 
@@ -48,16 +47,18 @@ public class requestFirebaseUsers {
                 while (dataSnapshots.hasNext()) {
                     DataSnapshot dataSnapshotChild = dataSnapshots.next();
                     User user = dataSnapshotChild.getValue(User.class);
-                    if (!TextUtils.equals(user.uid, FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                    if (!TextUtils.equals(user.getUid(), FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                         users.add(user);
                     }
                 }
-                mFriendManagement.addingAllUsers(users);
+                mDatabaseManager.getUsersSuccessfully(users);
+
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                mFriendManagement.getUsersUnsuccessfully(databaseError.getMessage());
+                mDatabaseManager.getUsersUnsuccessfully(databaseError.getMessage());
+                mDatabaseManager.getUsersUnsuccessfully(databaseError.getMessage());
             }
         });
     }

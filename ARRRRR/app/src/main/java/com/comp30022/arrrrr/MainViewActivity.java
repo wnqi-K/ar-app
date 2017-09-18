@@ -13,6 +13,7 @@ import android.view.MenuItem;
 
 import com.comp30022.arrrrr.FriendManagement.FriendManagement;
 import com.comp30022.arrrrr.FriendManagement.requestFirebaseUsers;
+import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.models.User;
 
 /**
@@ -25,12 +26,9 @@ import com.comp30022.arrrrr.models.User;
 public class MainViewActivity extends AppCompatActivity implements
         MapContainerFragment.OnMapContainerFragmentInteractionListener,
         SettingFragment.OnSettingFragmentInteractionListener,
-        UsersFragment.OnListFragmentInteractionListener{
+        FriendsFragment.OnListFragmentInteractionListener{
 
-    /**
-     *  Users management like getting all user.
-     */
-    private FriendManagement mFriendManagement;
+    private DatabaseManager mDatabaseManager;
     private requestFirebaseUsers mRequestUsers;
 
     public requestFirebaseUsers getRequestUsers() {
@@ -51,8 +49,8 @@ public class MainViewActivity extends AppCompatActivity implements
         switchToFragmentHome();
 
         // Get all users from database
-        this.mFriendManagement = new FriendManagement();
-        this.mRequestUsers = new requestFirebaseUsers(mFriendManagement);
+        mDatabaseManager = new DatabaseManager(this,null,null,1);
+        this.mRequestUsers = new requestFirebaseUsers(mDatabaseManager);
     }
 
     @Override
@@ -107,7 +105,7 @@ public class MainViewActivity extends AppCompatActivity implements
     private void switchToFragmentFriends() {
         FragmentManager manager = getFragmentManager();
         manager.beginTransaction().replace(R.id.fragment_container,
-                UsersFragment.newInstance()).commit();
+                FriendsFragment.newInstance()).commit();
     }
 
     /**
@@ -132,7 +130,8 @@ public class MainViewActivity extends AppCompatActivity implements
      * Quickly start the AR mode, to be done.
      */
     private void quickArEntry() {
-        //TODO
+        Intent intent = new Intent(this, ArViewActivity.class);
+        startActivity(intent);
     }
 
     /**
@@ -180,5 +179,9 @@ public class MainViewActivity extends AppCompatActivity implements
         if (fragment != null) {
             fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+    }
+
+    public DatabaseManager getmDatabaseManager() {
+        return mDatabaseManager;
     }
 }
