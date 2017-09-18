@@ -25,12 +25,10 @@ import com.comp30022.arrrrr.models.User;
 public class MainViewActivity extends AppCompatActivity implements
         MapContainerFragment.OnMapContainerFragmentInteractionListener,
         SettingFragment.OnSettingFragmentInteractionListener,
-        UsersFragment.OnListFragmentInteractionListener{
+        FriendsFragment.OnListFragmentInteractionListener{
 
-    /**
-     *  Users management like getting all user.
-     */
     private FriendManagement mFriendManagement;
+    private FriendManagement mAdminFriends;
     private requestFirebaseUsers mRequestUsers;
 
     public requestFirebaseUsers getRequestUsers() {
@@ -52,7 +50,8 @@ public class MainViewActivity extends AppCompatActivity implements
 
         // Get all users from database
         this.mFriendManagement = new FriendManagement();
-        this.mRequestUsers = new requestFirebaseUsers(mFriendManagement);
+        this.mAdminFriends = new FriendManagement();
+        this.mRequestUsers = new requestFirebaseUsers(mFriendManagement, mAdminFriends);
     }
 
     @Override
@@ -107,7 +106,7 @@ public class MainViewActivity extends AppCompatActivity implements
     private void switchToFragmentFriends() {
         FragmentManager manager = getFragmentManager();
         manager.beginTransaction().replace(R.id.fragment_container,
-                UsersFragment.newInstance()).commit();
+                FriendsFragment.newInstance()).commit();
     }
 
     /**

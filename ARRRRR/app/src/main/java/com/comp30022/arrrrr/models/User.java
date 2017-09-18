@@ -3,18 +3,17 @@ package com.comp30022.arrrrr.models;
 import java.util.ArrayList;
 
 public class User {
-    public String uid;
-    public String email;
-    public String firebaseToken;
-    public String username;
-    public String phoneNum;
-    public String gender;
-    public String address;
-    public ArrayList<String> friendsIDs;
+    private String uid;
+    private String email;
+    private String firebaseToken;
+    private String username;
+    private String phoneNum;
+    private String gender;
+    private String address;
+    private ArrayList<String> friendsIDs;
+    private String admin;
 
-    public User(){
-
-    }
+    public User(){}
 
     public User(String uid, String email, String firebaseToken){
         this.uid = uid;
@@ -42,4 +41,14 @@ public class User {
     public String getAddress(){ return address; }
 
     public void setAddress(String address){ this.address = address; }
+
+    public String getUid() { return uid; }
+
+    public String getEmail() { return email; }
+
+    public String getFirebaseToken() { return firebaseToken; }
+
+    public String getAdmin() { return admin; }
+
+    public void setAdmin(String admin) { this.admin = admin; }
 }
