@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <!--  save the image captured to the gallery -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-feature
@@ -53,15 +55,12 @@
         <activity android:name=".RegisterActivity" />
         <activity
             android:name=".MainViewActivity"
-            android:label="@string/title_activity_main_view" />
-        <activity
-            android:name=".UserListingActivity"
-            android:label="@string/title_activity_user_listing"
-            android:theme="@style/AppTheme" />
-        <activity android:name=".UserProfileActivity" />
-        <activity android:name=".EditProfileActivity" />
-        <activity android:name=".ChatActivity" />
-
+            android:label="@string/title_activity_main_view"/>
+        <activity android:name=".UserProfileActivity"/>
+        <activity android:name=".EditProfileActivity"/>
+        <activity android:name=".SelectPhotoActivity" />
+        <activity android:name=".ChatActivity"/>
+      
         <service
             android:name=".services.PositioningService"
             android:exported="false" />
@@ -72,8 +71,22 @@
         <service
             android:name=".services.FetchAddressIntentService"
             android:enabled="true" />
+
+        <service android:name=".services.MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".services.FirebaseIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+
         <activity android:name=".AddingNewFriendsActivity"></activity>
         <activity android:name=".ArViewActivity"></activity>
+
     </application>
 
 </manifest>
