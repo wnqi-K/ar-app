@@ -3,6 +3,7 @@ package com.comp30022.arrrrr.FriendManagement;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,21 +25,11 @@ import java.util.List;
  */
 
 public class requestFirebaseUsers {
-    private FriendManagement mFriendManagement;
-    private FriendManagement mAdminFriends;
+    private DatabaseManager mDatabaseManager;
     private DatabaseReference userlistReference;
 
-    public FriendManagement getFriendManagement() {
-        return mFriendManagement;
-    }
-
-    public FriendManagement getAdminFriends() {
-        return mAdminFriends;
-    }
-
-    public requestFirebaseUsers(FriendManagement friendManagement, FriendManagement adminFriends){
-        mFriendManagement = friendManagement;
-        mAdminFriends = adminFriends;
+    public requestFirebaseUsers(DatabaseManager databaseManager){
+        mDatabaseManager = databaseManager;
         init();
     }
 
@@ -51,27 +42,23 @@ public class requestFirebaseUsers {
                 Iterator<DataSnapshot> dataSnapshots = dataSnapshot.getChildren().iterator();
                 //an arrayList stores users
                 List<User> users = new ArrayList<>();
-                List<User> admins = new ArrayList<>();
 
                 // iterate each child
                 while (dataSnapshots.hasNext()) {
                     DataSnapshot dataSnapshotChild = dataSnapshots.next();
                     User user = dataSnapshotChild.getValue(User.class);
                     if (!TextUtils.equals(user.getUid(), FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                        if ((user.getAdmin() != null)&&(TextUtils.equals(user.getAdmin(), "True"))) {
-                            admins.add(user);
-                        }
                         users.add(user);
                     }
                 }
-                mFriendManagement.addingAllUsers(users);
-                mAdminFriends.addingAllUsers(admins);
+                mDatabaseManager.getUsersSuccessfully(users);
+
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                mFriendManagement.getUsersUnsuccessfully(databaseError.getMessage());
-                mAdminFriends.getUsersUnsuccessfully(databaseError.getMessage());
+                mDatabaseManager.getUsersUnsuccessfully(databaseError.getMessage());
+                mDatabaseManager.getUsersUnsuccessfully(databaseError.getMessage());
             }
         });
     }

@@ -21,6 +21,18 @@ public class User {
         this.firebaseToken = firebaseToken;
     }
 
+    public User(String uid, String email, String firebaseToken,String username,
+                String phoneNum,String gender,String address,String admin){
+        this.uid = uid;
+        this.email = email;
+        this.firebaseToken = firebaseToken;
+        this.username = username;
+        this.phoneNum = phoneNum;
+        this.gender = gender;
+        this.address = address;
+        this.admin = admin;
+    }
+
     /* by Rondo*/
     public void addFriend(User friend){
         friendsIDs.add(friend.uid);

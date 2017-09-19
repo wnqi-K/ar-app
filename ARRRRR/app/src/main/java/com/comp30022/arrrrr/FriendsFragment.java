@@ -55,6 +55,8 @@ public class FriendsFragment extends Fragment{
         expandableListAdapter = new ExpandableListAdapter(context, expandableListTitle, expandableList);
         expandableListView.setAdapter(expandableListAdapter);
 
+        expandableListView.expandGroup(0);
+
         //Start a new chat room once friend is clicked.
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
@@ -72,11 +74,11 @@ public class FriendsFragment extends Fragment{
 
 
     private HashMap<String, ArrayList<User>> getFriendLists() {
-        ArrayList<User> friendList = (ArrayList<User>) ((MainViewActivity)getActivity()).getRequestUsers().getFriendManagement().getFriendList();
-        ArrayList<User> adminList = (ArrayList<User>) ((MainViewActivity)getActivity()).getRequestUsers().getAdminFriends().getFriendList();
+        ArrayList<User> friendList = (ArrayList<User>) ((MainViewActivity)getActivity()).getmDatabaseManager().getAllUsers();
+        ArrayList<User> adminList = (ArrayList<User>) ((MainViewActivity)getActivity()).getmDatabaseManager().getAdminFriends();
         HashMap<String, ArrayList<User>> expandableList = new HashMap<>();
         expandableList.put("Pre-placed Friends", adminList);
-        expandableList.put("All_Users", friendList);
+        expandableList.put("Users", friendList);
         return expandableList;
     }
 
