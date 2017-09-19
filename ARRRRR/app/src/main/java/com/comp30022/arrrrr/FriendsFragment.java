@@ -40,7 +40,6 @@ public class FriendsFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_users_list, container, false);
-
         final Context context = view.getContext();
 
         //Used to contain all the friends, including pre-placed friends and new added ones.
@@ -72,7 +71,10 @@ public class FriendsFragment extends Fragment{
         return view;
     }
 
-
+    /**
+     * This method is to create a hashmap<String, ArrayList<User>> to contain two required friend list.
+     * It would be used by the expandable List view to display and lead to create new chat room.
+     */
     private HashMap<String, ArrayList<User>> getFriendLists() {
         ArrayList<User> friendList = (ArrayList<User>) ((MainViewActivity)getActivity()).getmDatabaseManager().getAllUsers();
         ArrayList<User> adminList = (ArrayList<User>) ((MainViewActivity)getActivity()).getmDatabaseManager().getAdminFriends();

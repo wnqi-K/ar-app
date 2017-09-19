@@ -10,9 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
-import com.comp30022.arrrrr.FriendManagement.FriendManagement;
-import com.comp30022.arrrrr.FriendManagement.requestFirebaseUsers;
 import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.models.User;
 
@@ -29,11 +26,8 @@ public class MainViewActivity extends AppCompatActivity implements
         FriendsFragment.OnListFragmentInteractionListener{
 
     private DatabaseManager mDatabaseManager;
-    private requestFirebaseUsers mRequestUsers;
+//    private requestFirebaseUsers mRequestUsers;
 
-    public requestFirebaseUsers getRequestUsers() {
-        return mRequestUsers;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +44,7 @@ public class MainViewActivity extends AppCompatActivity implements
 
         // Get all users from database
         mDatabaseManager = new DatabaseManager(this,null,null,1);
-        this.mRequestUsers = new requestFirebaseUsers(mDatabaseManager);
+        //this.mRequestUsers = new requestFirebaseUsers(mDatabaseManager);
     }
 
     @Override
