@@ -55,16 +55,12 @@
         <activity android:name=".RegisterActivity" />
         <activity
             android:name=".MainViewActivity"
-            android:label="@string/title_activity_main_view" />
-        <activity
-            android:name=".UserListingActivity"
-            android:label="@string/title_activity_user_listing"
-            android:theme="@style/AppTheme" />
-        <activity android:name=".UserProfileActivity" />
-        <activity android:name=".EditProfileActivity" />
+            android:label="@string/title_activity_main_view"/>
+        <activity android:name=".UserProfileActivity"/>
+        <activity android:name=".EditProfileActivity"/>
         <activity android:name=".SelectPhotoActivity" />
-        <activity android:name=".ChatActivity" />
-
+        <activity android:name=".ChatActivity"/>
+      
         <service
             android:name=".services.PositioningService"
             android:exported="false" />
@@ -73,8 +69,22 @@
             android:enabled="true"
             android:exported="true" />
 
+        <service android:name=".services.MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".services.FirebaseIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+
+        
         <activity android:name=".AddingNewFriendsActivity"></activity>
         <activity android:name=".ArViewActivity"></activity>
+
     </application>
 
 </manifest>
