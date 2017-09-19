@@ -68,7 +68,7 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ((ChatActivity)getActivity()).getSupportActionBar().hide();
+        //((ChatActivity)getActivity()).getSupportActionBar().hide();
         View fragmentView = inflater.inflate(R.layout.fragment_chat, container, false);
         bindViews(fragmentView);
         return fragmentView;
@@ -102,6 +102,7 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_SEND) {
             sendMessage();
+            v.setText(null);
             return true;
         }
         return false;
