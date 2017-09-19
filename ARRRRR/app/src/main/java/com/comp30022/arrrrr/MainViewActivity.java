@@ -1,6 +1,8 @@
 package com.comp30022.arrrrr;
 
+import android.app.Activity;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -183,5 +185,10 @@ public class MainViewActivity extends AppCompatActivity implements
 
     public DatabaseManager getmDatabaseManager() {
         return mDatabaseManager;
+    }
+
+    public static void startActivity(Context context) {
+        Intent intent = new Intent(context, MainViewActivity.class);
+        context.startActivity(intent);
     }
 }

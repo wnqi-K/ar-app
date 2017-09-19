@@ -8,9 +8,11 @@ import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
+import com.comp30022.arrrrr.ChatActivity;
 import com.comp30022.arrrrr.MainActivity;
 import com.comp30022.arrrrr.MainViewActivity;
 import com.comp30022.arrrrr.PushNotificationEvent;
+import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -42,7 +44,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             // Don't show notification if chat activity is open.
             if (!MainActivity.isChatActivityOpen()) {
-                sendNotification(remoteMessage);
+                sendNotification(title,
+                        message,
+                        username,
+                        uid,
+                        fcmToken);
 
             } else {
                 EventBus.getDefault().post(new PushNotificationEvent(title,
@@ -63,12 +69,23 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.d(TAG, "Notification Message Body: " + remoteMessage.getNotification().getBody());
     }
 
-    private void sendNotification(RemoteMessage remoteMessage){
+    private void sendNotification(String title,
+                                  String message,
+                                  String receiver,
+                                  String receiverUid,
+                                  String firebaseToken){
+
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra(Constants.ARG_RECEIVER, receiver);
+        intent.putExtra(Constants.ARG_RECEIVER_UID, receiverUid);
+        intent.putExtra(Constants.ARG_FIREBASE_TOKEN, firebaseToken);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
         mBuilder.setSmallIcon(android.support.v7.appcompat.R.drawable.notification_template_icon_bg);
-        mBuilder.setContentTitle("First notification");
-        mBuilder.setContentText(remoteMessage.getNotification().getBody());
+        mBuilder.setContentTitle(title);
+        mBuilder.setContentText(message);
+        mBuilder.setAutoCancel(true);
 
         // Creates an explicit intent for an Activity in your app
         Intent resultIntent = new Intent(this, MainViewActivity.class);
