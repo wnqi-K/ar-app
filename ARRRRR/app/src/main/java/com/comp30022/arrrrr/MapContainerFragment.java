@@ -2,6 +2,7 @@ package com.comp30022.arrrrr;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -19,6 +20,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.comp30022.arrrrr.receivers.AddressResultReceiver;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
 import com.comp30022.arrrrr.utils.LocationPermissionHelper;
@@ -33,8 +35,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 
-import java.text.DateFormat;
-import java.util.Date;
+import java.util.ArrayList;
 
 /**
  * Fragment containing map interface.
@@ -62,14 +63,9 @@ public class MapContainerFragment extends Fragment implements
     private Boolean mRequestingLocationUpdates;
 
     /**
-     * Receiver for self positioning service.
+     * Contains all broadcast receivers
      */
-    private SelfPositionReceiver mPositioningReceiver;
-
-    /**
-     * Receiver for location information from server
-     */
-    private GeoQueryLocationsReceiver mServerLocationsReceiver;
+    private ArrayList<BroadcastReceiver> mBroadcastReceivers;
 
     /**
      * Context that this fragment is running under.
@@ -108,7 +104,7 @@ public class MapContainerFragment extends Fragment implements
         setHasOptionsMenu(true);
 
         mRequestingLocationUpdates = false;
-
+        mBroadcastReceivers = new ArrayList<>();
         // TODO: Update values using data stored in the Bundle.
     }
 
@@ -203,6 +199,7 @@ public class MapContainerFragment extends Fragment implements
         // Do this after mMapUIManager has been initialized
         registerServerLocationsReceiver(mMapUIManager);
         registerPositioningReceiver(mMapUIManager);
+        registerAddressResultReceiver(mMapUIManager);
     }
 
     @Override
@@ -310,28 +307,40 @@ public class MapContainerFragment extends Fragment implements
 
         IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
-        mPositioningReceiver = new SelfPositionReceiver(listener);
+        SelfPositionReceiver mPositioningReceiver = new SelfPositionReceiver(listener);
         getActivity().registerReceiver(mPositioningReceiver, filter);
+        mBroadcastReceivers.add(mPositioningReceiver);
     }
 
     public void registerServerLocationsReceiver(
             @NonNull GeoQueryLocationsReceiver.GeoQueryLocationsListener listener) {
         IntentFilter filter = new IntentFilter(GeoQueryLocationsReceiver.ACTION_GEOQUERY_LOCATIONS);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
-        mServerLocationsReceiver = new GeoQueryLocationsReceiver(listener);
+        GeoQueryLocationsReceiver mServerLocationsReceiver = new GeoQueryLocationsReceiver(listener);
         getActivity().registerReceiver(mServerLocationsReceiver, filter);
+        mBroadcastReceivers.add(mServerLocationsReceiver);
+    }
+
+    public void registerAddressResultReceiver(
+            @NonNull AddressResultReceiver.AddressResultListener listener) {
+        IntentFilter filter = new IntentFilter(AddressResultReceiver.ACTION_ADDRESS_RESULT);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        AddressResultReceiver mAddressResultReceiver = new AddressResultReceiver(listener);
+        getActivity().registerReceiver(mAddressResultReceiver, filter);
+        mBroadcastReceivers.add(mAddressResultReceiver);
     }
 
     /**
      * Unregister all receives. Should be called in onPause().
      */
     public void unregisterReceivers() {
-        try {
-            // Note that receivers might not have been registered
-            getActivity().unregisterReceiver(mPositioningReceiver);
-            getActivity().unregisterReceiver(mServerLocationsReceiver);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+        for (BroadcastReceiver receiver: mBroadcastReceivers) {
+            try {
+                getActivity().unregisterReceiver(receiver);
+                mBroadcastReceivers.remove(receiver);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
         }
     }
 
