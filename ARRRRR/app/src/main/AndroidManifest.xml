@@ -82,7 +82,7 @@
         </service>
 
         
-        <activity android:name=".AddingNewFriendsActivity"></activity>
+        <activity android:name=".AddingFriendsActivity"></activity>
         <activity android:name=".ArViewActivity"></activity>
 
     </application>

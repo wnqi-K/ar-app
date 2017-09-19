@@ -132,7 +132,7 @@ public class MainViewActivity extends AppCompatActivity implements
      * Switch to addingFriendActivity.
      */
     private void addingNewFriend() {
-        Intent intent = new Intent(this, AddingNewFriendsActivity.class);
+        Intent intent = new Intent(this, AddingFriendsActivity.class);
         startActivity(intent);
     }
 

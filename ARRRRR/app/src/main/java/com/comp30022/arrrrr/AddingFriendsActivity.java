@@ -8,7 +8,7 @@ import android.os.Bundle;
  *
  * Created by Wenqiang Kuang on 16/09/2017.
  */
-public class AddingNewFriendsActivity extends AppCompatActivity {
+public class AddingFriendsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
