@@ -102,29 +102,13 @@ public class RegisterFragment extends Fragment implements View.OnClickListener{
             Toast.makeText(getActivity(), "unvalid email/password", Toast.LENGTH_SHORT).show();
         }
         else{
-
             performFirebaseRegistration(getActivity(), emailId, password);
             Toast.makeText(getActivity(), Constants.ARG_SUCCESS, Toast.LENGTH_SHORT).show();
-            MainViewActivity.startActivity(getActivity());
+            EmailLoginActivity.startActivity(getActivity());
         }
     }
 
-    public void onRegistrationSuccess(FirebaseUser firebaseUser) {
-        mProgressDialog.setMessage(getString(R.string.adding_user_to_db));
-        Toast.makeText(getActivity(), "Registration Successful!", Toast.LENGTH_SHORT).show();
-    }
-
-    public void onRegistrationFailure(String message) {
-        mProgressDialog.dismiss();
-        mProgressDialog.setMessage(getString(R.string.please_wait));
-        Log.e(TAG, "onRegistrationFailure: " + message);
-        Toast.makeText(getActivity(), "Registration failed!+\n" + message, Toast.LENGTH_LONG).show();
-    }
-
     private void performFirebaseRegistration(Activity activity, final String email, String password) {
-
-        LoginHelper.showProgressDialog(mProgressDialog,getActivity());
-
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -134,7 +118,6 @@ public class RegisterFragment extends Fragment implements View.OnClickListener{
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
-                            LoginHelper.hideProgressDialog(mProgressDialog);
                             Toast.makeText(getActivity(), Constants.ARG_FAILURE, Toast.LENGTH_SHORT).show();
 
                         } else {

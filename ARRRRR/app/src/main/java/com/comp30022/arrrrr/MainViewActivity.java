@@ -200,12 +200,10 @@ public class MainViewActivity extends AppCompatActivity implements
         return mDatabaseManager;
     }
 
-    public static void startActivity(Context context) {
-        Intent intent = new Intent(context, MainViewActivity.class);
-        context.startActivity(intent);
-    }
 
-
+    /**
+     * add user to Firebase database
+     * */
     private void addUserToDatabase(FirebaseUser firebaseUser){
         String uid = firebaseUser.getUid();
         User user = new User(uid,
@@ -228,7 +226,7 @@ public class MainViewActivity extends AppCompatActivity implements
                         }
                     }
                 });
-
-
     }
+
+
 }

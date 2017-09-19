@@ -65,8 +65,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // If the application is in the foreground handle both data and notification messages here.
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated.
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
-        Log.d(TAG, "Notification Message Body: " + remoteMessage.getNotification().getBody());
+        //Log.d(TAG, "From: " + remoteMessage.getFrom());
+        //Log.d(TAG, "Notification Message Body: " + remoteMessage.getNotification().getBody());
     }
 
     private void sendNotification(String title,
@@ -75,42 +75,33 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                   String receiverUid,
                                   String firebaseToken){
 
+
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(Constants.ARG_RECEIVER, receiver);
         intent.putExtra(Constants.ARG_RECEIVER_UID, receiverUid);
         intent.putExtra(Constants.ARG_FIREBASE_TOKEN, firebaseToken);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
+                PendingIntent.FLAG_ONE_SHOT);
 
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
-        mBuilder.setSmallIcon(android.support.v7.appcompat.R.drawable.notification_template_icon_bg);
-        mBuilder.setContentTitle(title);
-        mBuilder.setContentText(message);
-        mBuilder.setAutoCancel(true);
+        //Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
+        notificationBuilder.setSmallIcon(android.support.v7.appcompat.R.drawable.notification_template_icon_bg);
+        notificationBuilder.setContentTitle(title);
+        notificationBuilder.setContentText(message);
+        notificationBuilder.setAutoCancel(true);
+        notificationBuilder.setContentIntent(pendingIntent);
+        //.setSound(defaultSoundUri)
 
-        // Creates an explicit intent for an Activity in your app
-        Intent resultIntent = new Intent(this, MainViewActivity.class);
 
-        // The stack builder object will contain an artificial back stack for the
-        // started Activity.
-        // This ensures that navigating backward from the Activity leads out of
-        // your app to the Home screen.
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        // Adds the back stack for the Intent (but not the Intent itself)
-        stackBuilder.addParentStack(MainViewActivity.class);
-        // Adds the Intent that starts the Activity to the top of the stack
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-        mBuilder.setContentIntent(resultPendingIntent);
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
+
+
         // build notification
         int mNotificationId = createID();
-        mNotificationManager.notify(mNotificationId, mBuilder.build());
+        mNotificationManager.notify(mNotificationId, notificationBuilder.build());
     }
 
 
