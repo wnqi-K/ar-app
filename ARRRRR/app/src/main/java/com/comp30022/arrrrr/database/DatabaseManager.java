@@ -63,7 +63,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 COLUMN_GENDER + " varchar(255),\n" +
                 COLUMN_ADDRESS + " varchar(255),\n"+
                 COLUMN_ADMIN + " varchar(255)\n"+ ");";
-
         db.execSQL(query);
 
         for(User user:allUsers){

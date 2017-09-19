@@ -8,7 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.comp30022.arrrrr.R;
-import com.comp30022.arrrrr.models.AnimalNames;
+import com.comp30022.arrrrr.models.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,38 +16,36 @@ import java.util.Locale;
 
 
 /**
- * Created by Ricky_KUANG on 19/09/2017.
+ * Created by Wenqiang Kuang on 19/09/2017.
  */
 
 public class ListViewAdapter extends BaseAdapter {
 
-    // Declare Variables
-
     Context mContext;
     LayoutInflater inflater;
-    private List<AnimalNames> animalNamesList = null;
-    private ArrayList<AnimalNames> arraylist;
+    private List<User> mUserList = null;
+    private ArrayList<User> mUsers;
 
-    public ListViewAdapter(Context context, List<AnimalNames> animalNamesList) {
+    public ListViewAdapter(Context context, List<User> userList) {
         mContext = context;
-        this.animalNamesList = animalNamesList;
         inflater = LayoutInflater.from(mContext);
-        this.arraylist = new ArrayList<AnimalNames>();
-        this.arraylist.addAll(animalNamesList);
+        mUserList = userList;
+        this.mUsers = new ArrayList<>();
+        this.mUsers.addAll(userList);
     }
 
     public class ViewHolder {
-        TextView name;
+        TextView result;
     }
 
     @Override
     public int getCount() {
-        return animalNamesList.size();
+        return mUserList.size();
     }
 
     @Override
-    public AnimalNames getItem(int position) {
-        return animalNamesList.get(position);
+    public User getItem(int position) {
+        return mUserList.get(position);
     }
 
     @Override
@@ -60,31 +58,30 @@ public class ListViewAdapter extends BaseAdapter {
         if (view == null) {
             holder = new ViewHolder();
             view = inflater.inflate(R.layout.list_view_items, null);
-            // Locate the TextViews in listview_item.xml
-            holder.name = (TextView) view.findViewById(R.id.name);
+            // Locate the TextViews in list_view_item.xml
+            holder.result = (TextView) view.findViewById(R.id.search_result_email);
             view.setTag(holder);
         } else {
             holder = (ViewHolder) view.getTag();
         }
         // Set the results into TextViews
-        holder.name.setText(animalNamesList.get(position).getAnimalName());
+        holder.result.setText(mUsers.get(position).getEmail());
         return view;
     }
 
     // Filter Class
     public void filter(String charText) {
         charText = charText.toLowerCase(Locale.getDefault());
-        animalNamesList.clear();
+        mUserList.clear();
         if (charText.length() == 0) {
-            animalNamesList.addAll(arraylist);
+            mUserList.addAll(mUsers);
         } else {
-            for (AnimalNames wp : arraylist) {
-                if (wp.getAnimalName().toLowerCase(Locale.getDefault()).contains(charText)) {
-                    animalNamesList.add(wp);
+            for (User u : mUsers) {
+                if (u.getEmail().toLowerCase(Locale.getDefault()).contains(charText)) {
+                    mUserList.add(u);
                 }
             }
         }
         notifyDataSetChanged();
     }
-
 }

@@ -5,15 +5,15 @@
                 android:padding="10dp">
 
     <TextView
-        android:id="@+id/nameLabel"
+        android:id="@+id/search_view_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Animal : " />
+        android:text="User Email : " />
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/search_result_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/nameLabel" />
+        android:layout_toRightOf="@+id/search_view_label" />
 
 </RelativeLayout>
