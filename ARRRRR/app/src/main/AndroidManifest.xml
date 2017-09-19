@@ -69,7 +69,9 @@
             android:name=".services.LocationSharingService"
             android:enabled="true"
             android:exported="true" />
-
+        <service
+            android:name=".services.FetchAddressIntentService"
+            android:enabled="true" />
         <activity android:name=".AddingNewFriendsActivity"></activity>
         <activity android:name=".ArViewActivity"></activity>
     </application>

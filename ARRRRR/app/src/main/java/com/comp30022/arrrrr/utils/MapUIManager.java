@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.comp30022.arrrrr.R;
@@ -128,12 +129,14 @@ public class MapUIManager implements
     public void onAddressFetchSuccess(Address address, Location location) {
         TextView textViewAddress = (TextView) mContext.findViewById(R.id.text_view_address);
         textViewAddress.setText(address.getAddressLine(0));
+        hideProgressBarLocating();
     }
 
     @Override
     public void onAddressFetchFailure(Location location) {
         TextView textViewAddress = (TextView) mContext.findViewById(R.id.text_view_address);
         textViewAddress.setText(R.string.text_fetching_address);
+        hideProgressBarLocating();
     }
 
     @Override
@@ -199,6 +202,7 @@ public class MapUIManager implements
     @Override
     public void onSelfLocationChanged(Location location) {
         requestFetchAddress(location);
+        showProgressBarLocating();
 
         LatLng currLatLng = locationToLatLng(location);
 
@@ -227,6 +231,22 @@ public class MapUIManager implements
         }
 
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
+    }
+
+    /**
+     * Show progress bar for locating process.
+     */
+    private void showProgressBarLocating() {
+        ProgressBar progressBar = (ProgressBar) mContext.findViewById(R.id.progress_bar_locating);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Hide progress bar after locating process is complete.
+     */
+    private void hideProgressBarLocating() {
+        ProgressBar progressBar = (ProgressBar) mContext.findViewById(R.id.progress_bar_locating);
+        progressBar.setVisibility(View.GONE);
     }
 
     /**

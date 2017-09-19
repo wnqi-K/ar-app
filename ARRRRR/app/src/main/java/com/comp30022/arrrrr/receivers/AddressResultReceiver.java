@@ -17,7 +17,7 @@ import com.comp30022.arrrrr.utils.Constants;
 
 public class AddressResultReceiver extends BroadcastReceiver {
 
-    public static String ACTION_ADDRESS_RESULT = Constants.ACTION_PACKAGE + ".GEOQUERY_LOCATIONS";
+    public static final String ACTION_ADDRESS_RESULT = Constants.ACTION_PACKAGE + ".ADDRESS_RESULT";
 
     private AddressResultListener mListener;
 

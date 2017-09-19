@@ -33,6 +33,10 @@ public class FetchAddressIntentService extends IntentService {
         super(TAG);
     }
 
+    public FetchAddressIntentService(String name) {
+        super(name);
+    }
+
     /**
      * Tries to get the location address using a Geocoder. If successful, sends an address to a
      * result receiver. If unsuccessful, reports the error message internally.
@@ -44,7 +48,7 @@ public class FetchAddressIntentService extends IntentService {
         Location location = intent.getParcelableExtra(PARAM_IN_LOCATION_DATA);
 
         if (location == null) {
-            Log.wtf(TAG, "Error fetching address: no location data provided.");
+            Log.v(TAG, "Error fetching address: no location data provided.");
             return;
         }
 
@@ -62,19 +66,19 @@ public class FetchAddressIntentService extends IntentService {
                     1);
         } catch (IOException ioException) {
             // Catch network or other I/O problems.
-            Log.e(TAG, "Error fetching address: service not available.");
+            Log.v(TAG, "Error fetching address: service not available.");
             sendResultBroadcast(false, null, location);
             return;
         } catch (IllegalArgumentException illegalArgumentException) {
             // Catch invalid latitude or longitude values.
-            Log.e(TAG, "Error fetching address: invalid latitude or longitude values. " +
+            Log.v(TAG, "Error fetching address: invalid latitude or longitude values. " +
                     "Latitude = " + location.getLatitude() +
                     ", Longitude = " + location.getLongitude(), illegalArgumentException);
             sendResultBroadcast(false, null, location);
             return;
         }
 
-        Log.i(TAG, "Fetching address: an address has been found.");
+        Log.v(TAG, "Fetching address: an address has been found.");
         Address address = addresses.get(0);
         sendResultBroadcast(true, address, location);
     }

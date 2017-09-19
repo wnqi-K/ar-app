@@ -337,7 +337,6 @@ public class MapContainerFragment extends Fragment implements
         for (BroadcastReceiver receiver: mBroadcastReceivers) {
             try {
                 getActivity().unregisterReceiver(receiver);
-                mBroadcastReceivers.remove(receiver);
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
             }
