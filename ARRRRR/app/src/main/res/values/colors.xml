@@ -9,4 +9,5 @@
 
     <color name="color_active">#5cb85c</color>
     <color name="color_text_dark_bg">#ffffff</color>
+    <color name="color_bg_light">#ffffff</color>
 </resources>

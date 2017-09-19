@@ -2,26 +2,31 @@ package com.comp30022.arrrrr.utils;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
 import android.location.Location;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.animations.LatLngInterpolator;
 import com.comp30022.arrrrr.animations.MarkerAnimation;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
+import com.comp30022.arrrrr.receivers.AddressResultReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
+import com.comp30022.arrrrr.services.FetchAddressIntentService;
 import com.comp30022.arrrrr.services.LocationSharingService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -44,7 +49,8 @@ import java.util.HashMap;
 public class MapUIManager implements
         GeoQueryLocationsReceiver.GeoQueryLocationsListener,
         SelfPositionReceiver.SelfLocationListener,
-        GoogleMap.OnMarkerClickListener {
+        GoogleMap.OnMarkerClickListener,
+        AddressResultReceiver.AddressResultListener {
 
     private final String TAG = MapUIManager.class.getSimpleName();
 
@@ -120,6 +126,20 @@ public class MapUIManager implements
     }
 
     @Override
+    public void onAddressFetchSuccess(Address address, Location location) {
+        TextView textViewAddress = (TextView) mContext.findViewById(R.id.text_view_address);
+        textViewAddress.setText(address.getAddressLine(0));
+        hideProgressBarLocating();
+    }
+
+    @Override
+    public void onAddressFetchFailure(Location location) {
+        TextView textViewAddress = (TextView) mContext.findViewById(R.id.text_view_address);
+        textViewAddress.setText(R.string.text_fetching_address);
+        hideProgressBarLocating();
+    }
+
+    @Override
     public void onGeoQueryEvent(String type, String key, HashMap<String, LatLng> geoLocations, HashMap<String, GeoLocationInfo> geoLocationInfos) {
         if (type == null) {
             Log.v(TAG, "Error receiving intent content.");
@@ -181,6 +201,9 @@ public class MapUIManager implements
      */
     @Override
     public void onSelfLocationChanged(Location location) {
+        requestFetchAddress(location);
+        showProgressBarLocating();
+
         LatLng currLatLng = locationToLatLng(location);
 
         if (mSelfCircle == null) {
@@ -208,6 +231,31 @@ public class MapUIManager implements
         }
 
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
+    }
+
+    /**
+     * Show progress bar for locating process.
+     */
+    private void showProgressBarLocating() {
+        ProgressBar progressBar = (ProgressBar) mContext.findViewById(R.id.progress_bar_locating);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Hide progress bar after locating process is complete.
+     */
+    private void hideProgressBarLocating() {
+        ProgressBar progressBar = (ProgressBar) mContext.findViewById(R.id.progress_bar_locating);
+        progressBar.setVisibility(View.GONE);
+    }
+
+    /**
+     * Send an intent to {@link FetchAddressIntentService} to request fetching location to address
+     */
+    private void requestFetchAddress(Location location) {
+        Intent intent = new Intent(mContext, FetchAddressIntentService.class);
+        intent.putExtra(FetchAddressIntentService.PARAM_IN_LOCATION_DATA, location);
+        mContext.startService(intent);
     }
 
     /**
