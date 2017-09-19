@@ -8,24 +8,18 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 import android.util.Log;
-
 import com.comp30022.arrrrr.models.User;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by rondo on 9/16/17.
+ * Created by rondo on 16/09/17.
+ * Modified by Wenqiang Kuang on 19/09/17.
  */
 
 public class DatabaseManager extends SQLiteOpenHelper {
-
-    /**
-     * database basic information
-     * */
-
+    //database basic information
     private static final int DATABASE_VERSION = 1;
-    //file name
     private static final String DATABASE_NAME = "users.db";
     // mySQL table name
     public static final String TABLE_USERS = "users";
@@ -39,25 +33,23 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String COLUMN_ADDRESS = "address";
     public static final String COLUMN_ADMIN =  "admin";
 
+    // user information from Firebase
+    public List<User> allUsers =  new ArrayList<>();
+    public List<User> admins = new ArrayList<>();
 
+    private static DatabaseManager dbManager;
 
-    /**
-     * user information from Firebase
-     * */
-    public List<User> mUsers =  new ArrayList<User>();
-    public List<User> admins = new ArrayList<User>();
-
-
-
-
-
-    public DatabaseManager(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, DATABASE_NAME, factory, DATABASE_VERSION);
+    public static synchronized DatabaseManager getInstance(Context context) {
+        if (dbManager == null) {
+            dbManager = new DatabaseManager(context.getApplicationContext());
+        }
+        return dbManager;
     }
 
-    /**
-     * create database
-     * */
+    private DatabaseManager(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         // create a new tabel called users
@@ -70,21 +62,15 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 COLUMN_PHONE_NUM + " varchar(255),\n" +
                 COLUMN_GENDER + " varchar(255),\n" +
                 COLUMN_ADDRESS + " varchar(255),\n"+
-                COLUMN_ADMIN + " varchar(255)\n"+
-                ");";
+                COLUMN_ADMIN + " varchar(255)\n"+ ");";
 
-
-        // execute query
         db.execSQL(query);
 
-        for(User user:mUsers){
+        for(User user:allUsers){
             addUser(user,db);
         }
     }
 
-    /**
-     * update datebase
-     * */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS" + TABLE_USERS);
@@ -136,18 +122,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
         db.close();
         return dbString;
-
-
     }
-
-
 
     /**
      *  if succcess add user to the list
      * */
     public void getUsersSuccessfully(List<User> users){
         for(User user:users){
-            this.mUsers.add(user);
+            this.allUsers.add(user);
         }
         databseToString();
     }
@@ -161,12 +143,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * return users information stored locally
      * */
     public List<User> getAllUsers() {
-        List<User> mLocalUsers =  new ArrayList<User>();
+        List<User> mLocalUsers =  new ArrayList<>();
         transferData(mLocalUsers);
         return mLocalUsers;
     }
-
-
 
     public List<User> getAdminFriends() {
         List<User> mLocalUsers =  getAllUsers();
@@ -176,7 +156,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 admins.add(user);
             }
         }
-
         return admins;
     }
 
@@ -184,10 +163,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * transfer data from database to a list
      * */
     private void transferData(List<User> mLocalUsers) {
-
-        System.out.println("printing....");
-        System.out.println(databseToString());
-
         SQLiteDatabase db = getWritableDatabase();
         String query = "SELECT * FROM " + TABLE_USERS + " WHERE 1";
 
@@ -218,8 +193,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         finally {
             cursor.close();
             db.close();
-
         }
     }
-
 }

@@ -7,6 +7,7 @@ import android.widget.SearchView;
 
 import com.comp30022.arrrrr.adapters.ListViewAdapter;
 import com.comp30022.arrrrr.models.AnimalNames;
+import com.comp30022.arrrrr.models.User;
 
 import java.util.ArrayList;
 

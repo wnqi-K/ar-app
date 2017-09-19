@@ -1,8 +1,6 @@
 package com.comp30022.arrrrr.FriendManagement;
 
 import android.text.TextUtils;
-import android.util.Log;
-
 import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
@@ -52,7 +50,6 @@ public class RequestFirebaseUsers {
                     }
                 }
                 mDatabaseManager.getUsersSuccessfully(users);
-
             }
 
             @Override
