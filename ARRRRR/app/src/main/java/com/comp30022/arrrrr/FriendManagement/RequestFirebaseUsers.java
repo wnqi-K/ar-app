@@ -24,11 +24,11 @@ import java.util.List;
  * Created by Wenqiang Kuang on 9/17/17.
  */
 
-public class requestFirebaseUsers {
+public class RequestFirebaseUsers {
     private DatabaseManager mDatabaseManager;
     private DatabaseReference userlistReference;
 
-    public requestFirebaseUsers(DatabaseManager databaseManager){
+    public RequestFirebaseUsers(DatabaseManager databaseManager){
         mDatabaseManager = databaseManager;
         init();
     }

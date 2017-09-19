@@ -26,7 +26,7 @@ public class MainViewActivity extends AppCompatActivity implements
         FriendsFragment.OnListFragmentInteractionListener{
 
     private DatabaseManager mDatabaseManager;
-//    private requestFirebaseUsers mRequestUsers;
+//    private RequestFirebaseUsers mRequestUsers;
 
 
     @Override
@@ -44,7 +44,7 @@ public class MainViewActivity extends AppCompatActivity implements
 
         // Get all users from database
         mDatabaseManager = new DatabaseManager(this,null,null,1);
-        //this.mRequestUsers = new requestFirebaseUsers(mDatabaseManager);
+        //this.mRequestUsers = new RequestFirebaseUsers(mDatabaseManager);
     }
 
     @Override
