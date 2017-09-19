@@ -61,7 +61,7 @@
             android:layout_marginTop="5dp"
             android:orientation="vertical">
 
-            <TextView android:id="@+id/name"
+            <TextView android:id="@+id/search_result_email"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"

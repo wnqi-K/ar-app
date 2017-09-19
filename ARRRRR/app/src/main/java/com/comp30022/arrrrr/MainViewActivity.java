@@ -12,10 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
-
-import com.comp30022.arrrrr.FriendManagement.FriendManagement;
-import com.comp30022.arrrrr.FriendManagement.requestFirebaseUsers;
+import com.comp30022.arrrrr.FriendManagement.RequestFirebaseUsers;
 import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
@@ -40,12 +37,9 @@ public class MainViewActivity extends AppCompatActivity implements
         FriendsFragment.OnListFragmentInteractionListener{
 
     private DatabaseManager mDatabaseManager;
-    private requestFirebaseUsers mRequestUsers;
     private FirebaseAuth mAuth;
 
-    public requestFirebaseUsers getRequestUsers() {
-        return mRequestUsers;
-    }
+    RequestFirebaseUsers mRequestUsers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +58,8 @@ public class MainViewActivity extends AppCompatActivity implements
         mAuth = FirebaseAuth.getInstance();
         addUserToDatabase(mAuth.getCurrentUser());
         // Get all users from database
-        mDatabaseManager = new DatabaseManager(this,null,null,1);
-        this.mRequestUsers = new requestFirebaseUsers(mDatabaseManager);
+        mDatabaseManager = DatabaseManager.getInstance(getApplicationContext());
+        mRequestUsers = new RequestFirebaseUsers(mDatabaseManager);
     }
 
     @Override
@@ -153,7 +147,7 @@ public class MainViewActivity extends AppCompatActivity implements
      * Switch to addingFriendActivity.
      */
     private void addingNewFriend() {
-        Intent intent = new Intent(this, AddingNewFriendsActivity.class);
+        Intent intent = new Intent(this, AddingFriendsActivity.class);
         startActivity(intent);
     }
 
@@ -196,11 +190,6 @@ public class MainViewActivity extends AppCompatActivity implements
         }
     }
 
-    public DatabaseManager getmDatabaseManager() {
-        return mDatabaseManager;
-    }
-
-
     /**
      * add user to Firebase database
      * */
@@ -227,6 +216,4 @@ public class MainViewActivity extends AppCompatActivity implements
                     }
                 });
     }
-
-
 }

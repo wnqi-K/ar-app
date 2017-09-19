@@ -62,7 +62,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private void showData(DataSnapshot dataSnapshot) {
 
-        TextView UserId = (TextView)findViewById(R.id.name);
+        TextView UserId = (TextView)findViewById(R.id.search_result_email);
         TextView UserEmail = (TextView)findViewById(R.id.email);
         TextView UserPhone = (TextView)findViewById(R.id.number);
         TextView UserGender = (TextView)findViewById(R.id.gender);

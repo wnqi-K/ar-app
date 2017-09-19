@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.location.Location;
 
 import com.comp30022.arrrrr.services.PositioningService;
+import com.comp30022.arrrrr.utils.Constants;
 
 /**
  * A {@link BroadcastReceiver} that specifically designed for receiving device location from
@@ -16,7 +17,7 @@ import com.comp30022.arrrrr.services.PositioningService;
 
 public class SelfPositionReceiver extends BroadcastReceiver {
     public static final String ACTION_SELF_POSITION =
-            "com.comp30022.arrrrr.intent.action.SELF_POSITION_RECEIVED";
+            Constants.ACTION_PACKAGE + ".SELF_POSITION_RECEIVED";
 
     /**
      * The context that is using broadcast receiver
