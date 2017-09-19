@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.comp30022.arrrrr.R;
@@ -50,7 +51,9 @@ public class MapUIManager implements
         GeoQueryLocationsReceiver.GeoQueryLocationsListener,
         SelfPositionReceiver.SelfLocationListener,
         GoogleMap.OnMarkerClickListener,
-        AddressResultReceiver.AddressResultListener {
+        AddressResultReceiver.AddressResultListener,
+        GoogleMap.OnMyLocationButtonClickListener,
+        GoogleMap.OnCameraMoveListener{
 
     private final String TAG = MapUIManager.class.getSimpleName();
 
@@ -76,9 +79,6 @@ public class MapUIManager implements
         mGoogleMap = googleMap;
         mFragment = fragment;
         mFriendMarkers = new HashMap<>();
-
-        mGoogleMap.setOnMarkerClickListener(this);
-        mGoogleMap.setInfoWindowAdapter(new FriendInfoWindowAdapter());
     }
 
     @Override
@@ -189,10 +189,19 @@ public class MapUIManager implements
      * TODO: add comments
      */
     public void initializeMapUI() {
-        mGoogleMap.setMinZoomPreference(5);
-        mGoogleMap.setMaxZoomPreference(20);
-        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
+        mGoogleMap.setOnMarkerClickListener(this);
+        mGoogleMap.setInfoWindowAdapter(new FriendInfoWindowAdapter());
+        mGoogleMap.setOnCameraMoveListener(this);
+        mGoogleMap.setOnMyLocationButtonClickListener(this);
         restoreCurrentMapView();
+
+        // Relocate my location button
+        View locationButton = ((View) mContext.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+        // position on right bottom
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+        rlp.setMargins(0, 220, 180, 0);
     }
 
     /**
@@ -231,6 +240,36 @@ public class MapUIManager implements
         }
 
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        if (isMyPosInitialized()) {
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(mSelfMarker.getPosition()));
+            mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
+        }
+        return true;
+    }
+
+    @Override
+    public void onCameraMove() {
+        if (isMyPosInitialized()) {
+            if (mGoogleMap.getCameraPosition().target != mSelfMarker.getPosition() ||
+                  mGoogleMap.getCameraPosition().zoom != DEFAULT_CAMERA_ZOOM_LEVEL) {
+                //noinspection MissingPermission
+                mGoogleMap.setMyLocationEnabled(true);
+            } else {
+                //noinspection MissingPermission
+                mGoogleMap.setMyLocationEnabled(false);
+            }
+        }
+    }
+
+    /**
+     * Determines whether the map has got a self position at least once.
+     */
+    private boolean isMyPosInitialized() {
+        return mSelfMarker != null && mSelfMarker.getPosition() != null;
     }
 
     /**
@@ -274,7 +313,7 @@ public class MapUIManager implements
      * Save current view of the map into shared preferences.
      */
     public void saveCurrentMapView() {
-        if(mSelfMarker != null && mSelfMarker.getPosition() != null) {
+        if(isMyPosInitialized()) {
             SharedPreferences sharedPref = mFragment.getActivity().getPreferences(Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putFloat(mFragment.getString(R.string.saved_camera_lat), (float) mSelfMarker.getPosition().latitude);
