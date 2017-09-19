@@ -2,6 +2,9 @@ package com.comp30022.arrrrr.services;
 
 import android.util.Log;
 
+import com.comp30022.arrrrr.utils.Constants;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
@@ -31,7 +34,15 @@ public class FirebaseIDService extends FirebaseInstanceIdService {
      * @param token The new token.
      */
     private void sendRegistrationToServer(String token) {
-        // Add custom implementation, as needed.
+
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            FirebaseDatabase.getInstance()
+                    .getReference()
+                    .child(Constants.ARG_USERS)
+                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .child(Constants.ARG_FIREBASE_TOKEN)
+                    .setValue(token);
+        }
     }
 }
 

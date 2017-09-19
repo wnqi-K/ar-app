@@ -84,6 +84,7 @@ public class ChatInteractor implements ChatContract.Interactor {
         });
     }
 
+
     private void sendPushNotificationToReceiver(String username,
                                                 String message,
                                                 String uid,
