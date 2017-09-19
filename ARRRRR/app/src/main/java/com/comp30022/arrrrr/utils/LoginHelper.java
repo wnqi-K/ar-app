@@ -66,38 +66,4 @@ public class LoginHelper {
         }
         return result;
     }
-
-
-
-    /**
-     * update ui interface after registration
-     * */
-    public static void updateUI(Activity activity, FirebaseUser user,
-                         ProgressDialog mProgressDialog) {
-        hideProgressDialog(mProgressDialog);
-        if (user != null) {
-            MainViewActivity.startActivity(activity);
-
-            //findViewById(R.id.verify_email_button).setEnabled(!user.isEmailVerified());
-        } else {
-            Log.d("fail", "error getting user");
-        }
-    }
-
-
-    public static void showProgressDialog(ProgressDialog mProgressDialog,Context context) {
-        if (mProgressDialog == null) {
-            mProgressDialog = new ProgressDialog(context);
-            mProgressDialog.setCancelable(false);
-            mProgressDialog.setMessage("Loading...");
-        }
-
-        mProgressDialog.show();
-    }
-
-    public static void hideProgressDialog(ProgressDialog mProgressDialog) {
-        if (mProgressDialog != null && mProgressDialog.isShowing()) {
-            mProgressDialog.dismiss();
-        }
-    }
 }
