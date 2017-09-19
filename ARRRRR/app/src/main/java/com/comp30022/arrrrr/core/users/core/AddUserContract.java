@@ -1,4 +1,4 @@
-package com.comp30022.arrrrr.core.users.add;
+package com.comp30022.arrrrr.core.users.core;
 
 import android.content.Context;
 

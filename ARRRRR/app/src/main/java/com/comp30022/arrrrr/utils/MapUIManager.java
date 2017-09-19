@@ -2,26 +2,32 @@ package com.comp30022.arrrrr.utils;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
 import android.location.Location;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.animations.LatLngInterpolator;
 import com.comp30022.arrrrr.animations.MarkerAnimation;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
+import com.comp30022.arrrrr.receivers.AddressResultReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
+import com.comp30022.arrrrr.services.FetchAddressIntentService;
 import com.comp30022.arrrrr.services.LocationSharingService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -44,7 +50,10 @@ import java.util.HashMap;
 public class MapUIManager implements
         GeoQueryLocationsReceiver.GeoQueryLocationsListener,
         SelfPositionReceiver.SelfLocationListener,
-        GoogleMap.OnMarkerClickListener {
+        GoogleMap.OnMarkerClickListener,
+        AddressResultReceiver.AddressResultListener,
+        GoogleMap.OnMyLocationButtonClickListener,
+        GoogleMap.OnCameraMoveListener{
 
     private final String TAG = MapUIManager.class.getSimpleName();
 
@@ -70,9 +79,6 @@ public class MapUIManager implements
         mGoogleMap = googleMap;
         mFragment = fragment;
         mFriendMarkers = new HashMap<>();
-
-        mGoogleMap.setOnMarkerClickListener(this);
-        mGoogleMap.setInfoWindowAdapter(new FriendInfoWindowAdapter());
     }
 
     @Override
@@ -117,6 +123,20 @@ public class MapUIManager implements
             textViewUserName.setText(uid);
             textViewGeoInfo.setText(time);
         }
+    }
+
+    @Override
+    public void onAddressFetchSuccess(Address address, Location location) {
+        TextView textViewAddress = (TextView) mContext.findViewById(R.id.text_view_address);
+        textViewAddress.setText(address.getAddressLine(0));
+        hideProgressBarLocating();
+    }
+
+    @Override
+    public void onAddressFetchFailure(Location location) {
+        TextView textViewAddress = (TextView) mContext.findViewById(R.id.text_view_address);
+        textViewAddress.setText(R.string.text_fetching_address);
+        hideProgressBarLocating();
     }
 
     @Override
@@ -169,10 +189,19 @@ public class MapUIManager implements
      * TODO: add comments
      */
     public void initializeMapUI() {
-        mGoogleMap.setMinZoomPreference(5);
-        mGoogleMap.setMaxZoomPreference(20);
-        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
+        mGoogleMap.setOnMarkerClickListener(this);
+        mGoogleMap.setInfoWindowAdapter(new FriendInfoWindowAdapter());
+        mGoogleMap.setOnCameraMoveListener(this);
+        mGoogleMap.setOnMyLocationButtonClickListener(this);
         restoreCurrentMapView();
+
+        // Relocate my location button
+        View locationButton = ((View) mContext.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+        // position on right bottom
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+        rlp.setMargins(0, 220, 180, 0);
     }
 
     /**
@@ -181,6 +210,9 @@ public class MapUIManager implements
      */
     @Override
     public void onSelfLocationChanged(Location location) {
+        requestFetchAddress(location);
+        showProgressBarLocating();
+
         LatLng currLatLng = locationToLatLng(location);
 
         if (mSelfCircle == null) {
@@ -210,6 +242,61 @@ public class MapUIManager implements
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
     }
 
+    @Override
+    public boolean onMyLocationButtonClick() {
+        if (isMyPosInitialized()) {
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(mSelfMarker.getPosition()));
+            mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
+        }
+        return true;
+    }
+
+    @Override
+    public void onCameraMove() {
+        if (isMyPosInitialized()) {
+            if (mGoogleMap.getCameraPosition().target != mSelfMarker.getPosition() ||
+                  mGoogleMap.getCameraPosition().zoom != DEFAULT_CAMERA_ZOOM_LEVEL) {
+                //noinspection MissingPermission
+                mGoogleMap.setMyLocationEnabled(true);
+            } else {
+                //noinspection MissingPermission
+                mGoogleMap.setMyLocationEnabled(false);
+            }
+        }
+    }
+
+    /**
+     * Determines whether the map has got a self position at least once.
+     */
+    private boolean isMyPosInitialized() {
+        return mSelfMarker != null && mSelfMarker.getPosition() != null;
+    }
+
+    /**
+     * Show progress bar for locating process.
+     */
+    private void showProgressBarLocating() {
+        ProgressBar progressBar = (ProgressBar) mContext.findViewById(R.id.progress_bar_locating);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Hide progress bar after locating process is complete.
+     */
+    private void hideProgressBarLocating() {
+        ProgressBar progressBar = (ProgressBar) mContext.findViewById(R.id.progress_bar_locating);
+        progressBar.setVisibility(View.GONE);
+    }
+
+    /**
+     * Send an intent to {@link FetchAddressIntentService} to request fetching location to address
+     */
+    private void requestFetchAddress(Location location) {
+        Intent intent = new Intent(mContext, FetchAddressIntentService.class);
+        intent.putExtra(FetchAddressIntentService.PARAM_IN_LOCATION_DATA, location);
+        mContext.startService(intent);
+    }
+
     /**
      * Save current view of the map into shared preferences.
      */
@@ -226,7 +313,7 @@ public class MapUIManager implements
      * Save current view of the map into shared preferences.
      */
     public void saveCurrentMapView() {
-        if(mSelfMarker != null && mSelfMarker.getPosition() != null) {
+        if(isMyPosInitialized()) {
             SharedPreferences sharedPref = mFragment.getActivity().getPreferences(Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putFloat(mFragment.getString(R.string.saved_camera_lat), (float) mSelfMarker.getPosition().latitude);

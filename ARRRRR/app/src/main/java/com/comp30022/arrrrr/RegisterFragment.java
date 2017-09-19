@@ -1,7 +1,6 @@
 package com.comp30022.arrrrr;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,12 +12,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.registration.RegisterContract;
 import com.comp30022.arrrrr.registration.RegisterPresenter;
-import com.comp30022.arrrrr.core.users.add.AddUserContract;
-import com.comp30022.arrrrr.core.users.add.AddUserPresenter;
+import com.comp30022.arrrrr.core.users.core.AddUserContract;
+import com.comp30022.arrrrr.core.users.core.AddUserPresenter;
 //import com.comp30022.arrrrr.ui.activities.UserListingActivity;
+import com.comp30022.arrrrr.utils.LoginHelper;
 import com.google.firebase.auth.FirebaseUser;
 
 
@@ -88,8 +87,15 @@ public class RegisterFragment extends Fragment implements View.OnClickListener, 
         String emailId = mETxtEmail.getText().toString();
         String password = mETxtPassword.getText().toString();
 
-        mRegisterPresenter.register(getActivity(), emailId, password);
-        mProgressDialog.show();
+        // if input email and password is not valid
+        if(!LoginHelper.validateForm(mETxtEmail, mETxtPassword)){
+            Toast.makeText(getActivity(), "unvalid email/password", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            mRegisterPresenter.register(getActivity(), emailId, password);
+            mProgressDialog.show();
+            MainViewActivity.startActivity(getActivity());
+        }
     }
 
     @Override

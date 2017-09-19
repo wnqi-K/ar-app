@@ -1,4 +1,4 @@
-package com.comp30022.arrrrr.core.users.add;
+package com.comp30022.arrrrr.core.users.core;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -15,6 +15,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 
 
+
 public class AddUserInteractor implements AddUserContract.Interactor {
     private AddUserContract.OnUserDatabaseListener mOnUserDatabaseListener;
 
@@ -25,6 +26,7 @@ public class AddUserInteractor implements AddUserContract.Interactor {
     @Override
     public void addUserToDatabase(final Context context, FirebaseUser firebaseUser) {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+
         User user = new User(firebaseUser.getUid(),
                 firebaseUser.getEmail(),
                 new SharedPrefUtil(context).getString(Constants.ARG_FIREBASE_TOKEN));

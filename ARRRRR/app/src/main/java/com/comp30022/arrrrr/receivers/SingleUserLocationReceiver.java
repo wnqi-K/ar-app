@@ -6,6 +6,7 @@ import android.content.Intent;
 
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.services.LocationSharingService;
+import com.comp30022.arrrrr.utils.Constants;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -18,7 +19,7 @@ import com.google.android.gms.maps.model.LatLng;
 public class SingleUserLocationReceiver extends BroadcastReceiver {
 
     public static final String ACTION_SINGE_USER_LOCATION =
-            "com.comp30022.arrrrr.intent.action.ACTION_SINGE_USER_LOCATION";
+            Constants.ACTION_PACKAGE + ".ACTION_SINGE_USER_LOCATION";
 
     public SingleUserLocationListener mListener;
 

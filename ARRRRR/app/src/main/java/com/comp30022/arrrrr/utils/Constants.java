@@ -1,8 +1,5 @@
 package com.comp30022.arrrrr.utils;
 
-
-
-
 public class Constants {
     public static final String ARG_USERS = "users";
     public static final String ARG_RECEIVER = "receiver";
@@ -17,5 +14,5 @@ public class Constants {
     public static final String ARG_ADDRESS = "address";
     public static final String ARG_EMAIL= "email";
 
-
+    public static final String ACTION_PACKAGE = "com.comp30022.arrrrr.intent.action";
 }
