@@ -52,8 +52,7 @@ public class FriendsFragment extends Fragment{
         expandableListTitle = new ArrayList<>(expandableList.keySet());
         expandableListAdapter = new ExpandableListAdapter(context, expandableListTitle, expandableList);
         expandableListView.setAdapter(expandableListAdapter);
-
-        expandableListView.expandGroup(0);
+        expandableListView.expandGroup(1);
 
         //Start a new chat room once friend is clicked.
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
