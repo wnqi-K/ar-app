@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.services.LocationSharingService;
+import com.comp30022.arrrrr.utils.Constants;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.HashMap;
@@ -21,7 +22,7 @@ import java.util.HashMap;
 public class GeoQueryLocationsReceiver extends BroadcastReceiver {
 
     public static final String ACTION_GEOQUERY_LOCATIONS =
-            "com.comp30022.arrrrr.intent.action.GEOQUERY_LOCATIONS";
+            Constants.ACTION_PACKAGE + ".GEOQUERY_LOCATIONS";
 
     public GeoQueryLocationsListener mListener;
 
