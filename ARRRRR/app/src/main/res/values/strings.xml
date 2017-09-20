@@ -56,5 +56,6 @@
     <string name="search_id">Search</string>
     <string name="enter_email_account">Please enter the email account.</string>
     <string name="friend_info_window_button_enter_text">Navigate with AR</string>
+    <string name="add_friend">Add</string>
 
 </resources>

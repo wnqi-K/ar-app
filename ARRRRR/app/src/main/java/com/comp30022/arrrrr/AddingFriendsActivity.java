@@ -5,9 +5,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.comp30022.arrrrr.adapters.ListViewAdapter;
 import com.comp30022.arrrrr.database.DatabaseManager;
@@ -33,8 +35,8 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_adding_friends);
 
-        mSelectView = (ListView) findViewById(R.id.select_user_card);
-        mSelectView.setVisibility(View.GONE);
+        mCardView = (CardView) findViewById(R.id.select_user_card);
+        mCardView.setVisibility(View.GONE);
         mListView = (ListView) findViewById(R.id.search_result_list);
 
         // Pass results to ListViewAdapter Class
@@ -47,13 +49,19 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 User onClickUser = (User)parent.getAdapter().getItem(position);
                 mListView.setVisibility(View.GONE);
-                mSelectView.setVisibility(View.VISIBLE);
-                ArrayList<User> selectUser = new ArrayList<>();
-                selectUser.add(onClickUser);
-                mResultAdapter = new ListViewAdapter(getBaseContext(), selectUser);
-                mSelectView.setAdapter(mResultAdapter);
+                mCardView.setVisibility(View.VISIBLE);
 
-                Toast.makeText(getBaseContext(), onClickUser.getEmail(), Toast.LENGTH_SHORT).show();
+
+                TextView userName = (TextView)mCardView.findViewById(R.id.user_name);
+                TextView userEmail = (TextView)mCardView.findViewById(R.id.user_email);
+                ImageView userAvatar = (ImageView) mCardView.findViewById(R.id.user_avatar);
+                Button addFriend = (Button)mCardView.findViewById(R.id.add_friend_button);
+
+                userName.setText(onClickUser.getUsername());
+                userEmail.setText(onClickUser.getEmail());
+                userAvatar.setImageDrawable(getResources().getDrawable(R.drawable.avatar));
+
+                //Toast.makeText(getBaseContext(), onClickUser.getEmail(), Toast.LENGTH_SHORT).show();
             }
         });
 
