@@ -109,6 +109,7 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     }
 
     private void sendMessage() {
+        // Need to check message(length..etc)!!!!
         String message = mETxtMessage.getText().toString();
         String receiver = getArguments().getString(Constants.ARG_RECEIVER);
         String receiverUid = getArguments().getString(Constants.ARG_RECEIVER_UID);

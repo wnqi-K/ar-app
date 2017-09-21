@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.comp30022.arrrrr.models.Chat;
 import com.comp30022.arrrrr.models.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,20 +24,35 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "users.db";
     // mySQL table name
-    public static final String TABLE_USERS = "users";
-    public static final String COLUMN_ID = "id";
-    public static final String COLUMN_USER_ID = "user_id";
-    public static final String COLUMN_EMAIL = "email";
-    public static final String COLUMN_TOKEN = "firebaseToken";
-    public static final String COLUMN_USERNAME = "username";
-    public static final String COLUMN_PHONE_NUM = "phoneNum";
-    public static final String COLUMN_GENDER = "gender";
-    public static final String COLUMN_ADDRESS = "address";
-    public static final String COLUMN_ADMIN =  "admin";
+    private static final String TABLE_USERS = "users";
+    private static final String TABLE_CHAT_ROOMS = "chat_rooms";
+    private static final String TABLE_MESSGAE = "messages";
+
+    //user table column name
+    private static final String COLUMN_ID = "id";
+    private static final String COLUMN_USER_ID = "user_id";
+    private static final String COLUMN_EMAIL = "email";
+    private static final String COLUMN_TOKEN = "firebaseToken";
+    private static final String COLUMN_USERNAME = "username";
+    private static final String COLUMN_PHONE_NUM = "phoneNum";
+    private static final String COLUMN_GENDER = "gender";
+    private static final String COLUMN_ADDRESS = "address";
+    private static final String COLUMN_ADMIN =  "admin";
+
+    //chat&message table column name
+    private static final String COLUMN_CHAT_ROOM_ID = "chat_room_id";
+    private static final String COLUMN_SENDER = "sender";
+    private static final String COLUMN_RECEIVER = "receiver";
+    private static final String COLUMN_SENDER_ID = "sender_id";
+    private static final String COLUMN_RECEIVER_ID = "receiver_id";
+    private static final String COLUMN_MESSAGE = "message";
+    private static final String COLUMN_MESSAGE_ID = "message_id";
+
 
     // user information from Firebase
     public List<User> allUsers =  new ArrayList<>();
     public List<User> admins = new ArrayList<>();
+    public List<Chat> allChats = new ArrayList<Chat>();
 
     private static DatabaseManager dbManager;
 
@@ -52,7 +69,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // create a new tabel called users
+        // create users table
         String query = "CREATE TABLE " + TABLE_USERS + "\n(" +
                 //COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCERMENT,\n" +
                 COLUMN_USER_ID + " varchar(255),\n" +
@@ -68,7 +85,73 @@ public class DatabaseManager extends SQLiteOpenHelper {
         for(User user:allUsers){
             addUser(user,db);
         }
+
+        //create chat rooms table
+        String query_chat_rooms = "CREATE TABLE " + TABLE_CHAT_ROOMS + "\n(" +
+                COLUMN_CHAT_ROOM_ID + " varchar(255),\n" +
+                COLUMN_SENDER + " varchar(255),\n" +
+                COLUMN_RECEIVER + " varchar(255)\n" + ");";
+        db.execSQL(query_chat_rooms);
+
+        //create messages table
+        String query_messgaes = "CREATE TABLE " + TABLE_MESSGAE + "\n(" +
+                COLUMN_MESSAGE_ID + " varchar(255),\n" +
+                COLUMN_CHAT_ROOM_ID +" varchar(255),\n" +
+                COLUMN_SENDER_ID + " varchar(255),\n" +
+                COLUMN_RECEIVER_ID + " varchar(255),\n" +
+                COLUMN_MESSAGE + " varchar(255)\n" + ");";
+        db.execSQL(query_messgaes);
+
+        for(Chat chat:allChats){
+            addChatRoom(chat,db);
+            addMessage(chat,db);
+        }
+
     }
+
+    /**
+     * add message details to the databse
+     * */
+    private void addMessage(Chat chat, SQLiteDatabase db) {
+        String chat_room_id = chat.senderUid + "_" + chat.receiverUid;
+        String message_id = chat_room_id + Long.toString(chat.timestamp);
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CHAT_ROOM_ID,chat_room_id);
+        values.put(COLUMN_MESSAGE_ID,message_id);
+        values.put(COLUMN_SENDER_ID,chat.senderUid);
+        values.put(COLUMN_RECEIVER_ID,chat.receiverUid);
+        values.put(COLUMN_MESSAGE,chat.message);
+        if(getCount(db,TABLE_MESSGAE,message_id) == 0){
+            db = getWritableDatabase();
+            db.insert(TABLE_MESSGAE,null,values);
+        }
+        else{
+            System.out.println(message_id +" already exists in table "+ TABLE_MESSGAE);
+        }
+    }
+
+    /**
+     * add chat room details to the databse
+     * */
+    private void addChatRoom(Chat chat, SQLiteDatabase db) {
+        String chat_room_id = chat.senderUid + "_" + chat.receiverUid;
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CHAT_ROOM_ID,chat_room_id);
+        values.put(COLUMN_SENDER,chat.sender);
+        values.put(COLUMN_RECEIVER,chat.receiver);
+        if(getCount(db,TABLE_CHAT_ROOMS,chat_room_id) == 0){
+            db = getWritableDatabase();
+            db.insert(TABLE_CHAT_ROOMS,null,values);
+        }
+        else{
+            System.out.println(chat_room_id +" already exists in table "+ TABLE_CHAT_ROOMS);
+        }
+    }
+
+    /**
+     * add message details to the databse
+     * */
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -89,7 +172,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
         values.put(COLUMN_GENDER,user.getGender());
         values.put(COLUMN_ADDRESS,user.getAddress());
         values.put(COLUMN_ADMIN,user.getAdmin());
-        db.insert(TABLE_USERS,null,values);
+        if(getCount(db,TABLE_USERS,user.getUid()) == 0){
+            db = getWritableDatabase();
+            db.insert(TABLE_USERS,null,values);
+        }
+        else{
+            System.out.println(user.getUid() +" already exists in table "+TABLE_USERS);
+        }
+
     }
 
     /**
@@ -194,4 +284,29 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.close();
         }
     }
+
+    /**
+     * check if value exists in table
+     * */
+    private int getCount(SQLiteDatabase db,String tablename,String value) {
+        Cursor c = null;
+        try {
+            db = getReadableDatabase();
+            String query = "select count(*) from " + tablename + " where name = " + value;
+            c = db.rawQuery(query, null);
+            if (c.moveToFirst()) {
+                return c.getInt(0);
+            }
+            return 0;
+        }
+        finally {
+            if (c != null) {
+                c.close();
+            }
+            if (db != null) {
+                db.close();
+            }
+        }
+    }
+
 }
