@@ -18,6 +18,7 @@ import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.chat.ChatContract;
 import com.comp30022.arrrrr.chat.ChatPresenter;
 import com.comp30022.arrrrr.PushNotificationEvent;
+import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.models.Chat;
 import com.comp30022.arrrrr.adapters.ChatRecyclerAdapter;
 import com.comp30022.arrrrr.utils.Constants;
@@ -38,8 +39,8 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     private ProgressDialog mProgressDialog;
 
     private ChatRecyclerAdapter mChatRecyclerAdapter;
-
     private ChatPresenter mChatPresenter;
+    private DatabaseManager mDatabaseManager;
 
     public static ChatFragment newInstance(String receiver,
                                            String receiverUid,
@@ -109,6 +110,7 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     }
 
     private void sendMessage() {
+        // Need to check message(length..etc)!!!!
         String message = mETxtMessage.getText().toString();
         String receiver = getArguments().getString(Constants.ARG_RECEIVER);
         String receiverUid = getArguments().getString(Constants.ARG_RECEIVER_UID);
@@ -145,6 +147,7 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
             mRecyclerViewChat.setAdapter(mChatRecyclerAdapter);
         }
         mChatRecyclerAdapter.add(chat);
+        DatabaseManager.getInstance(getContext()).addChatToDatabase(chat);
         mRecyclerViewChat.smoothScrollToPosition(mChatRecyclerAdapter.getItemCount() - 1);
     }
 
