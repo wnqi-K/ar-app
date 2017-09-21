@@ -2,6 +2,7 @@ package com.comp30022.arrrrr.chat;
 
 import android.content.Context;
 
+import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.models.Chat;
 
 /**

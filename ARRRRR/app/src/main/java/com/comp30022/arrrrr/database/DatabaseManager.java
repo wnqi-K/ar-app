@@ -52,7 +52,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
     // user information from Firebase
     public List<User> allUsers =  new ArrayList<>();
     public List<User> admins = new ArrayList<>();
-    public List<Chat> allChats = new ArrayList<Chat>();
+
+    public List<Chat> mChats = new ArrayList<Chat>();
 
     private static DatabaseManager dbManager;
 
@@ -102,7 +103,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 COLUMN_MESSAGE + " varchar(255)\n" + ");";
         db.execSQL(query_messgaes);
 
-        for(Chat chat:allChats){
+        for(Chat chat:mChats){
             addChatRoom(chat,db);
             addMessage(chat,db);
         }
@@ -121,8 +122,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         values.put(COLUMN_SENDER_ID,chat.senderUid);
         values.put(COLUMN_RECEIVER_ID,chat.receiverUid);
         values.put(COLUMN_MESSAGE,chat.message);
-        if(getCount(db,TABLE_MESSGAE,message_id) == 0){
-            db = getWritableDatabase();
+        if(getCount(db,TABLE_MESSGAE,COLUMN_MESSAGE_ID,message_id) == 0){
             db.insert(TABLE_MESSGAE,null,values);
         }
         else{
@@ -139,8 +139,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         values.put(COLUMN_CHAT_ROOM_ID,chat_room_id);
         values.put(COLUMN_SENDER,chat.sender);
         values.put(COLUMN_RECEIVER,chat.receiver);
-        if(getCount(db,TABLE_CHAT_ROOMS,chat_room_id) == 0){
-            db = getWritableDatabase();
+        if(getCount(db,TABLE_CHAT_ROOMS,COLUMN_CHAT_ROOM_ID,chat_room_id) == 0){
             db.insert(TABLE_CHAT_ROOMS,null,values);
         }
         else{
@@ -172,8 +171,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         values.put(COLUMN_GENDER,user.getGender());
         values.put(COLUMN_ADDRESS,user.getAddress());
         values.put(COLUMN_ADMIN,user.getAdmin());
-        if(getCount(db,TABLE_USERS,user.getUid()) == 0){
-            db = getWritableDatabase();
+        if(getCount(db,TABLE_USERS,COLUMN_USER_ID,user.getUid()) == 0){
             db.insert(TABLE_USERS,null,values);
         }
         else{
@@ -194,6 +192,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * */
     public String databseToString(){
         String dbString = "";
+
         SQLiteDatabase db = getWritableDatabase();
         String query = "SELECT * FROM " + TABLE_USERS + " WHERE 1";
 
@@ -220,7 +219,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
         for(User user:users){
             this.allUsers.add(user);
         }
-        databseToString();
+        //databseToString();
+    }
+
+    public void addChatToDatabase(Chat chat){
+        mChats.add(chat);
     }
 
     /**
@@ -242,6 +245,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         for(User user:mLocalUsers){
             if ((user.getAdmin() != null)&&(TextUtils.equals(user.getAdmin(), "True"))) {
+                // problem of duplicate list
                 admins.add(user);
             }
         }
@@ -288,12 +292,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * check if value exists in table
      * */
-    private int getCount(SQLiteDatabase db,String tablename,String value) {
+    private int getCount(SQLiteDatabase db,String tablename,
+                         String clomun_name,String value) {
         Cursor c = null;
         try {
-            db = getReadableDatabase();
-            String query = "select count(*) from " + tablename + " where name = " + value;
-            c = db.rawQuery(query, null);
+            String query = "SELECT count(*) FROM " + tablename + " WHERE " +  clomun_name + " = ?";
+            c = db.rawQuery(query, new String[] {value});
             if (c.moveToFirst()) {
                 return c.getInt(0);
             }
@@ -303,9 +307,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
             if (c != null) {
                 c.close();
             }
-            if (db != null) {
-                db.close();
-            }
+//            if (db != null) {
+//                db.close();
+//            }
         }
     }
 

@@ -3,6 +3,8 @@ package com.comp30022.arrrrr.chat;
 import android.content.Context;
 import android.util.Log;
 
+import com.comp30022.arrrrr.ChatActivity;
+import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.models.Chat;
 import com.comp30022.arrrrr.services.FcmNotificationBuilder;
 import com.comp30022.arrrrr.utils.Constants;

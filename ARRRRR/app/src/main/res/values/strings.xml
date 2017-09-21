@@ -58,5 +58,6 @@
     <string name="friend_info_window_button_enter_text">Navigate with AR</string>
     <string name="text_fetching_address">Unknown</string>
     <string name="label_current_location">Current Location</string>
+    <string name="search_history">Search History</string>
 
 </resources>
