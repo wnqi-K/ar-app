@@ -1,7 +1,9 @@
 package com.comp30022.arrrrr;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     public static void setChatActivityOpen(boolean isChatActivityOpen) {
         MainActivity.sIsChatActivityOpen = isChatActivityOpen;
     }
+
 
 //    public void facebookLogin(View view) {
 //        Intent intent = new Intent(this, EmailLoginActivity.class);

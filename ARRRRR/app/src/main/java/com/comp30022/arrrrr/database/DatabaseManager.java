@@ -9,58 +9,68 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.comp30022.arrrrr.models.Chat;
 import com.comp30022.arrrrr.models.User;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by rondo on 9/16/17.
+ * Created by rondo on 16/09/17.
+ * Modified by Wenqiang Kuang on 19/09/17.
  */
 
 public class DatabaseManager extends SQLiteOpenHelper {
-
-    /**
-     * database basic information
-     * */
-
+    //database basic information
     private static final int DATABASE_VERSION = 1;
-    //file name
     private static final String DATABASE_NAME = "users.db";
     // mySQL table name
-    public static final String TABLE_USERS = "users";
-    public static final String COLUMN_ID = "id";
-    public static final String COLUMN_USER_ID = "user_id";
-    public static final String COLUMN_EMAIL = "email";
-    public static final String COLUMN_TOKEN = "firebaseToken";
-    public static final String COLUMN_USERNAME = "username";
-    public static final String COLUMN_PHONE_NUM = "phoneNum";
-    public static final String COLUMN_GENDER = "gender";
-    public static final String COLUMN_ADDRESS = "address";
-    public static final String COLUMN_ADMIN =  "admin";
+    private static final String TABLE_USERS = "users";
+    private static final String TABLE_CHAT_ROOMS = "chat_rooms";
+    private static final String TABLE_MESSGAE = "messages";
+
+    //user table column name
+    private static final String COLUMN_ID = "id";
+    private static final String COLUMN_USER_ID = "user_id";
+    private static final String COLUMN_EMAIL = "email";
+    private static final String COLUMN_TOKEN = "firebaseToken";
+    private static final String COLUMN_USERNAME = "username";
+    private static final String COLUMN_PHONE_NUM = "phoneNum";
+    private static final String COLUMN_GENDER = "gender";
+    private static final String COLUMN_ADDRESS = "address";
+    private static final String COLUMN_ADMIN =  "admin";
+
+    //chat&message table column name
+    private static final String COLUMN_CHAT_ROOM_ID = "chat_room_id";
+    private static final String COLUMN_SENDER = "sender";
+    private static final String COLUMN_RECEIVER = "receiver";
+    private static final String COLUMN_SENDER_ID = "sender_id";
+    private static final String COLUMN_RECEIVER_ID = "receiver_id";
+    private static final String COLUMN_MESSAGE = "message";
+    private static final String COLUMN_MESSAGE_ID = "message_id";
 
 
+    // user information from Firebase
+    public List<User> allUsers =  new ArrayList<>();
+    public List<User> admins = new ArrayList<>();
 
-    /**
-     * user information from Firebase
-     * */
-    public List<User> mUsers =  new ArrayList<User>();
-    public List<User> admins = new ArrayList<User>();
+    public List<Chat> mChats = new ArrayList<Chat>();
 
+    private static DatabaseManager dbManager;
 
-
-
-
-    public DatabaseManager(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, DATABASE_NAME, factory, DATABASE_VERSION);
+    public static synchronized DatabaseManager getInstance(Context context) {
+        if (dbManager == null) {
+            dbManager = new DatabaseManager(context.getApplicationContext());
+        }
+        return dbManager;
     }
 
-    /**
-     * create database
-     * */
+    private DatabaseManager(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // create a new tabel called users
+        // create users table
         String query = "CREATE TABLE " + TABLE_USERS + "\n(" +
                 //COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCERMENT,\n" +
                 COLUMN_USER_ID + " varchar(255),\n" +
@@ -70,21 +80,78 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 COLUMN_PHONE_NUM + " varchar(255),\n" +
                 COLUMN_GENDER + " varchar(255),\n" +
                 COLUMN_ADDRESS + " varchar(255),\n"+
-                COLUMN_ADMIN + " varchar(255)\n"+
-                ");";
-
-
-        // execute query
+                COLUMN_ADMIN + " varchar(255)\n"+ ");";
         db.execSQL(query);
 
-        for(User user:mUsers){
+        for(User user:allUsers){
             addUser(user,db);
+        }
+
+        //create chat rooms table
+        String query_chat_rooms = "CREATE TABLE " + TABLE_CHAT_ROOMS + "\n(" +
+                COLUMN_CHAT_ROOM_ID + " varchar(255),\n" +
+                COLUMN_SENDER + " varchar(255),\n" +
+                COLUMN_RECEIVER + " varchar(255)\n" + ");";
+        db.execSQL(query_chat_rooms);
+
+        //create messages table
+        String query_messgaes = "CREATE TABLE " + TABLE_MESSGAE + "\n(" +
+                COLUMN_MESSAGE_ID + " varchar(255),\n" +
+                COLUMN_CHAT_ROOM_ID +" varchar(255),\n" +
+                COLUMN_SENDER_ID + " varchar(255),\n" +
+                COLUMN_RECEIVER_ID + " varchar(255),\n" +
+                COLUMN_MESSAGE + " varchar(255)\n" + ");";
+        db.execSQL(query_messgaes);
+
+        for(Chat chat:mChats){
+            addChatRoom(chat,db);
+            addMessage(chat,db);
+        }
+
+    }
+
+    /**
+     * add message details to the databse
+     * */
+    private void addMessage(Chat chat, SQLiteDatabase db) {
+        String chat_room_id = chat.senderUid + "_" + chat.receiverUid;
+        String message_id = chat_room_id + Long.toString(chat.timestamp);
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CHAT_ROOM_ID,chat_room_id);
+        values.put(COLUMN_MESSAGE_ID,message_id);
+        values.put(COLUMN_SENDER_ID,chat.senderUid);
+        values.put(COLUMN_RECEIVER_ID,chat.receiverUid);
+        values.put(COLUMN_MESSAGE,chat.message);
+        if(getCount(db,TABLE_MESSGAE,COLUMN_MESSAGE_ID,message_id) == 0){
+            db.insert(TABLE_MESSGAE,null,values);
+        }
+        else{
+            System.out.println(message_id +" already exists in table "+ TABLE_MESSGAE);
         }
     }
 
     /**
-     * update datebase
+     * add chat room details to the databse
      * */
+    private void addChatRoom(Chat chat, SQLiteDatabase db) {
+        String chat_room_id = chat.senderUid + "_" + chat.receiverUid;
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CHAT_ROOM_ID,chat_room_id);
+        values.put(COLUMN_SENDER,chat.sender);
+        values.put(COLUMN_RECEIVER,chat.receiver);
+        if(getCount(db,TABLE_CHAT_ROOMS,COLUMN_CHAT_ROOM_ID,chat_room_id) == 0){
+            db.insert(TABLE_CHAT_ROOMS,null,values);
+        }
+        else{
+            System.out.println(chat_room_id +" already exists in table "+ TABLE_CHAT_ROOMS);
+        }
+    }
+
+    /**
+     * add message details to the databse
+     * */
+
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS" + TABLE_USERS);
@@ -104,7 +171,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
         values.put(COLUMN_GENDER,user.getGender());
         values.put(COLUMN_ADDRESS,user.getAddress());
         values.put(COLUMN_ADMIN,user.getAdmin());
-        db.insert(TABLE_USERS,null,values);
+        if(getCount(db,TABLE_USERS,COLUMN_USER_ID,user.getUid()) == 0){
+            db.insert(TABLE_USERS,null,values);
+        }
+        else{
+            System.out.println(user.getUid() +" already exists in table "+TABLE_USERS);
+        }
+
     }
 
     /**
@@ -119,6 +192,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * */
     public String databseToString(){
         String dbString = "";
+
         SQLiteDatabase db = getWritableDatabase();
         String query = "SELECT * FROM " + TABLE_USERS + " WHERE 1";
 
@@ -136,20 +210,20 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
         db.close();
         return dbString;
-
-
     }
-
-
 
     /**
      *  if succcess add user to the list
      * */
     public void getUsersSuccessfully(List<User> users){
         for(User user:users){
-            this.mUsers.add(user);
+            this.allUsers.add(user);
         }
-        databseToString();
+        //databseToString();
+    }
+
+    public void addChatToDatabase(Chat chat){
+        mChats.add(chat);
     }
 
     /**
@@ -161,22 +235,20 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * return users information stored locally
      * */
     public List<User> getAllUsers() {
-        List<User> mLocalUsers =  new ArrayList<User>();
+        List<User> mLocalUsers =  new ArrayList<>();
         transferData(mLocalUsers);
         return mLocalUsers;
     }
-
-
 
     public List<User> getAdminFriends() {
         List<User> mLocalUsers =  getAllUsers();
 
         for(User user:mLocalUsers){
             if ((user.getAdmin() != null)&&(TextUtils.equals(user.getAdmin(), "True"))) {
+                // problem of duplicate list
                 admins.add(user);
             }
         }
-
         return admins;
     }
 
@@ -184,10 +256,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * transfer data from database to a list
      * */
     private void transferData(List<User> mLocalUsers) {
-
-        System.out.println("printing....");
-        System.out.println(databseToString());
-
         SQLiteDatabase db = getWritableDatabase();
         String query = "SELECT * FROM " + TABLE_USERS + " WHERE 1";
 
@@ -218,7 +286,30 @@ public class DatabaseManager extends SQLiteOpenHelper {
         finally {
             cursor.close();
             db.close();
+        }
+    }
 
+    /**
+     * check if value exists in table
+     * */
+    private int getCount(SQLiteDatabase db,String tablename,
+                         String clomun_name,String value) {
+        Cursor c = null;
+        try {
+            String query = "SELECT count(*) FROM " + tablename + " WHERE " +  clomun_name + " = ?";
+            c = db.rawQuery(query, new String[] {value});
+            if (c.moveToFirst()) {
+                return c.getInt(0);
+            }
+            return 0;
+        }
+        finally {
+            if (c != null) {
+                c.close();
+            }
+//            if (db != null) {
+//                db.close();
+//            }
         }
     }
 

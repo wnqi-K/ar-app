@@ -18,6 +18,7 @@ import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.chat.ChatContract;
 import com.comp30022.arrrrr.chat.ChatPresenter;
 import com.comp30022.arrrrr.PushNotificationEvent;
+import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.models.Chat;
 import com.comp30022.arrrrr.adapters.ChatRecyclerAdapter;
 import com.comp30022.arrrrr.utils.Constants;
@@ -38,8 +39,8 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     private ProgressDialog mProgressDialog;
 
     private ChatRecyclerAdapter mChatRecyclerAdapter;
-
     private ChatPresenter mChatPresenter;
+    private DatabaseManager mDatabaseManager;
 
     public static ChatFragment newInstance(String receiver,
                                            String receiverUid,
@@ -68,6 +69,7 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //((ChatActivity)getActivity()).getSupportActionBar().hide();
         View fragmentView = inflater.inflate(R.layout.fragment_chat, container, false);
         bindViews(fragmentView);
         return fragmentView;
@@ -101,12 +103,14 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_SEND) {
             sendMessage();
+            v.setText(null);
             return true;
         }
         return false;
     }
 
     private void sendMessage() {
+        // Need to check message(length..etc)!!!!
         String message = mETxtMessage.getText().toString();
         String receiver = getArguments().getString(Constants.ARG_RECEIVER);
         String receiverUid = getArguments().getString(Constants.ARG_RECEIVER_UID);
@@ -126,6 +130,7 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
 
     @Override
     public void onSendMessageSuccess() {
+
         mETxtMessage.setText("");
         Toast.makeText(getContext(), "Message sent", Toast.LENGTH_SHORT).show();
     }
@@ -142,6 +147,7 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
             mRecyclerViewChat.setAdapter(mChatRecyclerAdapter);
         }
         mChatRecyclerAdapter.add(chat);
+        DatabaseManager.getInstance(getContext()).addChatToDatabase(chat);
         mRecyclerViewChat.smoothScrollToPosition(mChatRecyclerAdapter.getItemCount() - 1);
     }
 

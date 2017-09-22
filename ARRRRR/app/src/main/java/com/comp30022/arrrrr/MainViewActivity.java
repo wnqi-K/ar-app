@@ -1,6 +1,8 @@
 package com.comp30022.arrrrr;
 
+import android.app.Activity;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,11 +12,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
-import com.comp30022.arrrrr.FriendManagement.FriendManagement;
-import com.comp30022.arrrrr.FriendManagement.requestFirebaseUsers;
+import com.comp30022.arrrrr.FriendManagement.RequestFirebaseUsers;
 import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.utils.Constants;
+import com.comp30022.arrrrr.utils.SharedPrefUtil;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 /**
  * Main view of the application after user has logged in. This contains three
@@ -29,11 +39,9 @@ public class MainViewActivity extends AppCompatActivity implements
         FriendsFragment.OnListFragmentInteractionListener{
 
     private DatabaseManager mDatabaseManager;
-    private requestFirebaseUsers mRequestUsers;
+    private FirebaseAuth mAuth;
 
-    public requestFirebaseUsers getRequestUsers() {
-        return mRequestUsers;
-    }
+    RequestFirebaseUsers mRequestUsers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +56,12 @@ public class MainViewActivity extends AppCompatActivity implements
         // Set the default fragment to be map
         switchToFragmentHome();
 
+        // add user to database
+        mAuth = FirebaseAuth.getInstance();
+        addUserToDatabase(mAuth.getCurrentUser());
         // Get all users from database
-        mDatabaseManager = new DatabaseManager(this,null,null,1);
-        this.mRequestUsers = new requestFirebaseUsers(mDatabaseManager);
+        mDatabaseManager = DatabaseManager.getInstance(getApplicationContext());
+        mRequestUsers = new RequestFirebaseUsers(mDatabaseManager);
     }
 
     @Override
@@ -138,7 +149,7 @@ public class MainViewActivity extends AppCompatActivity implements
      * Switch to addingFriendActivity.
      */
     private void addingNewFriend() {
-        Intent intent = new Intent(this, AddingNewFriendsActivity.class);
+        Intent intent = new Intent(this, AddingFriendsActivity.class);
         startActivity(intent);
     }
 
@@ -181,7 +192,30 @@ public class MainViewActivity extends AppCompatActivity implements
         }
     }
 
-    public DatabaseManager getmDatabaseManager() {
-        return mDatabaseManager;
+    /**
+     * add user to Firebase database
+     * */
+    private void addUserToDatabase(FirebaseUser firebaseUser){
+        String uid = firebaseUser.getUid();
+        User user = new User(uid,
+                firebaseUser.getEmail(),
+                new SharedPrefUtil(this).getString(Constants.ARG_FIREBASE_TOKEN));
+        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference();
+        mRef.child(Constants.ARG_USERS)
+                .child(uid)
+                .setValue(user)
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (!task.isSuccessful()) {
+                            Toast.makeText(getApplicationContext(),
+                                    Constants.ARG_FAILURE, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(),
+                                    Constants.ARG_SUCCESS, Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+                });
     }
 }

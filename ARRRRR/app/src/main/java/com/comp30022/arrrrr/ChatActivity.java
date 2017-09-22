@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 
 import com.comp30022.arrrrr.MainActivity;
 import com.comp30022.arrrrr.R;
@@ -30,18 +32,20 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        bindViews();
         init();
     }
 
-    private void bindViews() {
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.action_bar_menu_chat, menu);
+        return true;
     }
 
-    private void init() {
 
-        // set toolbar title
-        mToolbar.setTitle(getIntent().getExtras().getString(Constants.ARG_RECEIVER));
+    private void init() {
+        // set title
+        setTitle(getIntent().getExtras().getString(Constants.ARG_RECEIVER));
 
         // set the register screen fragment
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();

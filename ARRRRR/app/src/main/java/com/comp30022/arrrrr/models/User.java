@@ -10,7 +10,7 @@ public class User {
     private String phoneNum;
     private String gender;
     private String address;
-    private ArrayList<String> friendsIDs;
+    private ArrayList<String> friendList;
     private String admin;
 
     public User(){}
@@ -33,10 +33,7 @@ public class User {
         this.admin = admin;
     }
 
-    /* by Rondo*/
-    public void addFriend(User friend){
-        friendsIDs.add(friend.uid);
-    }
+    public ArrayList<String> getFriendList() { return friendList; }
 
     public String getUsername(){ return username; }
 
@@ -61,6 +58,4 @@ public class User {
     public String getFirebaseToken() { return firebaseToken; }
 
     public String getAdmin() { return admin; }
-
-    public void setAdmin(String admin) { this.admin = admin; }
 }

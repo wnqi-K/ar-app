@@ -62,7 +62,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private void showData(DataSnapshot dataSnapshot) {
 
-        TextView UserId = (TextView)findViewById(R.id.name);
+        TextView UserId = (TextView)findViewById(R.id.search_result_email);
         TextView UserEmail = (TextView)findViewById(R.id.email);
         TextView UserPhone = (TextView)findViewById(R.id.number);
         TextView UserGender = (TextView)findViewById(R.id.gender);
@@ -107,6 +107,12 @@ public class UserProfileActivity extends AppCompatActivity {
         Intent intent = new Intent(this, EditProfileActivity.class);
         startActivity(intent);
         intent.putExtra(EXTRA_NAME, uInfo.getUsername());
+        overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
+    }
+
+    public void SelectPhoto(View v){
+        Intent intent = new Intent(this, SelectPhotoActivity.class);
+        startActivity(intent);
         overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
     }
 
