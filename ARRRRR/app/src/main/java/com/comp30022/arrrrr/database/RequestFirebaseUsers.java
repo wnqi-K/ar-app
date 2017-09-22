@@ -1,7 +1,7 @@
-package com.comp30022.arrrrr.FriendManagement;
+package com.comp30022.arrrrr.database;
 
 import android.text.TextUtils;
-import com.comp30022.arrrrr.database.DatabaseManager;
+
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,16 +23,27 @@ import java.util.List;
  */
 
 public class RequestFirebaseUsers {
-    private DatabaseManager mDatabaseManager;
+
+    private UserManagement mFriendManagement;
+    private static FirebaseDatabase mDatabase;
     private DatabaseReference userlistReference;
 
-    public RequestFirebaseUsers(DatabaseManager databaseManager){
-        mDatabaseManager = databaseManager;
-        init();
+    public static FirebaseDatabase getDatabase() {
+        if (mDatabase == null) {
+            mDatabase = FirebaseDatabase.getInstance();
+            mDatabase.setPersistenceEnabled(true);
+        }
+        return mDatabase;
     }
 
-    public void init() {
-        userlistReference = FirebaseDatabase.getInstance().getReference().child(Constants.ARG_USERS);
+    public RequestFirebaseUsers(UserManagement friendManagement){
+        mFriendManagement = friendManagement;
+        mDatabase = getDatabase();
+        updateUserList();
+    }
+
+    public void updateUserList() {
+        userlistReference = mDatabase.getReference().child(Constants.ARG_USERS);
         userlistReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -49,13 +60,12 @@ public class RequestFirebaseUsers {
                         users.add(user);
                     }
                 }
-                mDatabaseManager.getUsersSuccessfully(users);
+                mFriendManagement.addingAllUsers(users);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                mDatabaseManager.getUsersUnsuccessfully(databaseError.getMessage());
-                mDatabaseManager.getUsersUnsuccessfully(databaseError.getMessage());
+                mFriendManagement.getUsersUnsuccessfully("Fail to fetch user data.");
             }
         });
     }

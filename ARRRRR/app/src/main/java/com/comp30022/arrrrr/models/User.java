@@ -1,8 +1,9 @@
 package com.comp30022.arrrrr.models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class User {
+public class User implements Serializable {
     private String uid;
     private String email;
     private String firebaseToken;

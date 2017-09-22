@@ -1,8 +1,6 @@
 package com.comp30022.arrrrr;
 
-import android.app.Activity;
 import android.app.FragmentManager;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,8 +12,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.comp30022.arrrrr.FriendManagement.RequestFirebaseUsers;
-import com.comp30022.arrrrr.database.DatabaseManager;
+import com.comp30022.arrrrr.database.UserManagement;
+import com.comp30022.arrrrr.database.RequestFirebaseUsers;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
 import com.comp30022.arrrrr.utils.SharedPrefUtil;
@@ -38,13 +36,17 @@ public class MainViewActivity extends AppCompatActivity implements
         SettingFragment.OnSettingFragmentInteractionListener,
         FriendsFragment.OnListFragmentInteractionListener{
 
-    private DatabaseManager mDatabaseManager;
+    //private DatabaseManager mDatabaseManager;
     private FirebaseAuth mAuth;
+    private RequestFirebaseUsers mRequestUsers;
+    private UserManagement mFriendManagement;
 
-    RequestFirebaseUsers mRequestUsers;
-
+    public UserManagement getFriendManagement() {
+        return mFriendManagement;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_view);
 
@@ -59,9 +61,10 @@ public class MainViewActivity extends AppCompatActivity implements
         // add user to database
         mAuth = FirebaseAuth.getInstance();
         addUserToDatabase(mAuth.getCurrentUser());
+
         // Get all users from database
-        mDatabaseManager = DatabaseManager.getInstance(getApplicationContext());
-        mRequestUsers = new RequestFirebaseUsers(mDatabaseManager);
+        mFriendManagement = UserManagement.getInstance();
+        mRequestUsers = new RequestFirebaseUsers(mFriendManagement);
     }
 
     @Override
@@ -149,7 +152,7 @@ public class MainViewActivity extends AppCompatActivity implements
      * Switch to addingFriendActivity.
      */
     private void addingNewFriend() {
-        Intent intent = new Intent(this, AddingFriendsActivity.class);
+        Intent intent = new Intent(getApplicationContext(), AddingFriendsActivity.class);
         startActivity(intent);
     }
 

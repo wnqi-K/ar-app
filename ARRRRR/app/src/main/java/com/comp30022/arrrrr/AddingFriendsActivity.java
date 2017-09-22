@@ -10,9 +10,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.comp30022.arrrrr.adapters.ListViewAdapter;
-import com.comp30022.arrrrr.database.DatabaseManager;
+import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.User;
 
 import java.util.ArrayList;
@@ -23,12 +24,12 @@ import java.util.ArrayList;
  */
 public class AddingFriendsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
-    DatabaseManager dbManager = DatabaseManager.getInstance(null);
+    UserManagement mFriendManagement = UserManagement.getInstance();
     ListView mListView;
     CardView mCardView;
     ListViewAdapter mViewAdapter;
     SearchView mSearchView;
-    ArrayList<User> allUsers = (ArrayList<User>)dbManager.getAllUsers();
+    ArrayList<User> allUsers = (ArrayList<User>)mFriendManagement.getFriendList();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,22 +61,23 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
                 userName.setText(onClickUser.getUsername());
                 userEmail.setText(onClickUser.getEmail());
                 userAvatar.setImageDrawable(getResources().getDrawable(R.drawable.avatar));
-
-                //Toast.makeText(getBaseContext(), onClickUser.getEmail(), Toast.LENGTH_SHORT).show();
+                addFriend.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getBaseContext(), "Friend request has been sent, " +
+                                "please wait for confirmation. ", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
-
 
         // Locate the EditText in listview_main.xml
         mSearchView = (SearchView) findViewById(R.id.search_view);
         mSearchView.setOnQueryTextListener(this);
-
-
     }
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-
         return false;
     }
 
