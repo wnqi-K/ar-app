@@ -75,8 +75,8 @@ public class FriendsFragment extends Fragment{
      */
     private HashMap<String, ArrayList<User>> getFriendLists() {
         DatabaseManager dbManager = DatabaseManager.getInstance(getActivity().getBaseContext());
-        ArrayList<User> friendList = (ArrayList<User>) dbManager.getAllUsers();
-        ArrayList<User> adminList = (ArrayList<User>) dbManager.getAdminFriends();
+        ArrayList<User> friendList = (ArrayList<User>) dbManager.allUsers;
+        ArrayList<User> adminList = (ArrayList<User>) dbManager.admins;
 
         HashMap<String, ArrayList<User>> expandableList = new HashMap<>();
         expandableList.put("Pre-placed Friends", adminList);
