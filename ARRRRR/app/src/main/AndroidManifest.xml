@@ -61,6 +61,7 @@
         <activity android:name=".EditProfileActivity"/>
         <activity android:name=".SelectPhotoActivity" />
         <activity android:name=".ChatActivity"/>
+        <activity android:name=".ArViewActivity"/>
       
         <service
             android:name=".services.PositioningService"
@@ -86,7 +87,6 @@
         </service>
       
         <activity android:name=".AddingFriendsActivity"></activity>
-        <activity android:name=".ArViewActivity"></activity>
 
     </application>
 
