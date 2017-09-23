@@ -12,7 +12,7 @@ import org.junit.Test;
  * @author Dafu Ai
  */
 
-public class LocationSharingServiceTest {
+public class GeoInfoExpiryTest {
 
     @Test
     public void testLocationInfoExpiry() {

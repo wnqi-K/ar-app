@@ -4,15 +4,18 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
+import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
 import com.comp30022.arrrrr.receivers.SingleUserLocationReceiver;
+import com.comp30022.arrrrr.utils.GeoUtil;
 import com.comp30022.arrrrr.utils.TimeUtil;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -56,6 +59,9 @@ public class LocationSharingService extends Service implements
     private enum RefType {
         GEO_LOCATION, GEO_INFO
     }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    private final IBinder mBinder = new LocationSharingBinder();
 
     private final static String DB_REF_GEO_INFO = "userlocations_info";
     private final static String DB_REF_GEO = "userlocations_geo";
@@ -153,10 +159,37 @@ public class LocationSharingService extends Service implements
         registerLocationListenerForUser(testUser);
     }
 
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+        return mBinder;
+    }
+
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public class LocationSharingBinder extends Binder {
+        public LocationSharingService getService() {
+            return LocationSharingService.this;
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public boolean isUserLocationListenerRegistered(String uid) {
+        return mUserLocationListeners.containsKey(uid);
+    }
+
+    /**
+     * TEST ONLY
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public boolean containsUserLoation(String uid) {
+        return mGeoLocations.containsKey(uid) || mGeoInfos.containsKey(uid);
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public LatLng getGeoLocationByUid(String uid) {
+        return mGeoLocations.get(uid);
     }
 
     @Override
@@ -196,7 +229,7 @@ public class LocationSharingService extends Service implements
             // No need to know self location
             return;
         }
-        mGeoLocations.put(key, geoToLatLng(location));
+        mGeoLocations.put(key, GeoUtil.geoToLatLng(location));
         updateGeoLocationInfo(key);
     }
 
@@ -219,7 +252,7 @@ public class LocationSharingService extends Service implements
             // No need to know self location
             return;
         }
-        mGeoLocations.put(key, geoToLatLng(location));
+        mGeoLocations.put(key, GeoUtil.geoToLatLng(location));
         updateGeoLocationInfo(key);
     }
 
@@ -442,7 +475,7 @@ public class LocationSharingService extends Service implements
 
         broadcastIntent.putExtra(PARAM_OUT_UID, uid);
         // Pass LatLng since it is parcelable.
-        broadcastIntent.putExtra(PARAM_OUT_LOCATION, geoToLatLng(geoLocation));
+        broadcastIntent.putExtra(PARAM_OUT_LOCATION, GeoUtil.geoToLatLng(geoLocation));
         broadcastIntent.putExtra(PARAM_OUT_LOCATION_INFO, info);
 
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -512,39 +545,6 @@ public class LocationSharingService extends Service implements
     public static Boolean isGeoInfoExpired(@NonNull GeoLocationInfo info) {
         // We check whether the timestamp of the geo information is earlier than today.
         return TimeUtil.getTimeDiffUntilNow(info.time, TimeUtil.TimeUnit.Day) >= 1;
-    }
-
-    /**
-     * Convert a GeoLocation object to a LatLng object (to make it parcelable)
-     * We can do this since geolocation contains essentially the same information with LatLng.
-     */
-    public static LatLng geoToLatLng(GeoLocation geoLocation) {
-        return new LatLng(geoLocation.latitude, geoLocation.longitude);
-    }
-
-    /**
-     * Calculate distance between two LatLng positions
-     * @param x one position
-     * @param y the other position
-     * @return the distance in meters
-     */
-    public static double distanceBetween(LatLng x, LatLng y) {
-        // Using GeoFire utility function
-        return GeoUtils.distance(x.latitude, x.longitude, y.latitude, y.longitude);
-    }
-
-    /**
-     * Given a distance (in meters), convert to a user friendly string for display.
-     * @param dist distance in meters
-     * @return distance in string
-     */
-    public static String distanceToReadable(double dist) {
-        int distInt = (int) dist;
-        if (distInt < 1000) {
-            return String.valueOf(distInt) + "m";
-        } else {
-            return String.valueOf(distInt/1000) + "km";
-        }
     }
 
     /*
