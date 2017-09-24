@@ -22,7 +22,6 @@ import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.firebase.geofire.core.GeoHash;
-import com.firebase.geofire.util.GeoUtils;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -133,6 +132,12 @@ public class LocationSharingService extends Service implements
      */
     public ValueEventListener mSingleGeoLocationListener;
 
+    // TEST ONLY
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public Boolean mFirebaseQueryExecuted = false;
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public Boolean mQueryResultSent = false;
+
     public LocationSharingService() {
     }
 
@@ -183,8 +188,8 @@ public class LocationSharingService extends Service implements
      * TEST ONLY
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
-    public boolean containsUserLoation(String uid) {
-        return mGeoLocations.containsKey(uid) || mGeoInfos.containsKey(uid);
+    public boolean containsUserLocation(String uid) {
+        return mGeoLocations.containsKey(uid);
     }
 
     @RestrictTo(RestrictTo.Scope.TESTS)
@@ -200,15 +205,17 @@ public class LocationSharingService extends Service implements
                 String key = intent.getStringExtra(PARAM_IN_REFER_KEY);
                 if (key == null) {
                     Log.v(TAG, "Failed registering listener. Missing parameter in intent: PARAM_OUT_REFER_KEY.");
+                } else {
+                    registerLocationListenerForUser(key);
                 }
-                registerLocationListenerForUser(key);
             }
             if (requestType != null && requestType.equals(REQUEST_REMOVE_LISTENER)) {
                 String key = intent.getStringExtra(PARAM_IN_REFER_KEY);
                 if (key == null) {
-                    Log.v(TAG, "Failed registering listener. Missing parameter in intent: PARAM_OUT_REFER_KEY.");
+                    Log.v(TAG, "Failed unregistering listener. Missing parameter in intent: PARAM_OUT_REFER_KEY.");
+                } else {
+                    unregisterLocationListenerForUser(key);
                 }
-                unregisterLocationListenerForUser(key);
             }
         }
 
@@ -240,6 +247,7 @@ public class LocationSharingService extends Service implements
             // No need to know self location
             return;
         }
+        mQueryResultSent = false;
         mGeoLocations.remove(key);
         mGeoInfos.remove(key);
         broadcastGeoLocationsUpdate(ON_KEY_EXITED, key);
@@ -287,6 +295,7 @@ public class LocationSharingService extends Service implements
 
         // Send new location to server
         sendNewSelfLocation(location);
+        mFirebaseQueryExecuted = true;
     }
 
     /**
@@ -335,6 +344,7 @@ public class LocationSharingService extends Service implements
                             mGeoLocations.remove(key);
                             isInfoExpired = true;
                         } else {
+                            mQueryResultSent = false;
                             // Only send broadcast if geo info is not expired
                             mGeoInfos.put(key, geoLocationInfo);
                             broadcastGeoLocationsUpdate(type, key);
@@ -366,6 +376,7 @@ public class LocationSharingService extends Service implements
 
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(broadcastIntent);
+        mQueryResultSent = true;
     }
 
     public void registerReceivers() {

@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.support.annotation.RestrictTo;
 
 import com.comp30022.arrrrr.services.PositioningService;
 import com.comp30022.arrrrr.utils.Constants;
@@ -22,7 +23,7 @@ public class SelfPositionReceiver extends BroadcastReceiver {
     /**
      * The context that is using broadcast receiver
      */
-    SelfLocationListener mListener;
+    private SelfLocationListener mListener;
 
     public SelfPositionReceiver(SelfLocationListener listener) {
         this.mListener = listener;
