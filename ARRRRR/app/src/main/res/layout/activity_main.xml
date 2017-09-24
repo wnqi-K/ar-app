@@ -17,7 +17,7 @@
         android:layout_marginRight="@dimen/icon_margin"
         android:layout_marginTop="@dimen/icon_margin"
         android:layout_weight="1"
-        app:srcCompat="@drawable/spider_web3"/>
+        app:srcCompat="@drawable/logomdpi" />
 
     <LinearLayout
         android:layout_width="fill_parent"
