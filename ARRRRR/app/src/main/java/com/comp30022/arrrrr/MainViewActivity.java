@@ -39,14 +39,14 @@ public class MainViewActivity extends AppCompatActivity implements
     //private DatabaseManager mDatabaseManager;
     private FirebaseAuth mAuth;
     private RequestFirebaseUsers mRequestUsers;
-    private UserManagement mFriendManagement;
+    private UserManagement mUserManagement;
 
-    public UserManagement getFriendManagement() {
-        return mFriendManagement;
+    public UserManagement getUserManagement() {
+        return mUserManagement;
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_view);
 
@@ -63,8 +63,8 @@ public class MainViewActivity extends AppCompatActivity implements
         addUserToDatabase(mAuth.getCurrentUser());
 
         // Get all users from database
-        mFriendManagement = UserManagement.getInstance();
-        mRequestUsers = new RequestFirebaseUsers(mFriendManagement);
+        mUserManagement = UserManagement.getInstance();
+        mRequestUsers = new RequestFirebaseUsers(mUserManagement);
     }
 
     @Override

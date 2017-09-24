@@ -81,7 +81,7 @@ public class FriendsFragment extends Fragment{
         ArrayList<User> adminList = (ArrayList<User>) dbManager.admins;*/
 
         MainViewActivity activity = (MainViewActivity)getActivity();
-        UserManagement friendManagement = activity.getFriendManagement();
+        UserManagement friendManagement = activity.getUserManagement();
         ArrayList<User> friendList = (ArrayList<User>) friendManagement.getFriendList();
         ArrayList<User> adminList = (ArrayList<User>) friendManagement.getAdminList();
 

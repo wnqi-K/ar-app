@@ -18,7 +18,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
 
 /**
  * Login via email account, lead to registration if no account exists.
@@ -39,7 +38,6 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onCreate(Bundle savedInstanceState){
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_email_login);
 

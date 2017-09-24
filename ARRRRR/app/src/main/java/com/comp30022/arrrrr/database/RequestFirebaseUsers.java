@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * This function takes a friendManagement object as input and adding users to the object.
- * To get the friend list, using getFriendManagement.getFriendList.
+ * To get the friend list, using getUserManagement.getFriendList.
  * This is also responsible for searching users from the firebase database.
  * Created by Wenqiang Kuang on 9/17/17.
  */
@@ -31,7 +31,7 @@ public class RequestFirebaseUsers {
     public static FirebaseDatabase getDatabase() {
         if (mDatabase == null) {
             mDatabase = FirebaseDatabase.getInstance();
-            mDatabase.setPersistenceEnabled(true);
+            //mDatabase.setPersistenceEnabled(true);
         }
         return mDatabase;
     }
