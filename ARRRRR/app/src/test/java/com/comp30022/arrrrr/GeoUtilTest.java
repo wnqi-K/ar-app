@@ -1,15 +1,12 @@
 package com.comp30022.arrrrr;
 
-import android.content.Context;
-
-import com.comp30022.arrrrr.services.LocationSharingService;
+import com.comp30022.arrrrr.utils.GeoUtil;
 import com.google.android.gms.maps.model.LatLng;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 /**
@@ -27,10 +24,10 @@ public class GeoUtilTest{
 
     @Test
     public void testCalcDistance() {
-        double dist = LocationSharingService.distanceBetween(home, aldi);
+        double dist = GeoUtil.distanceBetween(home, aldi);
         Assert.assertTrue(dist < 500);
 
-        String distStr = LocationSharingService.distanceToReadable(dist);
+        String distStr = GeoUtil.distanceToReadable(dist);
         System.out.println("Check this: distance between home and aldi = " + distStr);
         Assert.assertTrue(distStr.contains("m"));
     }

@@ -3,10 +3,12 @@ package com.comp30022.arrrrr.services;
 import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
@@ -59,8 +61,31 @@ public class PositioningService extends Service {
      */
     private Location mCurrentLocation;
 
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public boolean mUpdateSent = false;
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    private final IBinder mBinder = new PositioningService.PositioningBinder();
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public class PositioningBinder extends Binder {
+        public PositioningService getService() {
+            return PositioningService.this;
+        }
+    }
+
     public PositioningService() {
 
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public Boolean isRequestingLocationUpdates() {
+        return mRequestingLocationUpdates;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public LocationCallback getLocationCallback() {
+        return mLocationCallback;
     }
 
     @Override
@@ -84,10 +109,10 @@ public class PositioningService extends Service {
         return START_STICKY;
     }
 
-    @Nullable
+    @RestrictTo(RestrictTo.Scope.TESTS)
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return mBinder;
     }
 
     @Override
@@ -107,7 +132,7 @@ public class PositioningService extends Service {
                 super.onLocationResult(locationResult);
 
                 mCurrentLocation = locationResult.getLastLocation();
-
+                mUpdateSent = false;
                 // Send back location data to observers
                 broadcastLocation();
             }
@@ -124,6 +149,7 @@ public class PositioningService extends Service {
         broadcastIntent.putExtra(PARAM_OUT_LOCATION, mCurrentLocation);
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(broadcastIntent);
+        mUpdateSent = true;
     }
 
     /**
@@ -146,7 +172,7 @@ public class PositioningService extends Service {
      * TODO: This should be called if user don't want to use this service while in the background
      */
     private void stopLocationUpdates() {
-        if (!mRequestingLocationUpdates) {
+        if (mRequestingLocationUpdates == null || !mRequestingLocationUpdates) {
             // "updates never requested, no-op."
             return;
         }
