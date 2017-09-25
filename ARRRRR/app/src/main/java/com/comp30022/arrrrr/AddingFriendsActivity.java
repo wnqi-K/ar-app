@@ -29,7 +29,7 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
     CardView mCardView;
     ListViewAdapter mViewAdapter;
     SearchView mSearchView;
-    ArrayList<User> allUsers = (ArrayList<User>)mFriendManagement.getFriendList();
+    ArrayList<User> allUsers = (ArrayList<User>)mFriendManagement.getUserList();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

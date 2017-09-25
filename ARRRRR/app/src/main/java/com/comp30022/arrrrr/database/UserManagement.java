@@ -18,11 +18,11 @@ public class UserManagement {
     private static UserManagement instance;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
+    private List<User> mUserList = new ArrayList<>();
     private List<User> mFriendList =  new ArrayList<>();
-
     private List<User> mAdminList = new ArrayList<>();
 
-    // getter for all friends.
+    // getters and setters.
     public List<User> getFriendList() {
         return mFriendList;
     }
@@ -31,8 +31,16 @@ public class UserManagement {
         return mAdminList;
     }
 
+    public List<User> getUserList() {
+        return mUserList;
+    }
+
     public void setFriendList(List<User> friendList) {
         mFriendList = friendList;
+    }
+
+    public void setUserList(List<User> userList) {
+        mUserList = userList;
     }
 
     private UserManagement(){}
@@ -64,5 +72,4 @@ public class UserManagement {
     public void getUsersUnsuccessfully(String message){
         Log.d("Firebase", message);
     }
-
 }

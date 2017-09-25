@@ -39,8 +39,13 @@ public class RequestFirebaseUsers {
         mDatabase = getDatabase();
         loadAdminFriends();
         updateFriendList();
+        readAllUsers();
     }
 
+    /**
+     * This method queries all admin users' information and other users' information in the
+     * firebase database "users" table.
+     */
     private void loadAdminFriends() {
         DatabaseReference userListReference = mDatabase.getReference();
 
@@ -57,19 +62,31 @@ public class RequestFirebaseUsers {
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
 
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {}
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
 
             @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("Firebase Error", databaseError.toException().toString());
+            }
         });
     }
 
+    /**
+     * This method gets current user's ID and query its friend list in the firebase database
+     * "friends" table.
+     */
     private void updateFriendList() {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         String currentUserID = firebaseAuth.getCurrentUser().getUid();
@@ -100,6 +117,11 @@ public class RequestFirebaseUsers {
 
     }
 
+    /**
+     * This method takes a list of friends' ID as input and query them in the firebase database,
+     * the list of friends would be stored in an Arraylist of user. This would substitute friend
+     * list in the UserManagement.
+     */
     private void convertToFriendList(ArrayList<String> friendsIdList){
         DatabaseReference userListReference = mDatabase.getReference();
         final ArrayList<User> friendList = new ArrayList<>();
@@ -120,5 +142,28 @@ public class RequestFirebaseUsers {
             });
         }
         mFriendManagement.setFriendList(friendList);
+    }
+
+    private void readAllUsers(){
+        DatabaseReference userListReference = mDatabase.getReference();
+        Query query = userListReference.child("users");
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ArrayList<User> allUsers = new ArrayList<>();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    User user = snapshot.getValue(User.class);
+                    if (!TextUtils.equals(user.getUid(), FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                        allUsers.add(user);
+                    }
+                }
+                mFriendManagement.setUserList(allUsers);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 }
