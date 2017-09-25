@@ -46,7 +46,6 @@ public class MainViewActivity extends AppCompatActivity implements
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_view);
 

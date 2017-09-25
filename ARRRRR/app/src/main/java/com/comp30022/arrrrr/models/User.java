@@ -11,7 +11,7 @@ public class User implements Serializable {
     private String phoneNum;
     private String gender;
     private String address;
-    private ArrayList<String> friendList;
+    private ArrayList<Friend> mFriendList;
     private String admin;
 
     public User(){}
@@ -34,7 +34,7 @@ public class User implements Serializable {
         this.admin = admin;
     }
 
-    public ArrayList<String> getFriendList() { return friendList; }
+    public ArrayList<Friend> getFriendList() { return mFriendList;}
 
     public String getUsername(){ return username; }
 

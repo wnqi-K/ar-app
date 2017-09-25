@@ -3,7 +3,9 @@ package com.comp30022.arrrrr.database;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.comp30022.arrrrr.models.Friend;
 import com.comp30022.arrrrr.models.User;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,10 +17,12 @@ import java.util.List;
 
 public class UserManagement {
     private static UserManagement instance;
+    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    private List<Friend> mFriendObjectList;
+
     private List<User> mFriendList =  new ArrayList<>();
     private List<User> mAdminList = new ArrayList<>();
 
-    // required empty constructor.
     private UserManagement(){}
 
     public static synchronized UserManagement getInstance(){
@@ -28,13 +32,20 @@ public class UserManagement {
         return instance;
     }
 
-    // adding all users from firebase database.
-    public void addingAllUsers(List<User> users){
-        for(User user:users) {
-            if ((user.getAdmin() != null)&&(TextUtils.equals(user.getAdmin(), "True"))) {
+    // adding new admin user from firebase database.
+    public void addingAdminUsers(User user){
+        boolean couldAdd = true;
+        if (mAdminList.isEmpty()){
+            mAdminList.add(user);
+        }else{
+            for(User users : mAdminList){
+                if (TextUtils.equals(users.getUid(), user.getUid())){
+                    couldAdd = false;
+                }
+            }
+            if(couldAdd){
                 mAdminList.add(user);
             }
-            mFriendList.add(user);
         }
     }
 
