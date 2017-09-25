@@ -3,7 +3,6 @@ package com.comp30022.arrrrr.database;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.comp30022.arrrrr.models.Friend;
 import com.comp30022.arrrrr.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -18,10 +17,23 @@ import java.util.List;
 public class UserManagement {
     private static UserManagement instance;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-    private List<Friend> mFriendObjectList;
 
     private List<User> mFriendList =  new ArrayList<>();
+
     private List<User> mAdminList = new ArrayList<>();
+
+    // getter for all friends.
+    public List<User> getFriendList() {
+        return mFriendList;
+    }
+
+    public List<User> getAdminList(){
+        return mAdminList;
+    }
+
+    public void setFriendList(List<User> friendList) {
+        mFriendList = friendList;
+    }
 
     private UserManagement(){}
 
@@ -53,12 +65,4 @@ public class UserManagement {
         Log.d("Firebase", message);
     }
 
-    // getter for all friends.
-    public List<User> getFriendList() {
-        return mFriendList;
-    }
-
-    public List<User> getAdminList(){
-        return mAdminList;
-    }
 }

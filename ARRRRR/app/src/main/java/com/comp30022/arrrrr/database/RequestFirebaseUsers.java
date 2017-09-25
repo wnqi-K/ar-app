@@ -1,8 +1,8 @@
 package com.comp30022.arrrrr.database;
 
 import android.text.TextUtils;
+import android.util.Log;
 
-import com.comp30022.arrrrr.models.Friend;
 import com.comp30022.arrrrr.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -11,6 +11,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 /**
  * This function takes a friendManagement object as input and adding users to the object.
@@ -35,7 +38,7 @@ public class RequestFirebaseUsers {
         mFriendManagement = friendManagement;
         mDatabase = getDatabase();
         loadAdminFriends();
-        //updateFriendList();
+        updateFriendList();
     }
 
     private void loadAdminFriends() {
@@ -67,7 +70,7 @@ public class RequestFirebaseUsers {
         });
     }
 
-    public void updateFriendList() {
+    private void updateFriendList() {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         String currentUserID = firebaseAuth.getCurrentUser().getUid();
 
@@ -75,25 +78,47 @@ public class RequestFirebaseUsers {
 
         //Listen for changes in current user's friend info updates.
         Query query = userListReference.child("friends").child(currentUserID);
-        query.addChildEventListener(new ChildEventListener() {
+        Log.d("Fatal", "on updating friend list. " + "current user id is " + currentUserID);
+        query.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Friend newFriend = dataSnapshot.getValue(Friend.class);
-
-                //List<Friend> friends = mFriendManagement.getFriendList();
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ArrayList<String> friendsID = new ArrayList<>();
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                    //Friend friend = snapshot.getValue(Friend.class);
+                    String uid = snapshot.getKey();
+                    friendsID.add(uid);
+                    Log.d("fatal", "called once. " + uid);
+                }
+                convertToFriendList(friendsID);
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {}
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("Firebase Error", databaseError.toException().toString());
+            }
         });
+
+    }
+
+    private void convertToFriendList(ArrayList<String> friendsIdList){
+        DatabaseReference userListReference = mDatabase.getReference();
+        final ArrayList<User> friendList = new ArrayList<>();
+
+        for(String friendID : friendsIdList){
+            Query query = userListReference.child("users").child(friendID);
+            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    User user = dataSnapshot.getValue(User.class);
+                    friendList.add(user);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.d("Firebase Error", databaseError.toException().toString());
+                }
+            });
+        }
+        mFriendManagement.setFriendList(friendList);
     }
 }
