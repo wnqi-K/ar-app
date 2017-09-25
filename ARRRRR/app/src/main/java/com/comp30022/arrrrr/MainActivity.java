@@ -22,6 +22,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //hide Action bar in Login Activity
+        getSupportActionBar().hide();
     }
 
     public void emailLogin(View view) {
