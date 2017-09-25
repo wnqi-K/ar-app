@@ -5,9 +5,18 @@
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/black_background</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/black_background</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+    
+    <!-- Login Page Button -->
+    <style name="ClassicButton" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_width">@dimen/login_button_width</item>
+        <item name="android:layout_height">0dp</item>
+    </style>
+
 
     <!-- Activity with no Title -->
     <style name="ThemeOverlay.MyNoTitleActivity" parent="AppTheme">

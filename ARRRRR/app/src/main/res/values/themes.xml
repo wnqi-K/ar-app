@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Black and White Theme -->
+    <style name="ClassicTheme" parent="AppTheme">
+        <item name="colorDarkBackground">@color/black_background</item>
+        <item name="colorLightBackground">@color/grey_background</item>
+    </style>
+
+</resources>
