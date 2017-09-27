@@ -18,7 +18,7 @@ import android.provider.Settings;
  * basically, it can access or save camera preference
  * */
 
-public class CamPref {
+public class CamPermissionHelper {
 
     public static final String CAMERA_PREF = "camera_pref";
 
@@ -50,6 +50,5 @@ public class CamPref {
         prefsEditor.putBoolean(key, allowed);
         prefsEditor.commit();
     }
-
 
 }

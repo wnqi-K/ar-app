@@ -33,7 +33,6 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     public static final String TAG = "ArViewActivity";
     public static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
     public static final String ALLOW_KEY = "ALLOWED";
-    public static final String CAMERA_PREF = "camera_pref";
 
     /**
      * Camera Class to get camera Preview
@@ -80,7 +79,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     /**
      * camera permission helper
      * */
-    private CamPref camPerm;
+    private CamPermissionHelper camPerm;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,6 +104,23 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     @Override
     protected void onResume() {
+        if (!camPermissioncGranted()) {
+            if (camPerm.getFromPref(this, ALLOW_KEY)) {
+                showSettingsAlert();
+            } else if (!camPermissioncGranted()) {
+
+                // Should we show an explanation?
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.CAMERA)) {
+                    showAlert();
+                } else {
+                    // No explanation needed, we can request the permission.
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.CAMERA},
+                            MY_PERMISSIONS_REQUEST_CAMERA);
+                }
+            }
+        }
         super.onResume();
         myCurrentAzimuth.start();
         myCurrentLocation.start();
@@ -208,7 +224,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     private void setupUtil() {
         this.calculator = new AziCalculator();
-        this.camPerm = new CamPref();
+        this.camPerm = new CamPermissionHelper();
     }
 
     /**
@@ -236,27 +252,6 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
 
-        if (!camPermissioncGranted()) {
-            if (camPerm.getFromPref(this, ALLOW_KEY)) {
-                showSettingsAlert();
-            } else if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.CAMERA)
-
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.CAMERA)) {
-                    showAlert();
-                } else {
-                    // No explanation needed, we can request the permission.
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.CAMERA},
-                            MY_PERMISSIONS_REQUEST_CAMERA);
-                }
-            }
-        }
-
         if (camPermissioncGranted()) {
             mCamera = Camera.open();
             mCamera.setDisplayOrientation(90);
@@ -276,10 +271,11 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * TODO: need to move it to mainViewActivity
      * */
 
-    private boolean camPermissioncGranted(){
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+    public boolean camPermissioncGranted(){
+        return ContextCompat.checkSelfPermission(ArViewActivity.this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED;
     }
+
 
     private void showAlert() {
         AlertDialog alertDialog = new AlertDialog.Builder(ArViewActivity.this).create();
