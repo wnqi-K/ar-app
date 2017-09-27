@@ -31,6 +31,7 @@ public class MyCurrentAzimuth implements SensorEventListener {
     }
 
     public void stop(){
+
         sensorManager.unregisterListener(this);
     }
 

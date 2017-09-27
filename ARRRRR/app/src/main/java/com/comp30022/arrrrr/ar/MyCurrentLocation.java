@@ -24,9 +24,12 @@ public class MyCurrentLocation implements GoogleApiClient.ConnectionCallbacks, G
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
     private OnLocationChangedListener onLocationChangedListener;
+    private AppCompatActivity activity;
 
-    public MyCurrentLocation(OnLocationChangedListener onLocationChangedListener) {
+    public MyCurrentLocation(OnLocationChangedListener onLocationChangedListener,
+                             AppCompatActivity newActivity) {
         this.onLocationChangedListener = onLocationChangedListener;
+        this.activity = newActivity;
     }
 
     public synchronized void buildGoogleApiClient(Context context) {
@@ -52,6 +55,17 @@ public class MyCurrentLocation implements GoogleApiClient.ConnectionCallbacks, G
 
     @Override
     public void onConnected(Bundle bundle) {
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED){
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
@@ -73,6 +87,17 @@ public class MyCurrentLocation implements GoogleApiClient.ConnectionCallbacks, G
     @Override
     public void onLocationChanged(Location location) {
 
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
         if (mLastLocation != null) {

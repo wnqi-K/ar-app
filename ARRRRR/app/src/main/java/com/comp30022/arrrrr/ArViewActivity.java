@@ -42,29 +42,35 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     public static final String CAMERA_PREF = "camera_pref";
 
     /**
-     * Camera Class to get camera Preview */
+     * Camera Class to get camera Preview
+     * */
     private Camera mCamera;
 
     /**
-     * SurfaceHolder is to track to surface layout */
+     * SurfaceHolder is to track to surface layout
+     * */
     private SurfaceHolder mSurfaceHolder;
 
     /**
-     * boolean value to track whether the camera is on */
+     * boolean value to track whether the camera is on
+     * */
     private boolean isCameraviewOn = false;
 
     /**
-     * poi track the POI for ar, determining whether to show ar image */
+     * poi track the POI for ar, determining whether to show ar image
+     **/
     private AugmentedPOI mPoi;
 
     /**
-     * amzimuth factors */
+     * amzimuth factors
+     * */
     private double mAzimuthReal = 0;
     private double mAzimuthTeoretical = 0;
     private MyCurrentAzimuth myCurrentAzimuth;
 
     /**
-     * location factors*/
+     * location factors
+     * */
     private double mMyLatitude = 0;
     private double mMyLongitude = 0;
     private MyCurrentLocation myCurrentLocation;
@@ -73,7 +79,8 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     ImageView pointerIcon;
 
     /**
-     * cohesive in amzimuth calculation */
+     * cohesive in amzimuth calculation
+     * */
     private AziCalculator calculator;
 
     @Override
@@ -178,7 +185,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     }
 
     private void setupListeners() {
-        myCurrentLocation = new MyCurrentLocation(this);
+        myCurrentLocation = new MyCurrentLocation(this, this);
         myCurrentLocation.buildGoogleApiClient(this);
         myCurrentLocation.start();
 
