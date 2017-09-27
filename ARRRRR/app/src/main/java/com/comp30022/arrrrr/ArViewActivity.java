@@ -18,14 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.io.IOException;
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
 
 /**
@@ -83,6 +77,11 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * */
     private AziCalculator calculator;
 
+    /**
+     * camera permission helper
+     * */
+    private CamPref camPerm;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,8 +90,10 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
         setupListeners();
         setupLayout();
+        setupUtil();
+
         setAugmentedRealityPoint();
-        calculator = new AziCalculator();
+
     }
 
     @Override
@@ -169,11 +170,6 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         updateDescription();
     }
 
-    /** Set Up Functions
-     * TODO: retrieve POI data
-     * set up listener: location and sensor
-     * set up surface layout
-     * */
 
     private void setAugmentedRealityPoint() {
         mPoi = new AugmentedPOI(
@@ -183,6 +179,13 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
                 19.93919566
         );
     }
+
+    /** Set Up Functions
+     * TODO: retrieve POI data
+     * set up listener: location and sensor
+     * set up surface layout
+     * set up utils: calcultor, camera preference helper
+     * */
 
     private void setupListeners() {
         myCurrentLocation = new MyCurrentLocation(this, this);
@@ -201,6 +204,11 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         mSurfaceHolder = surfaceView.getHolder();
         mSurfaceHolder.addCallback(this);
         //mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+    }
+
+    private void setupUtil() {
+        this.calculator = new AziCalculator();
+        this.camPerm = new CamPref();
     }
 
     /**
@@ -228,8 +236,8 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            if (getFromPref(this, ALLOW_KEY)) {
+        if (!camPermissioncGranted()) {
+            if (camPerm.getFromPref(this, ALLOW_KEY)) {
                 showSettingsAlert();
             } else if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.CAMERA)
@@ -247,7 +255,9 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
                             MY_PERMISSIONS_REQUEST_CAMERA);
                 }
             }
-        }else {
+        }
+
+        if (camPermissioncGranted()) {
             mCamera = Camera.open();
             mCamera.setDisplayOrientation(90);
         }
@@ -266,18 +276,9 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * TODO: need to move it to mainViewActivity
      * */
 
-    public static void saveToPreferences(Context context, String key, Boolean allowed) {
-        SharedPreferences myPrefs = context.getSharedPreferences(CAMERA_PREF,
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor prefsEditor = myPrefs.edit();
-        prefsEditor.putBoolean(key, allowed);
-        prefsEditor.commit();
-    }
-
-    public static Boolean getFromPref(Context context, String key) {
-        SharedPreferences myPrefs = context.getSharedPreferences(CAMERA_PREF,
-                Context.MODE_PRIVATE);
-        return (myPrefs.getBoolean(key, false));
+    private boolean camPermissioncGranted(){
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED;
     }
 
     private void showAlert() {
@@ -316,7 +317,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        //finish();
+                        finish();
                     }
                 });
 
@@ -325,7 +326,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        startInstalledAppDetailsActivity(ArViewActivity.this);
+                        camPerm.startInstalledAppDetailsActivity(ArViewActivity.this);
                     }
                 });
 
@@ -354,7 +355,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
                             // or open another dialog explaining
                             // again the permission and directing to
                             // the app setting
-                            saveToPreferences(ArViewActivity.this, ALLOW_KEY, true);
+                            camPerm.saveToPreferences(ArViewActivity.this, ALLOW_KEY, true);
                         }
                     }
                 }
@@ -365,19 +366,5 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         }
     }
 
-    public static void startInstalledAppDetailsActivity(final Activity context) {
-        if (context == null) {
-            return;
-        }
-
-        final Intent i = new Intent();
-        i.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        i.addCategory(Intent.CATEGORY_DEFAULT);
-        i.setData(Uri.parse("package:" + context.getPackageName()));
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-        i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-        context.startActivity(i);
-    }
 
 }
