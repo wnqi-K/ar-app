@@ -14,19 +14,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.comp30022.arrrrr.R;
+import com.comp30022.arrrrr.adapters.ChatRecyclerAdapter;
 import com.comp30022.arrrrr.chat.ChatContract;
 import com.comp30022.arrrrr.chat.ChatPresenter;
-import com.comp30022.arrrrr.PushNotificationEvent;
 import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.models.Chat;
-import com.comp30022.arrrrr.adapters.ChatRecyclerAdapter;
-import com.comp30022.arrrrr.utils.Constants;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
@@ -156,11 +152,11 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
         //Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    @Subscribe
+    /*@Subscribe
     public void onPushNotificationEvent(PushNotificationEvent pushNotificationEvent) {
         if (mChatRecyclerAdapter == null || mChatRecyclerAdapter.getItemCount() == 0) {
             mChatPresenter.getMessage(FirebaseAuth.getInstance().getCurrentUser().getUid(),
                     pushNotificationEvent.getUid());
         }
-    }
+    }*/
 }

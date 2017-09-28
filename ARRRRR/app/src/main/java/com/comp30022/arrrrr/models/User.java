@@ -1,8 +1,8 @@
 package com.comp30022.arrrrr.models;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 
-public class User {
+public class User implements Serializable {
     private String uid;
     private String email;
     private String firebaseToken;
@@ -10,7 +10,6 @@ public class User {
     private String phoneNum;
     private String gender;
     private String address;
-    private ArrayList<String> friendList;
     private String admin;
 
     public User(){}
@@ -32,8 +31,6 @@ public class User {
         this.address = address;
         this.admin = admin;
     }
-
-    public ArrayList<String> getFriendList() { return friendList; }
 
     public String getUsername(){ return username; }
 

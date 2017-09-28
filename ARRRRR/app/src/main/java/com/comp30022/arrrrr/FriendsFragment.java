@@ -7,9 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
+
 import com.comp30022.arrrrr.adapters.ExpandableListAdapter;
-import com.comp30022.arrrrr.database.DatabaseManager;
+import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.User;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,9 +76,10 @@ public class FriendsFragment extends Fragment{
      * It would be used by the expandable List view to display and lead to create new chat room.
      */
     private HashMap<String, ArrayList<User>> getFriendLists() {
-        DatabaseManager dbManager = DatabaseManager.getInstance(getActivity().getBaseContext());
-        ArrayList<User> friendList = (ArrayList<User>) dbManager.allUsers;
-        ArrayList<User> adminList = (ArrayList<User>) dbManager.admins;
+        MainViewActivity activity = (MainViewActivity)getActivity();
+        UserManagement friendManagement = activity.getUserManagement();
+        ArrayList<User> friendList = (ArrayList<User>) friendManagement.getFriendList();
+        ArrayList<User> adminList = (ArrayList<User>) friendManagement.getAdminList();
 
         HashMap<String, ArrayList<User>> expandableList = new HashMap<>();
         expandableList.put("Pre-placed Friends", adminList);

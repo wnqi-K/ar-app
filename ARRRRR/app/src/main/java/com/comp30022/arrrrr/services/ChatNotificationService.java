@@ -4,13 +4,11 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.comp30022.arrrrr.ChatActivity;
 import com.comp30022.arrrrr.MainActivity;
-import com.comp30022.arrrrr.MainViewActivity;
 import com.comp30022.arrrrr.PushNotificationEvent;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -26,12 +24,10 @@ import java.util.Locale;
  * Created by rondo on 9/19/17.
  */
 
-public class MyFirebaseMessagingService extends FirebaseMessagingService {
+public class ChatNotificationService extends FirebaseMessagingService {
     private static final String TAG = "FCM Service";
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-
-
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
@@ -43,7 +39,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             String fcmToken = remoteMessage.getData().get("fcm_token");
 
             // Don't show notification if chat activity is open.
-            if (!MainActivity.isChatActivityOpen()) {
+            if (!MainActivity.isActivityOpen()) {
                 sendNotification(title,
                         message,
                         username,
@@ -58,9 +54,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         fcmToken));
             }
         }
-
-
-
 
         // If the application is in the foreground handle both data and notification messages here.
         // Also if you intend on generating your own notifications as a result of a received FCM
