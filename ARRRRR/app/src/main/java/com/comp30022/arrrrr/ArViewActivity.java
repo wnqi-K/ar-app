@@ -26,6 +26,18 @@ import android.support.v4.content.ContextCompat;
  * Created by Xiaoyu GUO on 19/09/17
  */
 
+/**
+ * This class is to render the view of AR
+ * 1. Open camera
+ * 2. show the icon and distance between the destination when the
+ * azimuth angle is within the right range
+ * 3. Azimuth calculation(steps are listed below):
+ *            i. get the GPS location of the device and destination point
+ *            ii. calculate the theoretical azimuth based on GPS data
+ *            iii. get the real azimuth of the device
+ *            iv. compare both azimuths based on accuracy and show AR icon
+ **/
+
 public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.Callback,
         OnLocationChangedListener, OnAzimuthChangedListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
@@ -87,10 +99,12 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         setContentView(R.layout.activity_ar_view);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        // set up
         setupListeners();
         setupLayout();
         setupUtil();
 
+        // get User's POI
         setAugmentedRealityPoint();
 
     }
@@ -104,6 +118,8 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     @Override
     protected void onResume() {
+
+        //check camera permission
         if (!camPermissioncGranted()) {
             if (camPerm.getFromPref(this, ALLOW_KEY)) {
                 showSettingsAlert();
@@ -121,11 +137,15 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
                 }
             }
         }
+
         super.onResume();
         myCurrentAzimuth.start();
         myCurrentLocation.start();
     }
 
+    /**
+     * calculate the current theoretical azimuth
+     * */
     public double calculateTeoreticalAzimuth() {
         double dX = mPoi.getPoiLatitude() - mMyLatitude;
         double dY = mPoi.getPoiLongitude() - mMyLongitude;
@@ -151,42 +171,19 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         return phiAngle;
     }
 
+    /**
+     * update the text descirption when the location changes
+     * */
     private void updateDescription() {
         descriptionTextView.setText(mPoi.getPoiName() + " azimuthTeoretical "
                 + mAzimuthTeoretical + " azimuthReal " + mAzimuthReal + " latitude "
                 + mMyLatitude + " longitude " + mMyLongitude);
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-        mMyLatitude = location.getLatitude();
-        mMyLongitude = location.getLongitude();
-        mAzimuthTeoretical = calculateTeoreticalAzimuth();
-        Toast.makeText(this,"latitude: "+location.getLatitude()+
-                " longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
-        updateDescription();
-    }
-
-    @Override
-    public void onAzimuthChanged(float azimuthChangedFrom, float azimuthChangedTo) {
-        mAzimuthReal = azimuthChangedTo;
-        mAzimuthTeoretical = calculateTeoreticalAzimuth();
-
-        pointerIcon = (ImageView) findViewById(R.id.icon);
-
-        double minAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(0);
-        double maxAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(1);
-
-        if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal)) {
-            pointerIcon.setVisibility(View.VISIBLE);
-        } else {
-            pointerIcon.setVisibility(View.INVISIBLE);
-        }
-
-        updateDescription();
-    }
-
-
+    /**
+     * update POI here
+     * TODO: need to update the real-time location by connecting the listerner
+     * */
     private void setAugmentedRealityPoint() {
         mPoi = new AugmentedPOI(
                 "Kościół Marciacki",
@@ -196,13 +193,11 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         );
     }
 
-    /** Set Up Functions
-     * TODO: retrieve POI data
-     * set up listener: location and sensor
-     * set up surface layout
-     * set up utils: calcultor, camera preference helper
-     * */
+    /** -------------------------------- Set Up Functions ---------------------------------------*/
 
+    /**
+     * set up listener: location and sensor
+     * */
     private void setupListeners() {
         myCurrentLocation = new MyCurrentLocation(this, this);
         myCurrentLocation.buildGoogleApiClient(this);
@@ -212,6 +207,9 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         myCurrentAzimuth.start();
     }
 
+    /**
+     * set up surface layout
+     * */
     private void setupLayout() {
         descriptionTextView = (TextView) findViewById(R.id.cameraTextView);
 
@@ -222,13 +220,56 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         //mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
     }
 
+    /**
+     * set up utils: calculator, camera preference helper
+     * */
     private void setupUtil() {
         this.calculator = new AziCalculator();
         this.camPerm = new CamPermissionHelper();
     }
 
+    /** --------------------------------- interfaces implementation ----------------------------------------*/
+
     /**
-     * implements SurfaceHolder.Callback Here */
+     * This function upgrades user's real-time location
+     * and meanwhile updates description
+     * */
+    @Override
+    public void onLocationChanged(Location location) {
+        mMyLatitude = location.getLatitude();
+        mMyLongitude = location.getLongitude();
+        mAzimuthTeoretical = calculateTeoreticalAzimuth();
+        Toast.makeText(this,"latitude: "+location.getLatitude()+
+                " longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
+        updateDescription();
+    }
+
+    /**
+     * This function determine when to show the AR ICON.
+     * When the orientation of the phone changes, we need to calculate accuracy,compare both angles
+     * and if the current angle is within accuracy we can show a pointer on the screen.
+     * */
+    @Override
+    public void onAzimuthChanged(float azimuthChangedFrom, float azimuthChangedTo) {
+        mAzimuthReal = azimuthChangedTo;
+        mAzimuthTeoretical = calculateTeoreticalAzimuth();
+
+        pointerIcon = (ImageView) findViewById(R.id.icon);
+
+        double minAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(0);
+        double maxAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(1);
+
+        //if within the accuracy, show ICON
+        if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal)) {
+            pointerIcon.setVisibility(View.VISIBLE);
+        } else {
+            pointerIcon.setVisibility(View.INVISIBLE);
+        }
+
+        updateDescription();
+    }
+
+    /** -------------------  implements SurfaceHolder.Callback Here -----------------------------*/
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width,
@@ -267,16 +308,19 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     }
 
 
-    /** permission related functions here
-     * TODO: need to move it to mainViewActivity
-     * */
+    /** ----------------------- permission related functions here ------------------------------- */
 
+    /**
+     * this function return a boolean value
+     * to check whether app granted camera permission or not
+     * */
     public boolean camPermissioncGranted(){
         return ContextCompat.checkSelfPermission(ArViewActivity.this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-
+    /**
+     * */
     private void showAlert() {
         AlertDialog alertDialog = new AlertDialog.Builder(ArViewActivity.this).create();
         alertDialog.setTitle("Alert");
