@@ -80,8 +80,8 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     private double mMyLongitude = 0;
     private MyCurrentLocation myCurrentLocation;
 
-    TextView descriptionTextView;
-    ImageView pointerIcon;
+    public TextView descriptionTextView;
+    public ImageView pointerIcon;
 
     /**
      * cohesive in amzimuth calculation
@@ -115,7 +115,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         myCurrentLocation.stop();
         super.onStop();
     }
-
+                
     @Override
     protected void onResume() {
 
