@@ -26,14 +26,14 @@ import java.util.HashMap;
  */
 public class AddingFriendsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
-    private UserManagement mFriendManagement = UserManagement.getInstance();
+    //private UserManagement mFriendManagement = UserManagement.getInstance();
     private ListView mListView;
     private CardView mCardView;
     private ListViewAdapter mViewAdapter;
     private SearchView mSearchView;
-    private ArrayList<User> allUsers = (ArrayList<User>)mFriendManagement.getUserList();
     private UserManagement mUserManagement = UserManagement.getInstance();
-
+    private ArrayList<User> allUsers = (ArrayList<User>)mUserManagement.getUserList();
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +57,6 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
 
                 mListView.setVisibility(View.GONE);
                 mCardView.setVisibility(View.VISIBLE);
-
 
                 TextView userName = (TextView)mCardView.findViewById(R.id.user_name);
                 TextView userEmail = (TextView)mCardView.findViewById(R.id.user_email);
