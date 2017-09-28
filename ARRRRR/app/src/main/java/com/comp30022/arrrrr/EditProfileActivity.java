@@ -112,6 +112,8 @@ public class EditProfileActivity extends AppCompatActivity{
                     myRef.child(Constants.ARG_USERS).child(userID).child(Constants.ARG_ADDRESS).setValue(mAddress);
                     toastMessage("New Information has been saved.");
                 }
+
+                back_UserProfile(view);
             }
         });
 
