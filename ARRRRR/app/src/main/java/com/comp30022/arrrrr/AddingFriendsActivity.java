@@ -33,6 +33,7 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
     private SearchView mSearchView;
     private UserManagement mUserManagement = UserManagement.getInstance();
     private ArrayList<User> allUsers = (ArrayList<User>)mUserManagement.getUserList();
+    private HashMap<String, String> allInfo = null;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,7 +54,7 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 User onClickUser = (User)parent.getAdapter().getItem(position);
                 User currentUser = mUserManagement.getCurrentUser();
-                final HashMap<String, String> allInfo = getNotificationMessage(onClickUser, currentUser);
+                allInfo = getNotificationMessage(onClickUser, currentUser);
 
                 mListView.setVisibility(View.GONE);
                 mCardView.setVisibility(View.VISIBLE);
