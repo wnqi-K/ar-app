@@ -27,6 +27,26 @@
         <item name="android:layout_margin">10dp</item>
     </style>
 
+    <!-- User Profile Edit Button -->
+    <style name="LongButton" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:textColor">@color/grey_text_real</item>
+        <item name="android:layout_width">300dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_margin">10dp</item>
+    </style>
+
+    <!-- User Profile Text View -->
+    <style name="UserProfile_text" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:textColor">@color/grey_text_real</item>
+        <item name="android:layout_width">@dimen/padding_user_profile</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">5dp</item>
+        <item name="android:padding">15dp</item>
+        <item name="android:background">@drawable/userprofile_rounded_bg</item>
+    </style>
+
 
     <!-- Activity with no Title -->
     <style name="ThemeOverlay.MyNoTitleActivity" parent="AppTheme">

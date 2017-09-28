@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/black_background"
     tools:context=".EditProfileActivity">
 
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -23,7 +24,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginLeft="40dp"
+                android:textColor="@color/grey_text_real"
                 android:text=" Personal Profile" />
 
             <!-- Name-->
@@ -34,22 +37,17 @@
                 android:layout_height="match_parent">
 
                 <TextView
+                    style="@style/UserProfile_text"
                     android:id="@+id/clickable_edit_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/textlines"
-                    android:padding="15dp"
                     android:text="Name"
                     android:onClick="TextViewClicked"
                     android:clickable="true"/>
 
                 <EditText
+                    style="@style/UserProfile_text"
                     android:id="@+id/etName"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/textlines"
-                    android:padding="15dp"
                     android:hint="Please enter a new name"
+                    android:textColorHint="@color/grey_text_show"
                     android:inputType="text" />
 
             </ViewSwitcher>
@@ -64,22 +62,17 @@
 
 
                 <TextView
+                    style="@style/UserProfile_text"
                     android:id="@+id/clickable_edit_number"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/textlines"
-                    android:padding="15dp"
                     android:text="Phone number"
                     android:onClick="TextViewClicked"
                     android:clickable="true"/>
 
                 <EditText
+                    style="@style/UserProfile_text"
                     android:id="@+id/etPhone"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/textlines"
-                    android:padding="15dp"
                     android:hint="Please enter new phone number"
+                    android:textColorHint="@color/grey_text_show"
                     android:inputType="phone" />
 
             </ViewSwitcher>
@@ -87,55 +80,41 @@
 
             <!-- Gender -->
             <Button
+                style="@style/LongButton"
                 android:id="@+id/etGender"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:padding="15dp"
-                android:background="@drawable/textlines"
-                android:elevation="0dp"
-                android:gravity="left|center_vertical"
+                android:background="@drawable/btn_border_whitebackground"
                 android:onClick="clickGender"
                 android:text="Gender"
-                android:textColor="@android:color/darker_gray" />
+                android:textColor="@color/grey_text_real"
+                android:gravity="left|center_vertical"
+                android:paddingLeft="15dp"/>
 
 
             <!-- Address -->
             <Button
+                style="@style/LongButton"
                 android:id="@+id/etAddress"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:padding="15dp"
-                android:background="@drawable/textlines"
-                android:elevation="0dp"
-                android:gravity="left|center_vertical"
+                android:background="@drawable/btn_border_whitebackground"
                 android:onClick="clickAddress"
                 android:text="Address"
-                android:textColor="@android:color/darker_gray" />
+                android:textColor="@color/grey_text_real"
+                android:gravity="left|center_vertical"
+                android:paddingLeft="15dp"/>
 
             <!--Back to User Profile-->
             <Button
+                style="@style/ShortButton"
                 android:id="@+id/btn_back_userProfile"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@android:color/white"
-                android:elevation="0dp"
+                android:background="@drawable/btn_border"
                 android:onClick="back_UserProfile"
-                android:text="Back"
-                android:textColor="@android:color/darker_gray" />
+                android:text="Back" />
 
             <!--Save new information-->
             <Button
+                style="@style/ShortButton"
+                android:background="@drawable/btn_border"
                 android:id="@+id/btnSubmit"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@android:color/white"
-                android:elevation="0dp"
-                android:text="Submit"
-                android:textColor="@android:color/darker_gray" />
+                android:text="Submit" />
 
         </LinearLayout>
 
