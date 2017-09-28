@@ -76,10 +76,6 @@ public class FriendsFragment extends Fragment{
      * It would be used by the expandable List view to display and lead to create new chat room.
      */
     private HashMap<String, ArrayList<User>> getFriendLists() {
-        /*DatabaseManager dbManager = DatabaseManager.getInstance(getActivity().getBaseContext());
-        ArrayList<User> friendList = (ArrayList<User>) dbManager.allUsers;
-        ArrayList<User> adminList = (ArrayList<User>) dbManager.admins;*/
-
         MainViewActivity activity = (MainViewActivity)getActivity();
         UserManagement friendManagement = activity.getUserManagement();
         ArrayList<User> friendList = (ArrayList<User>) friendManagement.getFriendList();

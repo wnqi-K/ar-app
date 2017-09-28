@@ -21,6 +21,7 @@ public class UserManagement {
     private List<User> mUserList = new ArrayList<>();
     private List<User> mFriendList =  new ArrayList<>();
     private List<User> mAdminList = new ArrayList<>();
+    private User mCurrentUser;
 
     // getters and setters.
     public List<User> getFriendList() {
@@ -41,6 +42,14 @@ public class UserManagement {
 
     public void setUserList(List<User> userList) {
         mUserList = userList;
+    }
+
+    public User getCurrentUser() {
+        return mCurrentUser;
+    }
+
+    public void setCurrentUser(User currentUser) {
+        mCurrentUser = currentUser;
     }
 
     private UserManagement(){}

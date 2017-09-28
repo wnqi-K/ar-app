@@ -144,6 +144,10 @@ public class RequestFirebaseUsers {
         mFriendManagement.setFriendList(friendList);
     }
 
+    /**
+     * This method queries all the users of the app and would support the adding new friend feature.
+     * List of candidate friends would be displayed.
+     */
     private void readAllUsers(){
         DatabaseReference userListReference = mDatabase.getReference();
         Query query = userListReference.child("users");
@@ -155,6 +159,8 @@ public class RequestFirebaseUsers {
                     User user = snapshot.getValue(User.class);
                     if (!TextUtils.equals(user.getUid(), FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                         allUsers.add(user);
+                    }else{
+                        mFriendManagement.setCurrentUser(user);
                     }
                 }
                 mFriendManagement.setUserList(allUsers);

@@ -14,7 +14,7 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity{
 
-    private static boolean sIsChatActivityOpen = false;
+    private static boolean sIsActivityOpen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,12 +32,12 @@ public class MainActivity extends AppCompatActivity{
         startActivity(intent);
     }
 
-    public static boolean isChatActivityOpen() {
-        return sIsChatActivityOpen;
+    public static boolean isActivityOpen() {
+        return sIsActivityOpen;
     }
 
     public static void setChatActivityOpen(boolean isChatActivityOpen) {
-        MainActivity.sIsChatActivityOpen = isChatActivityOpen;
+        MainActivity.sIsActivityOpen = isChatActivityOpen;
     }
 
 

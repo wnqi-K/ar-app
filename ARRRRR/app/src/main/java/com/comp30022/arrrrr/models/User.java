@@ -1,7 +1,6 @@
 package com.comp30022.arrrrr.models;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 public class User implements Serializable {
     private String uid;
@@ -11,7 +10,6 @@ public class User implements Serializable {
     private String phoneNum;
     private String gender;
     private String address;
-    private ArrayList<Friend> mFriendList;
     private String admin;
 
     public User(){}
@@ -33,8 +31,6 @@ public class User implements Serializable {
         this.address = address;
         this.admin = admin;
     }
-
-    public ArrayList<Friend> getFriendList() { return mFriendList;}
 
     public String getUsername(){ return username; }
 

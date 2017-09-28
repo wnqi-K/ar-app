@@ -15,8 +15,10 @@ import android.widget.Toast;
 import com.comp30022.arrrrr.adapters.ListViewAdapter;
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.services.FcmNotificationBuilder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Adding new friends by searching the precise user email account.
@@ -24,12 +26,13 @@ import java.util.ArrayList;
  */
 public class AddingFriendsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
-    UserManagement mFriendManagement = UserManagement.getInstance();
-    ListView mListView;
-    CardView mCardView;
-    ListViewAdapter mViewAdapter;
-    SearchView mSearchView;
-    ArrayList<User> allUsers = (ArrayList<User>)mFriendManagement.getUserList();
+    private UserManagement mFriendManagement = UserManagement.getInstance();
+    private ListView mListView;
+    private CardView mCardView;
+    private ListViewAdapter mViewAdapter;
+    private SearchView mSearchView;
+    private ArrayList<User> allUsers = (ArrayList<User>)mFriendManagement.getUserList();
+    private UserManagement mUserManagement = UserManagement.getInstance();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,6 +52,9 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 User onClickUser = (User)parent.getAdapter().getItem(position);
+                User currentUser = mUserManagement.getCurrentUser();
+                final HashMap<String, String> allInfo = getNotificationMessage(onClickUser, currentUser);
+
                 mListView.setVisibility(View.GONE);
                 mCardView.setVisibility(View.VISIBLE);
 
@@ -64,6 +70,7 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
                 addFriend.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        sendRequest(allInfo);
                         Toast.makeText(getBaseContext(), "Friend request has been sent, " +
                                 "please wait for confirmation. ", Toast.LENGTH_SHORT).show();
                     }
@@ -86,5 +93,42 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
         String text = newText;
         mViewAdapter.filter(text);
         return false;
+    }
+
+
+    private HashMap<String, String> getNotificationMessage(User onClickUser, User currentUser) {
+        HashMap<String, String> info = new HashMap<>();
+        info.put("email", currentUser.getEmail());
+        info.put("message", "Sends you a friend request. ");
+        info.put("uid", currentUser.getUid());
+        info.put("senderToken", currentUser.getFirebaseToken());
+        info.put("receiverToken", onClickUser.getFirebaseToken());
+        return info;
+    }
+
+
+    private void sendRequest(HashMap<String, String> allInfo) {
+        String email = allInfo.get("email");
+        String message = allInfo.get("message");
+        String uid = allInfo.get("uid");
+        String senderToken = allInfo.get("senderToken");
+        String receiverToken = allInfo.get("receiverToken");
+
+        sendRequestToReceiver(email, message, uid, senderToken, receiverToken);
+    }
+
+    private void sendRequestToReceiver(String email,
+                                                String message,
+                                                String uid,
+                                                String firebaseToken,
+                                                String receiverFirebaseToken) {
+        FcmNotificationBuilder.initialize()
+                .title(email)
+                .message(message)
+                .username(email)
+                .uid(uid)
+                .firebaseToken(firebaseToken)
+                .receiverFirebaseToken(receiverFirebaseToken)
+                .send();
     }
 }
