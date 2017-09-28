@@ -25,8 +25,7 @@ import java.util.HashMap;
  * Created by Wenqiang Kuang on 16/09/2017.
  */
 public class AddingFriendsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
-
-    //private UserManagement mFriendManagement = UserManagement.getInstance();
+ 
     private ListView mListView;
     private CardView mCardView;
     private ListViewAdapter mViewAdapter;
@@ -95,7 +94,9 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
         return false;
     }
 
-
+/** 
+* The method is to retrieve all the necessary notification message from current user and the receiver. 
+*/
     private HashMap<String, String> getNotificationMessage(User onClickUser, User currentUser) {
         HashMap<String, String> info = new HashMap<>();
         info.put("email", currentUser.getEmail());
@@ -106,7 +107,9 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
         return info;
     }
 
-
+    /** 
+    * The method is to notification message to receiver given all the info. 
+    */
     private void sendRequest(HashMap<String, String> allInfo) {
         String email = allInfo.get("email");
         String message = allInfo.get("message");
@@ -117,6 +120,9 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
         sendRequestToReceiver(email, message, uid, senderToken, receiverToken);
     }
 
+    /** 
+    * The method is to build notification and send. 
+    */
     private void sendRequestToReceiver(String email,
                                                 String message,
                                                 String uid,
