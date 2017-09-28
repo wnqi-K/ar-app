@@ -15,7 +15,7 @@ import java.util.List;
  */
 
 public class UserManagement {
-    private static UserManagement instance;
+    private static UserManagement mInstance;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
     private List<User> mUserList = new ArrayList<>();
@@ -55,10 +55,10 @@ public class UserManagement {
     private UserManagement(){}
 
     public static synchronized UserManagement getInstance(){
-        if(instance == null){
-            instance = new UserManagement();
+        if(mInstance == null){
+            mInstance = new UserManagement();
         }
-        return instance;
+        return mInstance;
     }
 
     // adding new admin user from firebase database.
