@@ -67,7 +67,7 @@ public class SettingFragment extends Fragment {
         });
 
         //Go user profile
-        Button userprofileButton = (Button)view.findViewById(R.id.profileButton);
+        ImageButton userprofileButton = (ImageButton)view.findViewById(R.id.profileButton);
         userprofileButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
