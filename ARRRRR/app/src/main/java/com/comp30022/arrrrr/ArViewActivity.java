@@ -182,9 +182,6 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * set up listener: location and sensor
      * */
     private void setupListeners() {
-//        myCurrentLocation = new MyCurrentLocation(this, this);
-//        myCurrentLocation.buildGoogleApiClient(this);
-//        myCurrentLocation.start();
 
         IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
