@@ -27,7 +27,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private FirebaseUser currentUser;
     private DatabaseReference myRef;
     private  String userID;
-    User uInfo = new User();
+    User uInfo = User.createEmptyUser();
 
 
     /**-------------------------------------**/

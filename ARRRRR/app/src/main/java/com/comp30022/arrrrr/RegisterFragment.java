@@ -80,12 +80,6 @@ public class RegisterFragment extends Fragment implements View.OnClickListener{
     }
 
     private void init() {
-
-//        mProgressDialog = new ProgressDialog(getActivity());
-//        mProgressDialog.setTitle(getString(R.string.loading));
-//        mProgressDialog.setMessage(getString(R.string.please_wait));
-//        mProgressDialog.setIndeterminate(true);
-
         mBtnRegister.setOnClickListener(this);
     }
 
@@ -113,18 +107,30 @@ public class RegisterFragment extends Fragment implements View.OnClickListener{
         }else if (mRadioGroup.getCheckedRadioButtonId() == R.id.radioButton_female){
             gender = Constants.ARG_FEMALE;
         }
-        // if input email and password is not valid
-        if(!LoginHelper.validateForm(mETxtEmail, mETxtPassword)){
-            Toast.makeText(getActivity(), "unvalid email/password", Toast.LENGTH_SHORT).show();
+
+        if(gender == null){
+            Toast.makeText(getActivity(), "gender required", Toast.LENGTH_SHORT).show();
+        } else if(!LoginHelper.validateForm2(mETxtEmail,
+                mETxtPassword,
+                mETxtUsername,
+                mETxtPhonenum,
+                mETxtAddress)){
+            // if input is not valid
+            Toast.makeText(getActivity(), "Error occurs, please check your input", Toast.LENGTH_SHORT).show();
         }
         else{
-            performFirebaseRegistration(getActivity(), emailId, password);
-            Toast.makeText(getActivity(), Constants.ARG_SUCCESS, Toast.LENGTH_SHORT).show();
-            EmailLoginActivity.startActivity(getActivity());
+            performFirebaseRegistration(getActivity(), emailId, password,gender);
         }
     }
 
-    private void performFirebaseRegistration(Activity activity, final String email, String password) {
+
+    /**
+     * create a Firebase User using email and password
+     * */
+    private void performFirebaseRegistration(Activity activity,
+                                             final String email,
+                                             String password,
+                                             final String gender) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -135,9 +141,42 @@ public class RegisterFragment extends Fragment implements View.OnClickListener{
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
                             Toast.makeText(getActivity(), Constants.ARG_FAILURE, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getActivity(),task.getException().getMessage(), Toast.LENGTH_SHORT).show();
 
                         } else {
-                           // addUserToDatabase(task.getResult().getUser());
+                           addUserToDatabase(getActivity(),task.getResult().getUser(),gender);
+                        }
+                    }
+                });
+    }
+
+    /**
+     * add user info to Firebase database
+     * */
+    private void addUserToDatabase(Activity activity,FirebaseUser firebaseUser,String gender){
+        String uid = firebaseUser.getUid();
+        User user = User.createUserWithoutAdmin(uid,
+                firebaseUser.getEmail(),
+                new SharedPrefUtil(activity).getString(Constants.ARG_FIREBASE_TOKEN),
+                mETxtUsername.getText().toString(),
+                mETxtPhonenum.getText().toString(),
+                gender,
+                mETxtAddress.getText().toString());
+        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference();
+        mRef.child(Constants.ARG_USERS)
+                .child(uid)
+                .setValue(user)
+                .addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (!task.isSuccessful()) {
+                            Toast.makeText(getContext(),
+                                    Constants.ARG_FAILURE, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(),
+                                    Constants.ARG_SUCCESS, Toast.LENGTH_SHORT).show();
+                            EmailLoginActivity.startActivity(getActivity());
+
                         }
                     }
                 });
