@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.comp30022.arrrrr.models.User;
@@ -35,8 +36,10 @@ public class RegisterFragment extends Fragment implements View.OnClickListener{
     private static final String TAG = RegisterFragment.class.getSimpleName();
 
 
-    private EditText mETxtEmail, mETxtPassword;
+    private EditText mETxtEmail, mETxtPassword,mETxtPhonenum,
+            mETxtUsername,mETxtAddress;
     private Button mBtnRegister;
+    private RadioGroup mRadioGroup;
     private ProgressDialog mProgressDialog;
     private FirebaseAuth mAuth;
     private DatabaseReference mRef;
@@ -63,7 +66,11 @@ public class RegisterFragment extends Fragment implements View.OnClickListener{
     private void bindViews(View view) {
         mETxtEmail = (EditText) view.findViewById(R.id.edit_text_email_id);
         mETxtPassword = (EditText) view.findViewById(R.id.edit_text_password);
+        mETxtUsername = (EditText) view.findViewById(R.id.edit_text_username);
+        mETxtPhonenum = (EditText) view.findViewById(R.id.edit_text_phonenum);
+        mETxtAddress = (EditText) view.findViewById(R.id.edit_text_address);
         mBtnRegister = (Button) view.findViewById(R.id.button_register);
+        mRadioGroup = (RadioGroup) view.findViewById(R.id.radioGroup);
     }
 
     @Override
@@ -96,7 +103,16 @@ public class RegisterFragment extends Fragment implements View.OnClickListener{
     private void onRegister(View view) {
         String emailId = mETxtEmail.getText().toString();
         String password = mETxtPassword.getText().toString();
+        String username = mETxtUsername.getText().toString();
+        String phoneNum = mETxtPhonenum.getText().toString();
+        String address = mETxtAddress.getText().toString();
+        String gender = null;
 
+        if (mRadioGroup.getCheckedRadioButtonId() == R.id.radioButton_male){
+            gender = Constants.ARG_MALE;
+        }else if (mRadioGroup.getCheckedRadioButtonId() == R.id.radioButton_female){
+            gender = Constants.ARG_FEMALE;
+        }
         // if input email and password is not valid
         if(!LoginHelper.validateForm(mETxtEmail, mETxtPassword)){
             Toast.makeText(getActivity(), "unvalid email/password", Toast.LENGTH_SHORT).show();

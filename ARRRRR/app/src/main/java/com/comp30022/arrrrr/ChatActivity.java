@@ -15,7 +15,6 @@ import com.comp30022.arrrrr.ChatFragment;
 import com.comp30022.arrrrr.utils.Constants;
 
 public class ChatActivity extends AppCompatActivity {
-    private Toolbar mToolbar;
 
     public static void startActivity(Context context,
                                      String receiver,

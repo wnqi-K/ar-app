@@ -19,6 +19,50 @@
         android:hint="@string/password"
         android:inputType="textPassword" />
 
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:id="@+id/radioGroup">
+        <RadioButton
+            android:layout_width="0dp"
+            android:layout_weight="50"
+            android:layout_height="wrap_content"
+            android:text="Male"
+            android:id="@+id/radioButton_male"
+            android:checked="false"
+            />
+
+        <RadioButton
+            android:layout_width="0dp"
+            android:layout_weight="50"
+            android:layout_height="wrap_content"
+            android:text="Female"
+            android:id="@+id/radioButton_female"
+            android:checked="false" />
+
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/edit_text_username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/Username"/>
+
+    <EditText
+        android:id="@+id/edit_text_phonenum"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/Phonenum"/>
+
+    <EditText
+        android:id="@+id/edit_text_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/Address"/>
+
     <android.support.v4.widget.Space
         android:layout_width="match_parent"
         android:layout_height="@dimen/space_avg" />
@@ -32,8 +76,11 @@
             style="?attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:text="@string/register" />
+            android:text="@string/register"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" />
+
+
 
     </RelativeLayout>
 

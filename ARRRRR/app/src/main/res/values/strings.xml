@@ -60,5 +60,8 @@
     <string name="text_fetching_address">Unknown</string>
     <string name="label_current_location">Current Location</string>
     <string name="search_history">Search History</string>
+    <string name="Username">Username</string>
+    <string name="Phonenum">Phone Number</string>
+    <string name="Address">Address</string>
 
 </resources>
