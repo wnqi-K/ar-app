@@ -7,11 +7,18 @@ import java.util.List;
  * Created by xiaoyuguo on 19/09/2017.
  */
 
+/**
+ * This is a helper class that
+ * calculates azimuthal angle of the device
+ * */
+
 public class AziCalculator {
 
     private static double AZIMUTH_ACCURACY = 5;
 
-    /** To compare the calculated and theoretical azimuth */
+    /**
+     * this is a function returns a list
+     * that contain the  the */
     public List<Double> calculateAzimuthAccuracy(double azimuth) {
         double minAngle = azimuth - AZIMUTH_ACCURACY;
         double maxAngle = azimuth + AZIMUTH_ACCURACY;
@@ -30,7 +37,12 @@ public class AziCalculator {
         return minMax;
     }
 
-    /** To compare the calculated and theoretical azimuth */
+    /**
+     * this is a function returns boolean value
+     * if azimuth angle within the range returns true
+     * else, false
+     * called by ArViewActivity in onAzimuthChanged(float azimuthChangedFrom, float azimuthChangedTo)
+     * */
     public boolean isBetween(double minAngle, double maxAngle, double azimuth) {
         if (minAngle > maxAngle) {
             if (isBetween(0, maxAngle, azimuth) && isBetween(minAngle, 360, azimuth))

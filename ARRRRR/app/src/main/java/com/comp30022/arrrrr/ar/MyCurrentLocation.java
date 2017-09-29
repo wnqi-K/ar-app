@@ -18,15 +18,19 @@ import com.google.android.gms.location.LocationServices;
 /**
  * Created by krzysztofjackowski on 24/09/15.
  */
-public class MyCurrentLocation implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class MyCurrentLocation implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
     private OnLocationChangedListener onLocationChangedListener;
+    private AppCompatActivity activity;
 
-    public MyCurrentLocation(OnLocationChangedListener onLocationChangedListener) {
+    public MyCurrentLocation(OnLocationChangedListener onLocationChangedListener,
+                             AppCompatActivity newActivity) {
         this.onLocationChangedListener = onLocationChangedListener;
+        this.activity = newActivity;
     }
 
     public synchronized void buildGoogleApiClient(Context context) {
@@ -52,6 +56,12 @@ public class MyCurrentLocation implements GoogleApiClient.ConnectionCallbacks, G
 
     @Override
     public void onConnected(Bundle bundle) {
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED){
+            activity.finish();
+            return;
+        }
+
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
@@ -72,6 +82,12 @@ public class MyCurrentLocation implements GoogleApiClient.ConnectionCallbacks, G
 
     @Override
     public void onLocationChanged(Location location) {
+
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            activity.finish();
+            return;
+        }
 
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
