@@ -112,8 +112,9 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     @Override
     protected void onStop() {
-        myCurrentAzimuth.stop();
         super.onStop();
+        myCurrentAzimuth.stop();
+        unregisterReceiver(myCurrentPosition);
     }
 
     @Override
@@ -129,6 +130,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     @Override
     protected void onPause() {
         super.onPause();
+        myCurrentAzimuth.stop();
         unregisterReceiver(myCurrentPosition);
     }
 
@@ -175,8 +177,8 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * */
     private void setAugmentedRealityPoint() {
         mPoi = new AugmentedPOI(
-                "Kościół Marciacki",
-                "Kościół Marciacki w Krakowie",
+                "Xiaoyu Guo",
+                "This is the description",
                 50.06169631,
                 19.93919566
         );
@@ -306,7 +308,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     /** ----------------------- permission related functions here ------------------------------- */
 
     /**
-     * this function is to request permission
+     * this function is to request camera permission
      * firstly, check whether gain permission
      * if not, send request
      * */
