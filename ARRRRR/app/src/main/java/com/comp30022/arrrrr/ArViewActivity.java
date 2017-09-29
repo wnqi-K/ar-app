@@ -1,6 +1,8 @@
 package com.comp30022.arrrrr;
 
 import com.comp30022.arrrrr.ar.*;
+import com.comp30022.arrrrr.receivers.*;
+
 import android.support.annotation.NonNull;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
@@ -18,6 +20,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.io.IOException;
 import android.Manifest;
+import android.content.IntentFilter;
+import android.content.Intent;
 
 /**
  * Created by Xiaoyu GUO on 19/09/17
@@ -36,7 +40,7 @@ import android.Manifest;
  **/
 
 public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.Callback,
-        OnLocationChangedListener, OnAzimuthChangedListener,
+        SelfPositionReceiver.SelfLocationListener, OnAzimuthChangedListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final String TAG = "ArViewActivity";
@@ -75,7 +79,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * */
     private double mMyLatitude = 0;
     private double mMyLongitude = 0;
-    private MyCurrentLocation myCurrentLocation;
+    private SelfPositionReceiver myCurrentPosition;
 
     public TextView descriptionTextView;
     public ImageView pointerIcon;
@@ -109,7 +113,6 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     @Override
     protected void onStop() {
         myCurrentAzimuth.stop();
-        myCurrentLocation.stop();
         super.onStop();
     }
 
@@ -121,7 +124,6 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
         super.onResume();
         myCurrentAzimuth.start();
-        myCurrentLocation.start();
     }
 
     /**
@@ -180,9 +182,14 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * set up listener: location and sensor
      * */
     private void setupListeners() {
-        myCurrentLocation = new MyCurrentLocation(this, this);
-        myCurrentLocation.buildGoogleApiClient(this);
-        myCurrentLocation.start();
+//        myCurrentLocation = new MyCurrentLocation(this, this);
+//        myCurrentLocation.buildGoogleApiClient(this);
+//        myCurrentLocation.start();
+
+        IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        myCurrentPosition = new SelfPositionReceiver(ArViewActivity.this);
+        registerReceiver(myCurrentPosition, filter);
 
         myCurrentAzimuth = new MyCurrentAzimuth(this, this);
         myCurrentAzimuth.start();
@@ -216,7 +223,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * and meanwhile updates description
      * */
     @Override
-    public void onLocationChanged(Location location) {
+    public void onSelfLocationChanged(Location location) {
         mMyLatitude = location.getLatitude();
         mMyLongitude = location.getLongitude();
         mAzimuthTeoretical = calculateTeoreticalAzimuth();
@@ -290,6 +297,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
 
     /** ----------------------- permission related functions here ------------------------------- */
+
 
     private void requestPermission(){
         if (!camPerm.camPermissioncGranted(ArViewActivity.this)) {
