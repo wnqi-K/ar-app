@@ -18,9 +18,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.io.IOException;
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.support.v4.content.ContextCompat;
 
 /**
  * Created by Xiaoyu GUO on 19/09/17
@@ -115,28 +112,12 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         myCurrentLocation.stop();
         super.onStop();
     }
-                
+
     @Override
     protected void onResume() {
 
-        //check camera permission
-        if (!camPermissioncGranted()) {
-            if (camPerm.getFromPref(this, ALLOW_KEY)) {
-                showSettingsAlert();
-            } else if (!camPermissioncGranted()) {
-
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.CAMERA)) {
-                    showAlert();
-                } else {
-                    // No explanation needed, we can request the permission.
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.CAMERA},
-                            MY_PERMISSIONS_REQUEST_CAMERA);
-                }
-            }
-        }
+        //request camera permission
+        requestPermission();
 
         super.onResume();
         myCurrentAzimuth.start();
@@ -225,7 +206,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * */
     private void setupUtil() {
         this.calculator = new AziCalculator();
-        this.camPerm = new CamPermissionHelper();
+        this.camPerm = new CamPermissionHelper(ArViewActivity.this);
     }
 
     /** --------------------------------- interfaces implementation ----------------------------------------*/
@@ -293,7 +274,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
 
-        if (camPermissioncGranted()) {
+        if (camPerm.camPermissioncGranted(ArViewActivity.this)) {
             mCamera = Camera.open();
             mCamera.setDisplayOrientation(90);
         }
@@ -310,68 +291,27 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     /** ----------------------- permission related functions here ------------------------------- */
 
-    /**
-     * this function return a boolean value
-     * to check whether app granted camera permission or not
-     * */
-    public boolean camPermissioncGranted(){
-        return ContextCompat.checkSelfPermission(ArViewActivity.this, Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED;
+    private void requestPermission(){
+        if (!camPerm.camPermissioncGranted(ArViewActivity.this)) {
+            if (camPerm.getFromPref(this, ALLOW_KEY)) {
+                camPerm.showSettingsAlert(ArViewActivity.this);
+            } else if (!camPerm.camPermissioncGranted(ArViewActivity.this)) {
+
+                // Should we show an explanation?
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.CAMERA)) {
+                    camPerm.showAlert(ArViewActivity.this);
+                } else {
+                    // No explanation needed, we can request the permission.
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.CAMERA},
+                            MY_PERMISSIONS_REQUEST_CAMERA);
+                }
+            }
+        }
+
     }
 
-    /**
-     * */
-    private void showAlert() {
-        AlertDialog alertDialog = new AlertDialog.Builder(ArViewActivity.this).create();
-        alertDialog.setTitle("Alert");
-        alertDialog.setMessage("App needs to access the Camera.");
-
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "DONT ALLOW",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        finish();
-                    }
-                });
-
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "ALLOW",
-                new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        ActivityCompat.requestPermissions(ArViewActivity.this,
-                                new String[]{Manifest.permission.CAMERA},
-                                MY_PERMISSIONS_REQUEST_CAMERA);
-                    }
-                });
-        alertDialog.show();
-    }
-
-    private void showSettingsAlert() {
-        AlertDialog alertDialog = new AlertDialog.Builder(ArViewActivity.this).create();
-        alertDialog.setTitle("Alert");
-        alertDialog.setMessage("App needs to access the Camera.");
-
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "DONT ALLOW",
-                new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        finish();
-                    }
-                });
-
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "SETTINGS",
-                new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        camPerm.startInstalledAppDetailsActivity(ArViewActivity.this);
-                    }
-                });
-
-        alertDialog.show();
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], int[] grantResults) {
@@ -387,7 +327,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
                                         this, permission);
 
                         if (showRationale) {
-                            showAlert();
+                            camPerm.showAlert(ArViewActivity.this);
                         } else if (!showRationale) {
                             // user denied flagging NEVER ASK AGAIN
                             // you can either enable some fall back,
