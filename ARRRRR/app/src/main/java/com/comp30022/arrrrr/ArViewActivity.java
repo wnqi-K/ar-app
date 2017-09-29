@@ -126,6 +126,12 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         myCurrentAzimuth.start();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(myCurrentPosition);
+    }
+
     /**
      * calculate the current theoretical azimuth
      * */
@@ -165,7 +171,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     /**
      * update POI here
-     * TODO: need to update the real-time location by connecting the listerner
+     * TODO: need to gain the POI when start ArViewActivity
      * */
     private void setAugmentedRealityPoint() {
         mPoi = new AugmentedPOI(
@@ -183,11 +189,13 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * */
     private void setupListeners() {
 
+        //set up location receiver
         IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         myCurrentPosition = new SelfPositionReceiver(ArViewActivity.this);
         registerReceiver(myCurrentPosition, filter);
 
+        //set up sensor receiver
         myCurrentAzimuth = new MyCurrentAzimuth(this, this);
         myCurrentAzimuth.start();
     }
@@ -221,9 +229,11 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * */
     @Override
     public void onSelfLocationChanged(Location location) {
+
         mMyLatitude = location.getLatitude();
         mMyLongitude = location.getLongitude();
         mAzimuthTeoretical = calculateTeoreticalAzimuth();
+
         Toast.makeText(this,"latitude: "+location.getLatitude()+
                 " longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
         updateDescription();
@@ -295,8 +305,13 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     /** ----------------------- permission related functions here ------------------------------- */
 
-
+    /**
+     * this function is to request permission
+     * firstly, check whether gain permission
+     * if not, send request
+     * */
     private void requestPermission(){
+        //check permission
         if (!camPerm.camPermissioncGranted(ArViewActivity.this)) {
             if (camPerm.getFromPref(this, ALLOW_KEY)) {
                 camPerm.showSettingsAlert(ArViewActivity.this);
@@ -317,7 +332,9 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     }
 
-
+    /**
+     * implement ActivityCompat.OnRequestPermissionsResultCallback interface
+     * */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], int[] grantResults) {
         switch (requestCode) {
