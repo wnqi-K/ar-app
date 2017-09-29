@@ -12,6 +12,8 @@ public class User implements Serializable {
     private String address;
     private String admin;
 
+    public User(){}
+
     public User(String uid, String email, String firebaseToken,String username,
                 String phoneNum,String gender,String address,String admin){
         this.uid = uid;
@@ -40,9 +42,6 @@ public class User implements Serializable {
         return new User(uid,email,firebaseToken,username,phoneNum,gender,address,null);
     }
 
-    public static User createEmptyUser(){
-        return new User(null,null,null,null,null,null,null,null);
-    }
 
 
     public String getUsername(){ return username; }
