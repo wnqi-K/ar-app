@@ -2,16 +2,19 @@ package com.comp30022.arrrrr.utils;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Location;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -20,15 +23,19 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.comp30022.arrrrr.ArViewActivity;
+import com.comp30022.arrrrr.ChatActivity;
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.animations.LatLngInterpolator;
 import com.comp30022.arrrrr.animations.MarkerAnimation;
+import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.receivers.AddressResultReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.services.FetchAddressIntentService;
 import com.comp30022.arrrrr.services.LocationSharingService;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -53,7 +60,8 @@ public class MapUIManager implements
         GoogleMap.OnMarkerClickListener,
         AddressResultReceiver.AddressResultListener,
         GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnCameraMoveListener{
+        GoogleMap.OnCameraMoveListener,
+        GoogleMap.OnInfoWindowClickListener {
 
     private final String TAG = MapUIManager.class.getSimpleName();
 
@@ -69,16 +77,20 @@ public class MapUIManager implements
     private GoogleMap mGoogleMap;
     private Marker mSelfMarker;
     private HashMap<String, Marker> mFriendMarkers;
+    private HashMap<String, LatLng> mUserGeoLocations;
     private HashMap<String, GeoLocationInfo> mUserGeoLocationInfos;
     private Circle mSelfCircle;
     private AppCompatActivity mContext;
     private Fragment mFragment;
+    private HashMap<String, Bitmap> mFriendIcons;
+    private String mBufferFriendUid;
 
     public MapUIManager(Fragment fragment, AppCompatActivity context, GoogleMap googleMap) {
         mContext = context;
         mGoogleMap = googleMap;
         mFragment = fragment;
         mFriendMarkers = new HashMap<>();
+        mFriendIcons = new HashMap<>();
     }
 
     @Override
@@ -88,6 +100,34 @@ public class MapUIManager implements
             marker.showInfoWindow();
         }
         return true;
+    }
+
+    /**
+     * Show selection popup for user to perform action associated with the friend's marker.
+     */
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        CharSequence options[] = new CharSequence[] {"Navigate by AR", "Chat"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        String uid = (String) marker.getTag();
+        mBufferFriendUid = uid;
+        builder.setTitle(uid);
+        builder.setIcon(new BitmapDrawable(mContext.getResources(), mFriendIcons.get(uid)));
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                switch (i) {
+                    case 0:
+                        switchToAR(mBufferFriendUid);
+                        break;
+                    case 1:
+                        switchToChat(mBufferFriendUid);
+                        break;
+                }
+            }
+        });
+        builder.show();
     }
 
     /**
@@ -113,13 +153,13 @@ public class MapUIManager implements
 
         private void render(Marker marker, View view) {
             String uid = (String) marker.getTag();
-            Button button = (Button) view.findViewById(R.id.button_enter_ar);
+            TextView textViewClickHint = (TextView) view.findViewById(R.id.text_view_click_hint);
             TextView textViewUserName = (TextView) view.findViewById(R.id.text_view_user_name);
             TextView textViewGeoInfo = (TextView) view.findViewById(R.id.text_view_location_info);
             // Get time string (in local timezone)
             String time = TimeUtil.getFriendlyTime(mUserGeoLocationInfos.get(uid).time);
 
-            button.setText(R.string.friend_info_window_button_enter_text);
+            textViewClickHint.setText(R.string.friend_info_window_click_hint);
             textViewUserName.setText(uid);
             textViewGeoInfo.setText(time);
         }
@@ -161,6 +201,7 @@ public class MapUIManager implements
             Bitmap profileIconBitmap = BitmapUtil.getResizedBitmap(circleBitmap, PROFILE_ICON_WIDTH, PROFILE_ICON_HEIGHT);
             BitmapDescriptor iconDescriptor = BitmapDescriptorFactory.fromBitmap(profileIconBitmap);
 
+
             Marker FriendMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .position(position)
                     .icon(iconDescriptor)
@@ -168,7 +209,11 @@ public class MapUIManager implements
             FriendMarker.setTag(key);
 
             mFriendMarkers.put(key, FriendMarker);
+            if (!mFriendIcons.containsKey(key)) {
+                mFriendIcons.put(key, profileIconBitmap);
+            }
             this.mUserGeoLocationInfos = geoLocationInfos;
+            this.mUserGeoLocations = geoLocations;
         } else if (type.equals(LocationSharingService.ON_KEY_EXITED) ) {
             // Remove marker
             mFriendMarkers.get(key).remove();
@@ -181,6 +226,7 @@ public class MapUIManager implements
             LatLngInterpolator interpolator = new LatLngInterpolator.LinearFixed();
             MarkerAnimation.animateMarkerToICS(mFriendMarkers.get(key), position, interpolator);
             this.mUserGeoLocationInfos = geoLocationInfos;
+            this.mUserGeoLocations = geoLocations;
         }
     }
 
@@ -191,6 +237,7 @@ public class MapUIManager implements
     public void initializeMapUI() {
         mGoogleMap.setOnMarkerClickListener(this);
         mGoogleMap.setInfoWindowAdapter(new FriendInfoWindowAdapter());
+        mGoogleMap.setOnInfoWindowClickListener(this);
         mGoogleMap.setOnCameraMoveListener(this);
         mGoogleMap.setOnMyLocationButtonClickListener(this);
         restoreCurrentMapView();
@@ -263,6 +310,23 @@ public class MapUIManager implements
                 mGoogleMap.setMyLocationEnabled(false);
             }
         }
+    }
+
+    /**
+     * Switch to AR window, targeting the specified friend.
+     * @param uid Friend's uid
+     */
+    private void switchToAR(String uid) {
+        LatLng location = mUserGeoLocations.get(uid);
+        // ArViewActivity.startActivity(mContext, uid, location);
+    }
+
+    /**
+     * Switch to chat window, targeting the specified friend.
+     * @param uid Friend's uid
+     */
+    private void switchToChat(String uid) {
+        // ChatActivity.startActivity(mContext, uid);
     }
 
     /**

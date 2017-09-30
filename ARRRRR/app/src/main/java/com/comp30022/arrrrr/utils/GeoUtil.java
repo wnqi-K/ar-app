@@ -5,7 +5,7 @@ import com.firebase.geofire.util.GeoUtils;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
- * Utility class dealing with geological locations
+ * Utility class dealing with geologicalfriends location  locations
  *
  * @author Dafu Ai
  */
