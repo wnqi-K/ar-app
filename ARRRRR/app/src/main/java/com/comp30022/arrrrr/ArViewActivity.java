@@ -19,9 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.IOException;
-import java.util.IllegalFormatCodePointException;
 
-import android.Manifest;
 import android.content.IntentFilter;
 import android.content.Intent;
 
@@ -116,7 +114,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     protected void onResume() {
 
         //request camera permission
-        requestPermission();
+        camPerm.requestPermission(ArViewActivity.this, ArViewActivity.this);
 
         super.onResume();
         myCurrentAzimuth.start();
@@ -323,33 +321,6 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     /** ----------------------- permission related functions here ------------------------------- */
 
     /**
-     * this function is to request camera permission
-     * firstly, check whether gain permission
-     * if not, send request
-     * */
-    private void requestPermission(){
-        //check permission
-        if (!camPerm.camPermissioncGranted(ArViewActivity.this)) {
-            if (camPerm.getFromPref(this, ALLOW_KEY)) {
-                camPerm.showSettingsAlert(ArViewActivity.this, ArViewActivity.this);
-            } else if (!camPerm.camPermissioncGranted(ArViewActivity.this)) {
-
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.CAMERA)) {
-                    camPerm.showAlert(ArViewActivity.this, ArViewActivity.this);
-                } else {
-                    // No explanation needed, we can request the permission.
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.CAMERA},
-                            MY_PERMISSIONS_REQUEST_CAMERA);
-                }
-            }
-        }
-
-    }
-
-    /**
      * implement ActivityCompat.OnRequestPermissionsResultCallback interface
      * */
     @Override
@@ -366,7 +337,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
                                         this, permission);
 
                         if (showRationale) {
-                            camPerm.showAlert(ArViewActivity.this, ArViewActivity.this);
+                            camPerm.showSettingsAlert(ArViewActivity.this, ArViewActivity.this);
                         } else if (!showRationale) {
                             // user denied flagging NEVER ASK AGAIN
                             // you can either enable some fall back,
@@ -384,6 +355,5 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
             // permissions this app might request
         }
     }
-
 
 }

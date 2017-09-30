@@ -17,8 +17,6 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
-import com.comp30022.arrrrr.ArViewActivity;
-
 
 /**
  * This is a class that helps ArViewActivity
@@ -30,9 +28,8 @@ public class CamPermissionHelper {
 
     public static final String CAMERA_PREF = "camera_pref";
     public static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
+    public static final String ALLOW_KEY = "ALLOWED";
 
-    public CamPermissionHelper(){
-    }
 
     public static void startInstalledAppDetailsActivity(final Activity context) {
         if (context == null) {
@@ -73,6 +70,11 @@ public class CamPermissionHelper {
                 == PackageManager.PERMISSION_GRANTED;
     }
 
+    /**
+     * This function shows alert when request is necessary
+     * haven't be used
+     * leave it here just in case
+     * */
     public void showAlert(Context context, final Activity activity) {
         AlertDialog alertDialog = new AlertDialog.Builder(context).create();
         alertDialog.setTitle("Alert");
@@ -99,6 +101,10 @@ public class CamPermissionHelper {
         alertDialog.show();
     }
 
+    /**
+     * This function shows setting alert when request sent
+     * it will jump to setting page for app
+     * */
     public void showSettingsAlert(final Context context, final Activity activity) {
         AlertDialog alertDialog = new AlertDialog.Builder(context).create();
         alertDialog.setTitle("Alert");
@@ -123,6 +129,34 @@ public class CamPermissionHelper {
                 });
 
         alertDialog.show();
+    }
+
+    /**
+     * this function is to request camera permission
+     * firstly, check whether gain permission
+     * if not, send request
+     * */
+    public void requestPermission(Context context, Activity activity){
+        //check permission
+        if (!camPermissioncGranted(context)) {
+            if (getFromPref(context, ALLOW_KEY)) {
+                showSettingsAlert(context, activity);
+            } else if (!camPermissioncGranted(context)) {
+
+                // Should we show an explanation?
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
+                        Manifest.permission.CAMERA)) {
+                    //showAlert();
+                    showSettingsAlert(context, activity);
+                } else {
+                    // No explanation needed, we can request the permission.
+                    ActivityCompat.requestPermissions(activity,
+                            new String[]{Manifest.permission.CAMERA},
+                            MY_PERMISSIONS_REQUEST_CAMERA);
+                }
+            }
+        }
+
     }
 
 }
