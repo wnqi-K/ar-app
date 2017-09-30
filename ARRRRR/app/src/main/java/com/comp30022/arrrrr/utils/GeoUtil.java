@@ -1,5 +1,7 @@
 package com.comp30022.arrrrr.utils;
 
+import android.location.Location;
+
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.util.GeoUtils;
 import com.google.android.gms.maps.model.LatLng;
@@ -18,6 +20,13 @@ public class GeoUtil {
      */
     public static LatLng geoToLatLng(GeoLocation geoLocation) {
         return new LatLng(geoLocation.latitude, geoLocation.longitude);
+    }
+
+    /**
+     * Convert a Location object to a LatLng object
+     */
+    public static LatLng locationToLatLng(Location location) {
+        return new LatLng(location.getLatitude(), location.getLongitude());
     }
 
     /**

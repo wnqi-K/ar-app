@@ -304,30 +304,20 @@ public class MapContainerFragment extends Fragment implements
 
     public void registerPositioningReceiver(
             @NonNull SelfPositionReceiver.SelfLocationListener listener) {
-
-        IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        SelfPositionReceiver mPositioningReceiver = new SelfPositionReceiver(listener);
-        getActivity().registerReceiver(mPositioningReceiver, filter);
-        mBroadcastReceivers.add(mPositioningReceiver);
+        SelfPositionReceiver receiver = SelfPositionReceiver.register(getActivity(), listener);
+        mBroadcastReceivers.add(receiver);
     }
 
     public void registerServerLocationsReceiver(
             @NonNull GeoQueryLocationsReceiver.GeoQueryLocationsListener listener) {
-        IntentFilter filter = new IntentFilter(GeoQueryLocationsReceiver.ACTION_GEOQUERY_LOCATIONS);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        GeoQueryLocationsReceiver mServerLocationsReceiver = new GeoQueryLocationsReceiver(listener);
-        getActivity().registerReceiver(mServerLocationsReceiver, filter);
-        mBroadcastReceivers.add(mServerLocationsReceiver);
+        GeoQueryLocationsReceiver receiver = GeoQueryLocationsReceiver.register(getActivity(), listener);
+        mBroadcastReceivers.add(receiver);
     }
 
     public void registerAddressResultReceiver(
             @NonNull AddressResultReceiver.AddressResultListener listener) {
-        IntentFilter filter = new IntentFilter(AddressResultReceiver.ACTION_ADDRESS_RESULT);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        AddressResultReceiver mAddressResultReceiver = new AddressResultReceiver(listener);
-        getActivity().registerReceiver(mAddressResultReceiver, filter);
-        mBroadcastReceivers.add(mAddressResultReceiver);
+        AddressResultReceiver receiver = AddressResultReceiver.register(getActivity(), listener);
+        mBroadcastReceivers.add(receiver);
     }
 
     /**
