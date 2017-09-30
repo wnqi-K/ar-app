@@ -19,6 +19,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.IOException;
+import java.util.IllegalFormatCodePointException;
+
 import android.Manifest;
 import android.content.IntentFilter;
 import android.content.Intent;
@@ -111,13 +113,6 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        myCurrentAzimuth.stop();
-        unregisterReceiver(myCurrentPosition);
-    }
-
-    @Override
     protected void onResume() {
 
         //request camera permission
@@ -128,10 +123,16 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceivers();
+    }
+
+
+    @Override
     protected void onPause() {
         super.onPause();
-        myCurrentAzimuth.stop();
-        unregisterReceiver(myCurrentPosition);
+        unregisterReceivers();
     }
 
     /**
@@ -184,6 +185,20 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         );
     }
 
+    /**
+     * Unregister receiver.
+     * Be called in onPause(), onStop()
+     * */
+
+    public  void unregisterReceivers(){
+        try{
+            unregisterReceiver(myCurrentPosition);
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+        myCurrentAzimuth.stop();
+    }
+
     /** -------------------------------- Set Up Functions ---------------------------------------*/
 
     /**
@@ -220,7 +235,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * */
     private void setupUtil() {
         this.calculator = new AziCalculator();
-        this.camPerm = new CamPermissionHelper(ArViewActivity.this);
+        this.camPerm = new CamPermissionHelper();
     }
 
     /** --------------------------------- interfaces implementation ----------------------------------------*/
@@ -316,13 +331,13 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         //check permission
         if (!camPerm.camPermissioncGranted(ArViewActivity.this)) {
             if (camPerm.getFromPref(this, ALLOW_KEY)) {
-                camPerm.showSettingsAlert(ArViewActivity.this);
+                camPerm.showSettingsAlert(ArViewActivity.this, ArViewActivity.this);
             } else if (!camPerm.camPermissioncGranted(ArViewActivity.this)) {
 
                 // Should we show an explanation?
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                         Manifest.permission.CAMERA)) {
-                    camPerm.showAlert(ArViewActivity.this);
+                    camPerm.showAlert(ArViewActivity.this, ArViewActivity.this);
                 } else {
                     // No explanation needed, we can request the permission.
                     ActivityCompat.requestPermissions(this,
@@ -351,7 +366,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
                                         this, permission);
 
                         if (showRationale) {
-                            camPerm.showAlert(ArViewActivity.this);
+                            camPerm.showAlert(ArViewActivity.this, ArViewActivity.this);
                         } else if (!showRationale) {
                             // user denied flagging NEVER ASK AGAIN
                             // you can either enable some fall back,

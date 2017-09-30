@@ -31,10 +31,7 @@ public class CamPermissionHelper {
     public static final String CAMERA_PREF = "camera_pref";
     public static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
 
-    private Activity activity;
-
-    public CamPermissionHelper(Activity newActivity){
-        this.activity = newActivity;
+    public CamPermissionHelper(){
     }
 
     public static void startInstalledAppDetailsActivity(final Activity context) {
@@ -76,7 +73,7 @@ public class CamPermissionHelper {
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-    public void showAlert(Context context) {
+    public void showAlert(Context context, final Activity activity) {
         AlertDialog alertDialog = new AlertDialog.Builder(context).create();
         alertDialog.setTitle("Alert");
         alertDialog.setMessage("App needs to access the Camera.");
@@ -102,7 +99,7 @@ public class CamPermissionHelper {
         alertDialog.show();
     }
 
-    public void showSettingsAlert(final Context context) {
+    public void showSettingsAlert(final Context context, final Activity activity) {
         AlertDialog alertDialog = new AlertDialog.Builder(context).create();
         alertDialog.setTitle("Alert");
         alertDialog.setMessage("App needs to access the Camera.");
