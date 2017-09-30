@@ -3,6 +3,7 @@ package com.comp30022.arrrrr;
 import com.comp30022.arrrrr.ar.*;
 import com.comp30022.arrrrr.receivers.*;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
@@ -18,10 +19,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.io.IOException;
-
 import android.content.IntentFilter;
 import android.content.Intent;
+
+import java.io.IOException;
+
+import com.google.android.gms.maps.model.LatLng;
+
 
 /**
  * Created by Xiaoyu GUO on 19/09/17
@@ -133,6 +137,18 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         unregisterReceivers();
     }
 
+    /***
+     * start Activity and get the POI
+     */
+
+    public static void startActivity(Context context, String uid, String userName, LatLng latLng){
+        Intent intent = new Intent(context, ArViewActivity.class);
+        //Define key here
+        //TODO: intent.putExtra(SOME_KEY1, uid)
+        //TODO: intent.putExtra(SOME_KEY2, latLng)
+        context.startActivity(intent);
+    }
+
     /**
      * calculate the current theoretical azimuth
      * */
@@ -176,10 +192,10 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * */
     private void setAugmentedRealityPoint() {
         mPoi = new AugmentedPOI(
-                "Xiaoyu Guo",
-                "This is the description",
-                50.06169631,
-                19.93919566
+                "lweo27942jl3sdsk",      //uid
+                "Xiaoyu Guo",            //username
+                50.06169631,             //Latitude
+                19.93919566              //Longitude
         );
     }
 
