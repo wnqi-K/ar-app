@@ -10,4 +10,16 @@
     <color name="color_active">#5cb85c</color>
     <color name="color_text_dark_bg">#ffffff</color>
     <color name="color_bg_light">#ffffff</color>
+
+    <!-- UI Design  -->
+    <color name="white">#ffffff</color>
+    <color name="black_background">#1E1E1E</color>
+    <color name="grey_background">#DCDCDC</color>
+
+    <color name="grey_btn_outline">#5B5B5B</color>
+    <color name="grey_subtitle">#999999</color>
+    <color name="grey_text_show">#BCBCBC</color>
+    <color name="grey_text_real">#5B5B5B</color>
+
+
 </resources>

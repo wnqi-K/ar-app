@@ -1,9 +1,7 @@
 package com.comp30022.arrrrr;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
@@ -14,14 +12,17 @@ import android.view.View;
  * Created by Wenqiang Kuang on 26/08/2017.
  */
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
-    private static boolean sIsChatActivityOpen = false;
+    private static boolean sIsActivityOpen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //hide Action bar in Login Activity
+        getSupportActionBar().hide();
     }
 
     public void emailLogin(View view) {
@@ -34,12 +35,12 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public static boolean isChatActivityOpen() {
-        return sIsChatActivityOpen;
+    public static boolean isActivityOpen() {
+        return sIsActivityOpen;
     }
 
     public static void setChatActivityOpen(boolean isChatActivityOpen) {
-        MainActivity.sIsChatActivityOpen = isChatActivityOpen;
+        MainActivity.sIsActivityOpen = isChatActivityOpen;
     }
 
 

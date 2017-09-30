@@ -20,10 +20,13 @@ import java.util.regex.Pattern;
 public class LoginHelper {
 
     private final static int PASSWORD_LEN = 6;
+    private final static int USER_NAME_LEN = 8;
+    private final static int PHONE_NUM_LEN = 10;
     /**
      * check validation of email/password input
      * */
-    public static boolean validateForm(EditText mEmailField,EditText mPasswordField) {
+    public static boolean validateForm(EditText mEmailField,
+                                       EditText mPasswordField) {
         boolean valid = true;
 
         String email = mEmailField.getText().toString();
@@ -47,6 +50,79 @@ public class LoginHelper {
             mPasswordField.setError(null);
         }
 
+        return valid;
+    }
+
+    /**
+     * check validation of email/password/username/phone number/address input
+     * */
+    public static boolean validateForm2(EditText mEmailField,
+                                       EditText mPasswordField,
+                                       EditText mUsernameField,
+                                       EditText mPhoneNumField,
+                                       EditText mAddressField) {
+        boolean valid = true;
+        valid = validateForm(mEmailField,mPasswordField);
+
+        String username = mUsernameField.getText().toString();
+        if (TextUtils.isEmpty(username)) {
+            mUsernameField.setError("Required.");
+            valid = false;
+        } else if (!isValidUsername(username)){
+            mUsernameField.setError("Invalid Username(maximum 8 digits without empty space)");
+            valid = false;
+        } else {
+            mUsernameField.setError(null);
+        }
+
+        String phoneNum = mPhoneNumField.getText().toString();
+        if (TextUtils.isEmpty(phoneNum)) {
+            mPhoneNumField.setError("Required.");
+            valid = false;
+        } else if (!isValidPhoneNum(phoneNum)){
+            mPhoneNumField.setError("Invalid Phone Number");
+            valid = false;
+        }else {
+            mPhoneNumField.setError(null);
+        }
+
+        String address = mAddressField.getText().toString();
+        if (TextUtils.isEmpty(address)) {
+            mAddressField.setError("Required.");
+            valid = false;
+        } else {
+            mAddressField.setError(null);
+        }
+
+        return valid;
+    }
+
+    /**
+     * phone number validation
+     * */
+    private static boolean isValidPhoneNum(String phoneNum) {
+        boolean valid = true;
+        if(phoneNum.length() != PHONE_NUM_LEN){
+            valid = false;
+        }
+        return valid;
+    }
+
+    /**
+     * username validation, a string with maximum 8 digits without empty space
+     * */
+    private static boolean isValidUsername(String username) {
+        boolean valid = true;
+        if(username.length() > USER_NAME_LEN){
+            valid = false;
+        }else{
+            //check white space
+            for(int i = 0;i < username.length() && valid; i++){
+                if(Character.isWhitespace(username.charAt(i))){
+                    valid = false;
+                }
+            }
+        }
         return valid;
     }
 

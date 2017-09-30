@@ -1,8 +1,8 @@
 package com.comp30022.arrrrr.models;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 
-public class User {
+public class User implements Serializable {
     private String uid;
     private String email;
     private String firebaseToken;
@@ -10,16 +10,9 @@ public class User {
     private String phoneNum;
     private String gender;
     private String address;
-    private ArrayList<String> friendList;
     private String admin;
 
     public User(){}
-
-    public User(String uid, String email, String firebaseToken){
-        this.uid = uid;
-        this.email = email;
-        this.firebaseToken = firebaseToken;
-    }
 
     public User(String uid, String email, String firebaseToken,String username,
                 String phoneNum,String gender,String address,String admin){
@@ -33,7 +26,23 @@ public class User {
         this.admin = admin;
     }
 
-    public ArrayList<String> getFriendList() { return friendList; }
+    public static User createUserWithUidEmailFirebaseToken(String uid,
+                                                           String email,
+                                                           String firebaseToken){
+        return new User(uid,email,firebaseToken,null,null,null,null,null);
+    }
+
+    public static User createUserWithoutAdmin(String uid,
+                                              String email,
+                                              String firebaseToken,
+                                              String username,
+                                              String phoneNum,
+                                              String gender,
+                                              String address){
+        return new User(uid,email,firebaseToken,username,phoneNum,gender,address,null);
+    }
+
+
 
     public String getUsername(){ return username; }
 

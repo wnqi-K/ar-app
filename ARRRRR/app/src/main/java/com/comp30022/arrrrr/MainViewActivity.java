@@ -1,8 +1,6 @@
 package com.comp30022.arrrrr;
 
-import android.app.Activity;
 import android.app.FragmentManager;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,8 +12,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.comp30022.arrrrr.FriendManagement.RequestFirebaseUsers;
-import com.comp30022.arrrrr.database.DatabaseManager;
+import com.comp30022.arrrrr.database.UserManagement;
+import com.comp30022.arrrrr.database.RequestFirebaseUsers;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
 import com.comp30022.arrrrr.utils.SharedPrefUtil;
@@ -38,11 +36,12 @@ public class MainViewActivity extends AppCompatActivity implements
         SettingFragment.OnSettingFragmentInteractionListener,
         FriendsFragment.OnListFragmentInteractionListener{
 
-    private DatabaseManager mDatabaseManager;
-    private FirebaseAuth mAuth;
+    private RequestFirebaseUsers mRequestUsers;
+    private UserManagement mUserManagement;
 
-    RequestFirebaseUsers mRequestUsers;
-
+    public UserManagement getUserManagement() {
+        return mUserManagement;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,12 +55,9 @@ public class MainViewActivity extends AppCompatActivity implements
         // Set the default fragment to be map
         switchToFragmentHome();
 
-        // add user to database
-        mAuth = FirebaseAuth.getInstance();
-        addUserToDatabase(mAuth.getCurrentUser());
         // Get all users from database
-        mDatabaseManager = DatabaseManager.getInstance(getApplicationContext());
-        mRequestUsers = new RequestFirebaseUsers(mDatabaseManager);
+        mUserManagement = UserManagement.getInstance();
+        mRequestUsers = new RequestFirebaseUsers(mUserManagement);
     }
 
     @Override
@@ -149,7 +145,7 @@ public class MainViewActivity extends AppCompatActivity implements
      * Switch to addingFriendActivity.
      */
     private void addingNewFriend() {
-        Intent intent = new Intent(this, AddingFriendsActivity.class);
+        Intent intent = new Intent(getApplicationContext(), AddingFriendsActivity.class);
         startActivity(intent);
     }
 
@@ -190,32 +186,5 @@ public class MainViewActivity extends AppCompatActivity implements
         if (fragment != null) {
             fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-    }
-
-    /**
-     * add user to Firebase database
-     * */
-    private void addUserToDatabase(FirebaseUser firebaseUser){
-        String uid = firebaseUser.getUid();
-        User user = new User(uid,
-                firebaseUser.getEmail(),
-                new SharedPrefUtil(this).getString(Constants.ARG_FIREBASE_TOKEN));
-        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference();
-        mRef.child(Constants.ARG_USERS)
-                .child(uid)
-                .setValue(user)
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (!task.isSuccessful()) {
-                            Toast.makeText(getApplicationContext(),
-                                    Constants.ARG_FAILURE, Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getApplicationContext(),
-                                    Constants.ARG_SUCCESS, Toast.LENGTH_SHORT).show();
-
-                        }
-                    }
-                });
     }
 }

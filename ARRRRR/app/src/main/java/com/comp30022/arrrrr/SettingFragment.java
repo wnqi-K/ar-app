@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -67,7 +68,7 @@ public class SettingFragment extends Fragment {
         });
 
         //Go user profile
-        Button userprofileButton = (Button)view.findViewById(R.id.profileButton);
+        ImageButton userprofileButton = (ImageButton)view.findViewById(R.id.profileButton);
         userprofileButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){

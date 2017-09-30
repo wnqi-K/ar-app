@@ -1,72 +1,149 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
              xmlns:app="http://schemas.android.com/apk/res-auto"
              xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
+             android:background="@color/grey_background"
              tools:context="com.comp30022.arrrrr.SettingFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
         android:orientation="vertical">
 
-
-        <TextView
-            android:id="@+id/login_status_view"
+        <!--User Profile btn-->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="TextView"
-            android:layout_weight="0.30"/>
+            android:layout_height="150dp">
 
-        <Button
-            android:id="@+id/profileButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/textlines"
-            android:textColor="@android:color/holo_blue_light"
-            android:text="@string/view_my_profile"/>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp">
+
+                <ImageButton android:id="@+id/profileButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:background="@drawable/btn_border_whitebackground"
+                    style="@style/ClassicButton"/>
+
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="20dp"
+                    android:src="@drawable/profilephoto" />
+
+                <TextView android:id="@+id/login_status_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="View profile"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right|center_vertical"
+                    android:layout_marginRight="20dp"
+                    style="@style/setting_profilephoto_btn"
+                    android:text=">"/>
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <!--Setting-->
 
         <TextView
             android:id="@+id/detail_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/button_margin"
-            android:layout_weight="0.30"
+            style="@style/SettingText"
             android:text="TextView"/>
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
+        <!--Seperate Line-->
+        <ImageView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:src="@drawable/listline"/>
+
+        <!--Setting 1-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_height="wrap_content">
+
+          <TextView
+            android:id="@+id/textView"
+            android:layout_width="@dimen/margin_setting"
+            android:layout_height="wrap_content"
+            style="@style/SettingText"
             android:text="djwidjwidjiwjdiwjidwd"/>
 
-        <Switch
+          <Switch
             android:id="@+id/switch1"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="match_parent"
+        </LinearLayout>
+
+        <!--Seperate Line-->
+        <ImageView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:src="@drawable/listline"/>
+
+
+        <!--Setting 2-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_height="wrap_content">
+
+          <TextView
+            android:id="@+id/textView2"
+              android:layout_width="@dimen/margin_setting"
+            android:layout_height="wrap_content"
+            style="@style/SettingText"
             android:text="dsdsadfasjfiegjiejgiea"/>
 
-        <Switch
+          <Switch
             android:id="@+id/switch2"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="match_parent"
+        </LinearLayout>
+
+        <!--Seperate Line-->
+        <ImageView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:src="@drawable/listline"/>
+
+        <!--Setting 3-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_height="wrap_content">
+          <TextView
+            android:id="@+id/textView3"
+              android:layout_width="@dimen/margin_setting"
+            android:layout_height="wrap_content"
+            style="@style/SettingText"
             android:text="djisadjiajiwfjiwaji"/>
 
-        <Switch
+          <Switch
             android:id="@+id/switch4"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -80,10 +157,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/button_margin"
-                android:background="#f95757"
-                android:text="Log out"
-                android:textSize="18sp"/>
+                style="@style/ClassicButton"
+                android:background="@drawable/btn_border_whitebackground"
+                android:textColor="@color/grey_text_real"
+                android:text="Log out" />
         </LinearLayout>
+
     </LinearLayout>
 
-</FrameLayout>
+</LinearLayout>
