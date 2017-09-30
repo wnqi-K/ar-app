@@ -103,8 +103,7 @@ public class MapUIManager implements
     }
 
     /**
-     *
-     * @param marker
+     * Show selection popup for user to perform action associated with the friend's marker.
      */
     @Override
     public void onInfoWindowClick(Marker marker) {
