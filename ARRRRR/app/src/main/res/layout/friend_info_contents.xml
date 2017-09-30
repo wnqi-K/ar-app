@@ -17,11 +17,10 @@
             android:layout_height="wrap_content"
             android:paddingBottom="5dp"
             android:textAlignment="center"/>
-        <Button
-            android:id="@+id/button_enter_ar"
+        <TextView
+            android:id="@+id/text_view_click_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/color_active"
-            android:textColor="@color/color_text_dark_bg">
-        </Button>
+            android:textAlignment="center"
+            />
 </LinearLayout>

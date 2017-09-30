@@ -231,7 +231,8 @@ public class LocationSharingService extends Service implements
 
     @Override
     public void onKeyEntered(String key, GeoLocation location) {
-        //Log.v(TAG, "GeoQueryEvent: Key entered.");
+        // Only report information that has not expire
+        //Log.v(TAG, "GeoQueryEvent: Key entered." + key);
         if (key.equals(getCurrentUserUID())) {
             // No need to know self location
             return;
@@ -242,7 +243,7 @@ public class LocationSharingService extends Service implements
 
     @Override
     public void onKeyExited(String key) {
-        //Log.v(TAG, "GeoQueryEvent: Key exited.");
+        Log.v(TAG, "GeoQueryEvent: Key exited." + key);
         if (key.equals(getCurrentUserUID())) {
             // No need to know self location
             return;
@@ -255,7 +256,7 @@ public class LocationSharingService extends Service implements
 
     @Override
     public void onKeyMoved(String key, GeoLocation location) {
-        //Log.v(TAG, "GeoQueryEvent: Key moved.");
+        Log.v(TAG, "GeoQueryEvent: Key moved." + key);
         if (key.equals(getCurrentUserUID())) {
             // No need to know self location
             return;
@@ -330,7 +331,6 @@ public class LocationSharingService extends Service implements
                         GeoLocationInfo geoLocationInfo = dataSnapshot.getValue(GeoLocationInfo.class);
                         String key = dataSnapshot.getKey();
                         String type;
-                        Boolean isInfoExpired = false;
 
                         // Determine which query event was fired
                         if (mGeoInfos.containsKey(key)) {
@@ -342,8 +342,8 @@ public class LocationSharingService extends Service implements
                         if (geoLocationInfo != null && isGeoInfoExpired(geoLocationInfo)) {
                             // Throw away a expired location info
                             mGeoLocations.remove(key);
-                            isInfoExpired = true;
                         } else {
+                            Log.v(TAG, "GeoQueryEvent: new location update");
                             mQueryResultSent = false;
                             // Only send broadcast if geo info is not expired
                             mGeoInfos.put(key, geoLocationInfo);
