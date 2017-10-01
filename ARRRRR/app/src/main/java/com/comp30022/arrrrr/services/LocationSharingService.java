@@ -17,6 +17,7 @@ import android.util.Log;
 
 import com.comp30022.arrrrr.MainActivity;
 import com.comp30022.arrrrr.MainViewActivity;
+import com.comp30022.arrrrr.MapContainerFragment;
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
@@ -417,6 +418,10 @@ public class LocationSharingService extends Service implements
      * @param uid friend's uid
      */
     private void sendLocationNotification(String uid) {
+        if (MapContainerFragment.sIsMapOpen == true) {
+            return;
+        }
+
         String distance = getFriendDistanceReadable(uid);
         String time = getFriendLastLocationTime(uid);
 

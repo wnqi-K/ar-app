@@ -53,6 +53,8 @@ public class MapContainerFragment extends Fragment implements
      */
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
 
+    public static boolean sIsMapOpen;
+
     /**
      * Tracks the status of the location updates request. Value changes when the user presses the
      * Start Updates and Stop Updates buttons.
@@ -139,6 +141,7 @@ public class MapContainerFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
+        sIsMapOpen = true;
 
         ServiceManager.startLocationSharingService(getActivity());
 
@@ -159,6 +162,7 @@ public class MapContainerFragment extends Fragment implements
     @Override
     public void onPause() {
         super.onPause();
+        sIsMapOpen = false;
 
         unregisterReceivers();
         if (mMapUIManager != null) {
