@@ -141,7 +141,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * start Activity and get the POI
      */
 
-    public static void startActivity(Context context, String uid, String userName, LatLng latLng){
+    public static void startActivity(Context context, String uid, LatLng latLng){
         Intent intent = new Intent(context, ArViewActivity.class);
         //Define key here
         //TODO: intent.putExtra(SOME_KEY1, uid)
