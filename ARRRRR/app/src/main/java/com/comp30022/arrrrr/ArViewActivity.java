@@ -1,6 +1,9 @@
 package com.comp30022.arrrrr;
 
 import com.comp30022.arrrrr.ar.*;
+import com.comp30022.arrrrr.receivers.*;
+
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
@@ -16,11 +19,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.IntentFilter;
+import android.content.Intent;
+
 import java.io.IOException;
-import android.Manifest;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.support.v4.content.ContextCompat;
+
+import com.google.android.gms.maps.model.LatLng;
+
 
 /**
  * Created by Xiaoyu GUO on 19/09/17
@@ -39,7 +44,7 @@ import android.support.v4.content.ContextCompat;
  **/
 
 public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.Callback,
-        OnLocationChangedListener, OnAzimuthChangedListener,
+        SelfPositionReceiver.SelfLocationListener, OnAzimuthChangedListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final String TAG = "ArViewActivity";
@@ -78,7 +83,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * */
     private double mMyLatitude = 0;
     private double mMyLongitude = 0;
-    private MyCurrentLocation myCurrentLocation;
+    private SelfPositionReceiver myCurrentPosition;
 
     public TextView descriptionTextView;
     public ImageView pointerIcon;
@@ -110,37 +115,38 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     }
 
     @Override
-    protected void onStop() {
-        myCurrentAzimuth.stop();
-        myCurrentLocation.stop();
-        super.onStop();
-    }
-                
-    @Override
     protected void onResume() {
 
-        //check camera permission
-        if (!camPermissioncGranted()) {
-            if (camPerm.getFromPref(this, ALLOW_KEY)) {
-                showSettingsAlert();
-            } else if (!camPermissioncGranted()) {
-
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.CAMERA)) {
-                    showAlert();
-                } else {
-                    // No explanation needed, we can request the permission.
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.CAMERA},
-                            MY_PERMISSIONS_REQUEST_CAMERA);
-                }
-            }
-        }
+        //request camera permission
+        camPerm.requestPermission(ArViewActivity.this, ArViewActivity.this);
 
         super.onResume();
         myCurrentAzimuth.start();
-        myCurrentLocation.start();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceivers();
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceivers();
+    }
+
+    /***
+     * start Activity and get the POI
+     */
+
+    public static void startActivity(Context context, String uid, String userName, LatLng latLng){
+        Intent intent = new Intent(context, ArViewActivity.class);
+        //Define key here
+        //TODO: intent.putExtra(SOME_KEY1, uid)
+        //TODO: intent.putExtra(SOME_KEY2, latLng)
+        context.startActivity(intent);
     }
 
     /**
@@ -182,15 +188,29 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     /**
      * update POI here
-     * TODO: need to update the real-time location by connecting the listerner
+     * TODO: need to gain the POI when start ArViewActivity
      * */
     private void setAugmentedRealityPoint() {
         mPoi = new AugmentedPOI(
-                "Kościół Marciacki",
-                "Kościół Marciacki w Krakowie",
-                50.06169631,
-                19.93919566
+                "lweo27942jl3sdsk",      //uid
+                "Xiaoyu Guo",            //username
+                50.06169631,             //Latitude
+                19.93919566              //Longitude
         );
+    }
+
+    /**
+     * Unregister receiver.
+     * Be called in onPause(), onStop()
+     * */
+
+    public  void unregisterReceivers(){
+        try{
+            unregisterReceiver(myCurrentPosition);
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+        myCurrentAzimuth.stop();
     }
 
     /** -------------------------------- Set Up Functions ---------------------------------------*/
@@ -199,10 +219,14 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * set up listener: location and sensor
      * */
     private void setupListeners() {
-        myCurrentLocation = new MyCurrentLocation(this, this);
-        myCurrentLocation.buildGoogleApiClient(this);
-        myCurrentLocation.start();
 
+        //set up location receiver
+        IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        myCurrentPosition = new SelfPositionReceiver(ArViewActivity.this);
+        registerReceiver(myCurrentPosition, filter);
+
+        //set up sensor receiver
         myCurrentAzimuth = new MyCurrentAzimuth(this, this);
         myCurrentAzimuth.start();
     }
@@ -235,10 +259,12 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * and meanwhile updates description
      * */
     @Override
-    public void onLocationChanged(Location location) {
+    public void onSelfLocationChanged(Location location) {
+
         mMyLatitude = location.getLatitude();
         mMyLongitude = location.getLongitude();
         mAzimuthTeoretical = calculateTeoreticalAzimuth();
+
         Toast.makeText(this,"latitude: "+location.getLatitude()+
                 " longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
         updateDescription();
@@ -293,7 +319,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
 
-        if (camPermissioncGranted()) {
+        if (camPerm.camPermissioncGranted(ArViewActivity.this)) {
             mCamera = Camera.open();
             mCamera.setDisplayOrientation(90);
         }
@@ -311,68 +337,8 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     /** ----------------------- permission related functions here ------------------------------- */
 
     /**
-     * this function return a boolean value
-     * to check whether app granted camera permission or not
+     * implement ActivityCompat.OnRequestPermissionsResultCallback interface
      * */
-    public boolean camPermissioncGranted(){
-        return ContextCompat.checkSelfPermission(ArViewActivity.this, Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED;
-    }
-
-    /**
-     * */
-    private void showAlert() {
-        AlertDialog alertDialog = new AlertDialog.Builder(ArViewActivity.this).create();
-        alertDialog.setTitle("Alert");
-        alertDialog.setMessage("App needs to access the Camera.");
-
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "DONT ALLOW",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        finish();
-                    }
-                });
-
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "ALLOW",
-                new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        ActivityCompat.requestPermissions(ArViewActivity.this,
-                                new String[]{Manifest.permission.CAMERA},
-                                MY_PERMISSIONS_REQUEST_CAMERA);
-                    }
-                });
-        alertDialog.show();
-    }
-
-    private void showSettingsAlert() {
-        AlertDialog alertDialog = new AlertDialog.Builder(ArViewActivity.this).create();
-        alertDialog.setTitle("Alert");
-        alertDialog.setMessage("App needs to access the Camera.");
-
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "DONT ALLOW",
-                new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        finish();
-                    }
-                });
-
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "SETTINGS",
-                new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        camPerm.startInstalledAppDetailsActivity(ArViewActivity.this);
-                    }
-                });
-
-        alertDialog.show();
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -387,7 +353,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
                                         this, permission);
 
                         if (showRationale) {
-                            showAlert();
+                            camPerm.showSettingsAlert(ArViewActivity.this, ArViewActivity.this);
                         } else if (!showRationale) {
                             // user denied flagging NEVER ASK AGAIN
                             // you can either enable some fall back,
@@ -405,6 +371,5 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
             // permissions this app might request
         }
     }
-
 
 }
