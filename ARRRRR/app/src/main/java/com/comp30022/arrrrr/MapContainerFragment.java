@@ -53,8 +53,7 @@ public class MapContainerFragment extends Fragment implements
      */
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
 
-    // Keys for storing activity state in the Bundle.
-    private final static String KEY_SELF_LOCATION = "self_location";
+    public static boolean sIsMapOpen;
 
     /**
      * Tracks the status of the location updates request. Value changes when the user presses the
@@ -142,6 +141,7 @@ public class MapContainerFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
+        sIsMapOpen = true;
 
         ServiceManager.startLocationSharingService(getActivity());
 
@@ -162,6 +162,7 @@ public class MapContainerFragment extends Fragment implements
     @Override
     public void onPause() {
         super.onPause();
+        sIsMapOpen = false;
 
         unregisterReceivers();
         if (mMapUIManager != null) {
@@ -304,30 +305,20 @@ public class MapContainerFragment extends Fragment implements
 
     public void registerPositioningReceiver(
             @NonNull SelfPositionReceiver.SelfLocationListener listener) {
-
-        IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        SelfPositionReceiver mPositioningReceiver = new SelfPositionReceiver(listener);
-        getActivity().registerReceiver(mPositioningReceiver, filter);
-        mBroadcastReceivers.add(mPositioningReceiver);
+        SelfPositionReceiver receiver = SelfPositionReceiver.register(getActivity(), listener);
+        mBroadcastReceivers.add(receiver);
     }
 
     public void registerServerLocationsReceiver(
             @NonNull GeoQueryLocationsReceiver.GeoQueryLocationsListener listener) {
-        IntentFilter filter = new IntentFilter(GeoQueryLocationsReceiver.ACTION_GEOQUERY_LOCATIONS);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        GeoQueryLocationsReceiver mServerLocationsReceiver = new GeoQueryLocationsReceiver(listener);
-        getActivity().registerReceiver(mServerLocationsReceiver, filter);
-        mBroadcastReceivers.add(mServerLocationsReceiver);
+        GeoQueryLocationsReceiver receiver = GeoQueryLocationsReceiver.register(getActivity(), listener);
+        mBroadcastReceivers.add(receiver);
     }
 
     public void registerAddressResultReceiver(
             @NonNull AddressResultReceiver.AddressResultListener listener) {
-        IntentFilter filter = new IntentFilter(AddressResultReceiver.ACTION_ADDRESS_RESULT);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        AddressResultReceiver mAddressResultReceiver = new AddressResultReceiver(listener);
-        getActivity().registerReceiver(mAddressResultReceiver, filter);
-        mBroadcastReceivers.add(mAddressResultReceiver);
+        AddressResultReceiver receiver = AddressResultReceiver.register(getActivity(), listener);
+        mBroadcastReceivers.add(receiver);
     }
 
     /**

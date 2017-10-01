@@ -3,6 +3,7 @@ package com.comp30022.arrrrr.receivers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Address;
 import android.location.Location;
 
@@ -53,5 +54,20 @@ public class AddressResultReceiver extends BroadcastReceiver {
          * @param location original location
          */
         void onAddressFetchFailure(Location location);
+    }
+
+    /**
+     * Provides receiver registration functionality.
+     * @param context context which registration is attached
+     * @param listener {@link AddressResultListener}
+     * @return a AddressResultReceiver object which has been registered
+     */
+    public static AddressResultReceiver register(Context context,
+                                                 AddressResultListener listener) {
+        AddressResultReceiver receiver = new AddressResultReceiver(listener);
+        IntentFilter filter = new IntentFilter(ACTION_ADDRESS_RESULT);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        context.registerReceiver(receiver, filter);
+        return receiver;
     }
 }
