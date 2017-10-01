@@ -10,17 +10,13 @@ public class AugmentedPOI {
     /**
      * Unique POI ID for each user
      * */
-    private int mId;
+    private String mId;
 
     /**
      * Name for the user
      * */
     private String mName;
 
-    /**
-     * Description
-     * */
-    private String mDescription;
 
     /**
      * user's location
@@ -28,19 +24,19 @@ public class AugmentedPOI {
     private double mLatitude;
     private double mLongitude;
 
-    public AugmentedPOI(String newName, String newDescription,
+    public AugmentedPOI(String newId,String newName,
                         double newLatitude, double newLongitude) {
+        this.mId = newId;
         this.mName = newName;
-        this.mDescription = newDescription;
         this.mLatitude = newLatitude;
         this.mLongitude = newLongitude;
     }
 
-    public int getPoiId() {
+    public String getPoiId() {
         return mId;
     }
 
-    public void setPoiId(int poiId) {
+    public void setPoiId(String poiId) {
         this.mId = poiId;
     }
 
