@@ -77,7 +77,6 @@ public class LocationSharingService extends Service implements
     public static final String REQUEST_ADD_LISTENER = "REQUEST_ADD_LISTENER";
     public static final String REQUEST_REMOVE_LISTENER = "REQUEST_REMOVE_LISTENER";
     public static final String PARAM_IN_REFER_KEY = "IN_REFER_KEY";
-    public static final String REQUEST_FRIEND_LOCATION = "REQUEST_FRIEND_LOCATION";
 
     public static final String PARAM_OUT_REFER_EVENT = "OUT_REFER_TO_EVENT";
     public static final String PARAM_OUT_REFER_KEY = "OUT_REFER_TO_KEY";
@@ -347,11 +346,7 @@ public class LocationSharingService extends Service implements
                         String type;
 
                         // Determine which query event was fired
-                        if (mGeoInfos.containsKey(key)) {
-                            type = ON_KEY_MOVED;
-                        } else {
-                            type = ON_KEY_ENTERED;
-                        }
+                        type = mGeoInfos.containsKey(key) ? ON_KEY_MOVED : ON_KEY_ENTERED;
 
                         if (geoLocationInfo != null && isGeoInfoExpired(geoLocationInfo)) {
                             // Throw away a expired location info

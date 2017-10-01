@@ -53,9 +53,6 @@ public class MapContainerFragment extends Fragment implements
      */
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
 
-    // Keys for storing activity state in the Bundle.
-    private final static String KEY_SELF_LOCATION = "self_location";
-
     /**
      * Tracks the status of the location updates request. Value changes when the user presses the
      * Start Updates and Stop Updates buttons.
