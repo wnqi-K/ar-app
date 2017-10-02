@@ -5,11 +5,15 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.IBinder;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.rule.ServiceTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.comp30022.arrrrr.database.UserManagement;
+import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.services.LocationSharingService;
 import com.firebase.geofire.GeoLocation;
+import com.google.firebase.auth.FirebaseAuth;
 
 import junit.framework.Assert;
 
@@ -17,7 +21,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -27,18 +34,19 @@ import java.util.concurrent.TimeoutException;
  */
 
 @RunWith(AndroidJUnit4.class)
+@LargeTest
 public class LocationSharingTest {
     @Rule
     public final ServiceTestRule mServiceRule = new ServiceTestRule();
 
+    private String testUID = "testUID";
+
     private Context mContext;
-
     private LocationSharingService mService;
-
-    private String testUid = "4yP0T1QjH3ZIraUIHIuoQpYhOkU2";
-
     private GeoLocation geoLocation = new GeoLocation(1, 1);
     private GeoLocation newGeoLocation = new GeoLocation(2, 2);
+    private UserManagement userManagement;
+    private FirebaseAuth firebaseAuth;
 
     @Before
     public void setUp() throws TimeoutException {
@@ -53,56 +61,99 @@ public class LocationSharingTest {
             }
             mService = ((LocationSharingService.LocationSharingBinder) binder).getService();
         }
+
+        userManagement = MockUserDatabase.mockUserManagement();
+        firebaseAuth = MockUserDatabase.mockFirebaseAuth();
+
+        mService.setTestUserManagement(userManagement);
+        mService.setTestAuth(firebaseAuth);
     }
 
     @Test
     public void testRegisterLocationListenerForUser() throws InterruptedException {
         Intent intent = new Intent(mContext, LocationSharingService.class);
 
-        intent.putExtra(LocationSharingService.PARAM_IN_REFER_KEY, testUid);
+        intent.putExtra(LocationSharingService.PARAM_IN_REFER_KEY, testUID);
         intent.putExtra(LocationSharingService.PARAM_IN_REQUEST_TYPE,
                 LocationSharingService.REQUEST_ADD_LISTENER);
 
         mContext.startService(intent);
         Thread.sleep(100);
-        Assert.assertTrue(mService.isUserLocationListenerRegistered(testUid));
+        Assert.assertTrue(mService.isUserLocationListenerRegistered(testUID));
     }
 
     @Test
     public void testRemoveLocationListenerForUser() throws InterruptedException {
         Intent intent = new Intent(mContext, LocationSharingService.class);
 
-        intent.putExtra(LocationSharingService.PARAM_IN_REFER_KEY, testUid);
+        intent.putExtra(LocationSharingService.PARAM_IN_REFER_KEY, testUID);
         intent.putExtra(LocationSharingService.PARAM_IN_REQUEST_TYPE,
                 LocationSharingService.REQUEST_REMOVE_LISTENER);
 
         mContext.startService(intent);
         Thread.sleep(100);
-        Assert.assertFalse(mService.isUserLocationListenerRegistered(testUid));
+        Assert.assertFalse(mService.isUserLocationListenerRegistered(testUID));
     }
 
+    /**
+     * Check the case where we will NOT need the query result associated with the key.
+     */
     @Test
-    public void testOnKeyEntered() throws InterruptedException {
-        mService.onKeyEntered(testUid, geoLocation);
-        Assert.assertTrue(mService.containsUserLocation(testUid));
+    public void testGeoQueryKeyNotNeeded() throws InterruptedException {
+        String key = userManagement.getCurrentUser().getUid();
+        testOnKeyEntered(key);
+        testOnKeyExited(key);
+        testOnKeyMoved(key);
+
+        key = "must_be_non_friend";
+        testOnKeyEntered(key);
+        testOnKeyExited(key);
+        testOnKeyMoved(key);
     }
 
+    /**
+     * Check the case where we will need the query result associated with the key.
+     */
     @Test
-    public void testOnKeyExited() throws InterruptedException {
-        mService.onKeyExited(testUid);
-        Assert.assertFalse(mService.containsUserLocation(testUid));
-        Thread.sleep(100);
-        Assert.assertTrue(mService.mQueryResultSent);
+    public void testGeoQueryKeyNeeded() throws InterruptedException {
+        String key = userManagement.getFriendList().get(0).getUid();
+        testOnKeyEntered(key);
+        testOnKeyExited(key);
+        testOnKeyMoved(key);
     }
 
-    @Test
-    public void testOnKeyMoved() throws InterruptedException {
-        mService.onKeyMoved(testUid, newGeoLocation);
-        Assert.assertTrue(mService.containsUserLocation(testUid));
-        Assert.assertEquals(mService.getGeoLocationByUid(testUid).latitude, newGeoLocation.latitude);
+
+    public void testOnKeyEntered(String uid) throws InterruptedException {
+        mService.onKeyEntered(uid, geoLocation);
+        if (uid.equals(userManagement.getCurrentUser().getUid()) || !userManagement.isUserFriend(uid)) {
+            Assert.assertFalse(mService.containsUserLocation(uid));
+        } else {
+            Assert.assertTrue(mService.containsUserLocation(uid));
+        }
     }
 
-    @Test
+    public void testOnKeyExited(String uid) throws InterruptedException {
+        mService.onKeyExited(uid);
+        if (uid.equals(userManagement.getCurrentUser().getUid()) || !userManagement.isUserFriend(uid)) {
+            Assert.assertFalse(mService.containsUserLocation(uid));
+            Assert.assertFalse(mService.mQueryResultSent);
+        } else {
+            Assert.assertFalse(mService.containsUserLocation(uid));
+            Thread.sleep(100);
+            Assert.assertTrue(mService.mQueryResultSent);
+        }
+    }
+
+    public void testOnKeyMoved(String uid) throws InterruptedException {
+        mService.onKeyMoved(uid, newGeoLocation);
+        if (uid.equals(userManagement.getCurrentUser().getUid()) || !userManagement.isUserFriend(uid)) {
+            Assert.assertFalse(mService.containsUserLocation(uid));
+        } else {
+            Assert.assertTrue(mService.containsUserLocation(uid));
+            Assert.assertEquals(mService.getGeoLocationByUid(uid).latitude, newGeoLocation.latitude);
+        }
+    }
+
     public void testOnSelfLocationChanged() throws InterruptedException {
         Location location = new Location("test_provider");
         location.setLongitude(geoLocation.longitude);
