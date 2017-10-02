@@ -81,4 +81,17 @@ public class UserManagement {
     public void getUsersUnsuccessfully(String message){
         Log.d("Firebase", message);
     }
+
+    /**
+     * Given a user uid, determines whether this user is a friend of the device user.
+     */
+    public boolean isUserFriend(String uid) {
+        List<User> friends = getFriendList();
+        for (User user : friends) {
+            if (user.getUid().equals(uid)) {
+                return true;
+            }
+        }
+        return true;
+    }
 }

@@ -1,6 +1,7 @@
 package com.comp30022.arrrrr.services;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Binder;
@@ -30,11 +31,12 @@ import com.google.android.gms.tasks.Task;
  */
 
 public class PositioningService extends Service {
+    private static final String TAG = PositioningService.class.getSimpleName();
 
     // Keys for intent extras
     public static final String PARAM_OUT_LOCATION = "OUT_LOCATION";
-    public static final String PARAM_IN_PERM_GRANTED = "IN_PERMISSION_GRANTED";
-    private static final String TAG = PositioningService.class.getSimpleName();
+    public static final String PARAM_IN_REQUEST_START = "IN_REQUEST_START";
+    public static final String PARAM_IN_REQUEST_STOP = "IN_REQUEST_STOP";
 
     /**
      * Provides access to the Fused Location Provider API.
@@ -92,7 +94,7 @@ public class PositioningService extends Service {
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
         // Check for permission requests.
         // Only start location updates when permission has been granted.
-        if (intent != null && intent.getBooleanExtra(PARAM_IN_PERM_GRANTED, true)) {
+        if (intent != null && intent.getBooleanExtra(PARAM_IN_REQUEST_START, false)) {
 
             // Only starts location updates if it has not been started.
             if (mRequestingLocationUpdates == null || !mRequestingLocationUpdates) {
@@ -102,10 +104,13 @@ public class PositioningService extends Service {
 
                 createLocationCallback();
                 startLocationUpdates();
-                Log.v(TAG, "PositioningService has started.");
+                Log.v(TAG, "Location updates has started.");
             }
         }
-
+        if (intent != null && intent.getBooleanExtra(PARAM_IN_REQUEST_STOP, false)) {
+            stopLocationUpdates();
+            return START_NOT_STICKY;
+        }
         return START_STICKY;
     }
 
@@ -163,13 +168,10 @@ public class PositioningService extends Service {
         //noinspection MissingPermission
         mFusedLocationClient.requestLocationUpdates(mLocationRequest,
                 mLocationCallback, Looper.myLooper());
-
-        Log.v(TAG, "Location updates started");
     }
 
     /**
      * Removes location updates from the FusedLocationApi.
-     * TODO: This should be called if user don't want to use this service while in the background
      */
     private void stopLocationUpdates() {
         if (mRequestingLocationUpdates == null || !mRequestingLocationUpdates) {
@@ -177,7 +179,6 @@ public class PositioningService extends Service {
             return;
         }
 
-        // TODO: Read, understand and remove this comment
         // It is a good practice to remove location requests when the activity is in a paused or
         // stopped state. Doing so helps battery performance and is especially
         // recommended in applications that request frequent location updates.
@@ -186,7 +187,14 @@ public class PositioningService extends Service {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         mRequestingLocationUpdates = false;
+                        Log.v(TAG, "Positioning request has been stopped.");
                     }
                 });
+    }
+
+    public static void stopPositioningRequest(Context context) {
+        Intent intent = new Intent(context, PositioningService.class);
+        intent.putExtra(PositioningService.PARAM_IN_REQUEST_STOP, true);
+        context.startService(intent);
     }
 }

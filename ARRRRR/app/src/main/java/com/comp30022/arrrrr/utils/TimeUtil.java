@@ -103,4 +103,15 @@ public class TimeUtil {
             }
         }
     }
+
+    /**
+     * Given a time in long, determine whether it is close to the current time.
+     * @param time UTC time
+     */
+    public static boolean isTimeCloseToNow(long time) {
+        String timeStr = getFriendlyTime(time);
+        return timeStr.contains("Just now")
+                || timeStr.contains("seconds")
+                || timeStr.contains("minutes");
+    }
 }

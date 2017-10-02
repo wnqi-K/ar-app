@@ -3,6 +3,7 @@ package com.comp30022.arrrrr.receivers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 
 import com.comp30022.arrrrr.models.GeoLocationInfo;
@@ -57,5 +58,20 @@ public class GeoQueryLocationsReceiver extends BroadcastReceiver {
                              String key,
                              HashMap<String, LatLng> geoLocations,
                              HashMap<String, GeoLocationInfo> geoLocationInfos);
+    }
+
+    /**
+     * Provides receiver registration functionality.
+     * @param context context which registration is attached
+     * @param listener {@link GeoQueryLocationsListener}
+     * @return a GeoQueryLocationsReceiver object which has been registered
+     */
+    public static GeoQueryLocationsReceiver register(Context context,
+                                                     GeoQueryLocationsListener listener) {
+        GeoQueryLocationsReceiver receiver = new GeoQueryLocationsReceiver(listener);
+        IntentFilter filter = new IntentFilter(ACTION_GEOQUERY_LOCATIONS);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        context.registerReceiver(receiver, filter);
+        return receiver;
     }
 }
