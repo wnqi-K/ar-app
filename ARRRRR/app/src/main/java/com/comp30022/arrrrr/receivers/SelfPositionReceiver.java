@@ -42,6 +42,7 @@ public class SelfPositionReceiver extends BroadcastReceiver {
         mListener.onSelfLocationChanged(location);
     }
 
+
     /**
      * The interface that a context must implement in order to use this broadcast receiver.
      */

@@ -18,11 +18,14 @@ import com.comp30022.arrrrr.adapters.ChatRecyclerAdapter;
 import com.comp30022.arrrrr.chat.ChatContract;
 import com.comp30022.arrrrr.chat.ChatPresenter;
 import com.comp30022.arrrrr.database.DatabaseManager;
+import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.Chat;
+import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
@@ -38,13 +41,9 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     private ChatPresenter mChatPresenter;
     private DatabaseManager mDatabaseManager;
 
-    public static ChatFragment newInstance(String receiver,
-                                           String receiverUid,
-                                           String firebaseToken) {
+    public static ChatFragment newInstance(String receiverUid) {
         Bundle args = new Bundle();
-        args.putString(Constants.ARG_RECEIVER, receiver);
         args.putString(Constants.ARG_RECEIVER_UID, receiverUid);
-        args.putString(Constants.ARG_FIREBASE_TOKEN, firebaseToken);
         ChatFragment fragment = new ChatFragment();
         fragment.setArguments(args);
         return fragment;
@@ -108,11 +107,11 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     private void sendMessage() {
         // Need to check message(length..etc)!!!!
         String message = mETxtMessage.getText().toString();
-        String receiver = getArguments().getString(Constants.ARG_RECEIVER);
         String receiverUid = getArguments().getString(Constants.ARG_RECEIVER_UID);
+        String receiver = getReceiverEmail(receiverUid);
+        String receiverFirebaseToken = getReceiverFirebaseToken(receiverUid);
         String sender = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         String senderUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        String receiverFirebaseToken = getArguments().getString(Constants.ARG_FIREBASE_TOKEN);
         Chat chat = new Chat(sender,
                 receiver,
                 senderUid,
@@ -122,6 +121,50 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
         mChatPresenter.sendMessage(getContext().getApplicationContext(),
                 chat,
                 receiverFirebaseToken);
+    }
+
+    /**
+     * Using user id to find this user's Email
+     * */
+    private String getReceiverEmail(String receiverUid) {
+        User usr = getUserUsingID(receiverUid);
+        String Email = null;
+        if(usr == null){
+            Toast.makeText(getContext(), "get receiver error", Toast.LENGTH_SHORT).show();
+        }else{
+            Email = usr.getEmail();
+        }
+        return Email;
+    }
+
+    /**
+     * Using user id to find this user's FirebaseToken
+     * */
+    private String getReceiverFirebaseToken(String receiverUid) {
+        User usr = getUserUsingID(receiverUid);
+        String FirebaseToken = null;
+        if(usr == null){
+            Toast.makeText(getContext(), "get receiver error", Toast.LENGTH_SHORT).show();
+        }else{
+            FirebaseToken = usr.getFirebaseToken();
+        }
+        return FirebaseToken;
+    }
+
+    /**
+     *  find instance User using user id
+    * */
+    private User getUserUsingID(String Uid){
+        User usr = null;
+        UserManagement friendManagement = UserManagement.getInstance();
+        ArrayList<User> friendList = (ArrayList<User>) friendManagement.getFriendList();
+        for(User user:friendList){
+            if(user.getUid().equals(Uid)){
+                usr = user;
+                break;
+            }
+        }
+        return usr;
     }
 
     @Override
@@ -152,11 +195,11 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
         //Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    /*@Subscribe
+    @Subscribe
     public void onPushNotificationEvent(PushNotificationEvent pushNotificationEvent) {
         if (mChatRecyclerAdapter == null || mChatRecyclerAdapter.getItemCount() == 0) {
             mChatPresenter.getMessage(FirebaseAuth.getInstance().getCurrentUser().getUid(),
                     pushNotificationEvent.getUid());
         }
-    }*/
+    }
 }

@@ -61,10 +61,7 @@ public class FriendsFragment extends Fragment{
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                 User user = expandableList.get(expandableListTitle.get(groupPosition)).get(childPosition);
-                ChatActivity.startActivity(context,
-                        user.getEmail(),
-                        user.getUid(),
-                        user.getFirebaseToken());
+                ChatActivity.startActivity(context, user.getUid());
                 return false;
             }
         });

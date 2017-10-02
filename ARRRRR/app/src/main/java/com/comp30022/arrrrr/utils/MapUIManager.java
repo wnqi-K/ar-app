@@ -361,7 +361,7 @@ public class MapUIManager implements
      */
     private void switchToAR(String uid) {
         LatLng location = mUserGeoLocations.get(uid);
-        //ArViewActivity.startActivity(mContext, uid, location);
+        ArViewActivity.startActivity(mContext, uid, location);
     }
 
     /**
@@ -370,7 +370,7 @@ public class MapUIManager implements
      * @param uid Friend's uid
      */
     private void switchToChat(String uid) {
-        // ChatActivity.startActivity(mContext, uid);
+        ChatActivity.startActivity(mContext, uid);
     }
 
     /**
