@@ -58,10 +58,7 @@ public class EmailLoginTest {
         Mockito.when(task.isSuccessful()).thenReturn(true);
 
         // Mock an Auth object
-        FirebaseAuth auth = Mockito.mock(FirebaseAuth.class);
-        // Make sure there is a fake user returned from getCurrentUser()
-        FirebaseUser user = Mockito.mock(FirebaseUser.class);
-        Mockito.when(auth.getCurrentUser()).thenReturn(user);
+        FirebaseAuth auth = MockUserDatabase.mockFirebaseAuth();
 
         // Replace mAuth with a fake one
         emailLoginActivity.setAuth(auth);
