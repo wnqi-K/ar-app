@@ -10,19 +10,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.database.RequestFirebaseUsers;
 import com.comp30022.arrrrr.models.User;
-import com.comp30022.arrrrr.utils.Constants;
-import com.comp30022.arrrrr.utils.SharedPrefUtil;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.comp30022.arrrrr.services.PositioningService;
+
 
 /**
  * Main view of the application after user has logged in. This contains three
@@ -78,6 +71,20 @@ public class MainViewActivity extends AppCompatActivity implements
                 break;
         }
         return true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Stop positioning request to make sure service stops properly
+        PositioningService.stopPositioningRequest(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Stop positioning request to make sure service stops properly
+        PositioningService.stopPositioningRequest(this);
     }
 
     /**

@@ -3,6 +3,7 @@ package com.comp30022.arrrrr.receivers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.support.annotation.RestrictTo;
 
@@ -51,5 +52,20 @@ public class SelfPositionReceiver extends BroadcastReceiver {
          * @param location New location
          */
         void onSelfLocationChanged(Location location);
+    }
+
+    /**
+     * Provides receiver registration functionality.
+     * @param context context which registration is attached
+     * @param listener {@link SelfLocationListener}
+     * @return a SelfPositionReceiver object which has been registered
+     */
+    public static SelfPositionReceiver register(Context context,
+                                                SelfLocationListener listener) {
+        SelfPositionReceiver receiver = new SelfPositionReceiver(listener);
+        IntentFilter filter = new IntentFilter(ACTION_SELF_POSITION);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        context.registerReceiver(receiver, filter);
+        return receiver;
     }
 }

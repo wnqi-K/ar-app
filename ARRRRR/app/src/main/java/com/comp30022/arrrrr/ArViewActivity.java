@@ -145,6 +145,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * start Activity and get the POI
      */
 
+arNavigation/arGetPOI－169
     public static void startActivity(Context context, String uid, LatLng latlng){
         Intent intent = new Intent(context, ArViewActivity.class);
 

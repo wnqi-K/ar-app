@@ -21,7 +21,7 @@ public class ServiceManager {
      */
     public static void startPositioningService(Context context) {
         Intent intent = new Intent(context, PositioningService.class);
-        intent.putExtra(PositioningService.PARAM_IN_PERM_GRANTED, true);
+        intent.putExtra(PositioningService.PARAM_IN_REQUEST_START, true);
         context.startService(intent);
         Log.v(TAG, "Starting positioning service.");
     }
