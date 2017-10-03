@@ -24,6 +24,7 @@ import android.content.Intent;
 
 import java.io.IOException;
 
+import com.comp30022.arrrrr.utils.ServiceManager;
 import com.google.android.gms.maps.model.LatLng;
 
 
@@ -47,8 +48,10 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         SelfPositionReceiver.SelfLocationListener, OnAzimuthChangedListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
-    public static final String TAG = "ArViewActivity";
+    private static final String TAG = "ArViewActivity";
     public static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
+    public static final String UID_Key = "UIDARKEY";
+    public static final String LATLNG_Key = "LATLNGARKEY";
     public static final String ALLOW_KEY = "ALLOWED";
 
     /**
@@ -116,12 +119,12 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     @Override
     protected void onResume() {
-
+            
+        super.onResume();
         //request camera permission
         camPerm.requestPermission(ArViewActivity.this, ArViewActivity.this);
-
-        super.onResume();
         myCurrentAzimuth.start();
+        ServiceManager.startPositioningService(this);
     }
 
     @Override
@@ -141,11 +144,12 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * start Activity and get the POI
      */
 
-    public static void startActivity(Context context, String uid, LatLng latLng){
+    public static void startActivity(Context context, String uid, LatLng latlng){
         Intent intent = new Intent(context, ArViewActivity.class);
-        //Define key here
-        //TODO: intent.putExtra(SOME_KEY1, uid)
-        //TODO: intent.putExtra(SOME_KEY2, latLng)
+
+        intent.putExtra(UID_Key, uid);
+        intent.putExtra(LATLNG_Key, latlng);
+
         context.startActivity(intent);
     }
 
@@ -187,16 +191,30 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     }
 
     /**
-     * update POI here
-     * TODO: need to gain the POI when start ArViewActivity
+     * input POI here
      * */
     private void setAugmentedRealityPoint() {
-        mPoi = new AugmentedPOI(
+
+        Intent prevIntent= getIntent();
+        String uid = prevIntent.getStringExtra(UID_Key);
+        LatLng latlng = prevIntent.getParcelableExtra(LATLNG_Key);
+
+        if (latlng == null){
+                //send a default location
+                mPoi = new AugmentedPOI(
                 "lweo27942jl3sdsk",      //uid
                 "Xiaoyu Guo",            //username
                 50.06169631,             //Latitude
                 19.93919566              //Longitude
-        );
+                );
+            return;
+        }else{
+            double lat = latlng.latitude;
+            double lng = latlng.longitude;
+            //TODO: get userName
+            mPoi = new AugmentedPOI(uid, "Xiaoyu", lat, lng);
+            return;
+        }
     }
 
     /**
