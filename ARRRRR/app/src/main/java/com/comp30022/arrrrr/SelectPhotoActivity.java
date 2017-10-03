@@ -35,8 +35,8 @@ public class SelectPhotoActivity extends Activity {
     private Uri selectedImage;
     private ImageView viewImage;
     private Bitmap photo;
-    private Button b;
-    private Button b2;
+    private Button btn_selectPhoto;
+    private Button btn_confirmPhoto;
     private String userID;
     private ProgressDialog mProgressDialog;
 
@@ -55,8 +55,8 @@ public class SelectPhotoActivity extends Activity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_photo);
-        b=(Button)findViewById(R.id.btnSelectPhoto);
-        b2=(Button)findViewById(R.id.btnConfirmPhoto);
+        btn_selectPhoto=(Button)findViewById(R.id.btnSelectPhoto);
+        btn_confirmPhoto=(Button)findViewById(R.id.btnConfirmPhoto);
         viewImage=(ImageView)findViewById(R.id.viewImage);
         mProgressDialog = new ProgressDialog(SelectPhotoActivity.this);
 
@@ -67,14 +67,14 @@ public class SelectPhotoActivity extends Activity {
         FirebaseUser user = mAuth.getCurrentUser();
         userID = user.getUid();
 
-        b.setOnClickListener(new View.OnClickListener() {
+        btn_selectPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selectImage();
             }
         });
 
-        b2.setOnClickListener(new View.OnClickListener() {
+        btn_confirmPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 confirmImage(v);
@@ -159,7 +159,7 @@ public class SelectPhotoActivity extends Activity {
 
                         viewImage.setImageBitmap(photo);
 
-                        b2.setVisibility(View.VISIBLE);
+                        btn_confirmPhoto.setVisibility(View.VISIBLE);
                     }
 
                     File file = new File(selectedImage.getPath());
