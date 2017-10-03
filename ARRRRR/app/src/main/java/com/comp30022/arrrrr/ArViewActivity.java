@@ -24,6 +24,7 @@ import android.content.Intent;
 
 import java.io.IOException;
 
+import com.comp30022.arrrrr.utils.ServiceManager;
 import com.google.android.gms.maps.model.LatLng;
 
 
@@ -124,6 +125,8 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
         super.onResume();
         myCurrentAzimuth.start();
+
+        ServiceManager.startPositioningService(this);
     }
 
     @Override
