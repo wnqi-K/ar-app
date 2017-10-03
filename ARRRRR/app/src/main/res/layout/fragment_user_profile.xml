@@ -35,7 +35,6 @@
             android:id="@+id/user_profile_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="User"
             android:textColor="#fff"
             android:textSize="24sp"
             android:textStyle="bold"

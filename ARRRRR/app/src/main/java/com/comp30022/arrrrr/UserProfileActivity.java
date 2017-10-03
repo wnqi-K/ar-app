@@ -68,6 +68,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private void showData(DataSnapshot dataSnapshot) {
 
         TextView UserId = (TextView)findViewById(R.id.search_result_email);
+        TextView UserName = (TextView)findViewById(R.id.user_profile_name);
         TextView UserEmail = (TextView)findViewById(R.id.email);
         TextView UserPhone = (TextView)findViewById(R.id.number);
         TextView UserGender = (TextView)findViewById(R.id.gender);
@@ -78,8 +79,10 @@ public class UserProfileActivity extends AppCompatActivity {
             if (ds.child(userID).hasChild(Constants.ARG_USER_NAME)) {
                 uInfo.setUsername(ds.child(userID).getValue(User.class).getUsername()); //set the name
                 UserId.setText("Name:  "+ uInfo.getUsername());
+                UserName.setText(uInfo.getUsername());
             }else {
-                UserId.setText("Name: please complete your profile by clicking Edit");
+                UserId.setText("Name: ");
+                UserName.setText("User");
             }
 
             if (ds.child(userID).hasChild(Constants.ARG_PHONE_NUM)) {
