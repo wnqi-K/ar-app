@@ -1,11 +1,17 @@
 package com.comp30022.arrrrr;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -14,8 +20,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import com.comp30022.arrrrr.models.User;
-import com.comp30022.arrrrr.utils.Constants;
+import java.io.IOException;
 
 public class UserProfileActivity extends AppCompatActivity {
 
@@ -67,7 +72,7 @@ public class UserProfileActivity extends AppCompatActivity {
         TextView UserPhone = (TextView)findViewById(R.id.number);
         TextView UserGender = (TextView)findViewById(R.id.gender);
         TextView UserAddress = (TextView)findViewById(R.id.address);
-
+        ImageButton UserImage = (ImageButton)findViewById(R.id.user_profile_photo);
 
         for(DataSnapshot ds : dataSnapshot.getChildren()) {
             if (ds.child(userID).hasChild(Constants.ARG_USER_NAME)) {
@@ -100,7 +105,24 @@ public class UserProfileActivity extends AppCompatActivity {
             }else
                 UserAddress.setText("Address:");
 
+            if(ds.child(userID).hasChild("imageUrl")){
+
+                try{
+                    String url = ds.child(userID).child("imageUrl").getValue(String.class);
+                    Bitmap imageBitmap = decodeFromFirebaseBase64(url);
+                    UserImage.setImageBitmap(imageBitmap);
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
+            }
+
         }
+    }
+
+    //Decode image
+    public static Bitmap decodeFromFirebaseBase64(String image) throws IOException {
+        byte[] decodedByteArray = Base64.decode(image, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
     }
 
     public void EditProfile(View v){
