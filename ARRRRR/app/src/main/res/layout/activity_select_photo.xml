@@ -3,6 +3,7 @@
     android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/black_background"
     android:orientation="vertical"
     android:padding="10dp" >
 
@@ -13,23 +14,35 @@
         android:padding="5dp" >
 
         <Button
+            style="@style/LongButton"
             android:id="@+id/btnSelectPhoto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:text="Select Photo" />
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="350dp"
         android:orientation="vertical"
-        android:padding="10dp" >
+        android:padding="20dp">
 
         <ImageView
             android:id="@+id/viewImage"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="300dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <Button
+            style="@style/LongButton"
+            android:id="@+id/btnConfirmPhoto"
+            android:text="Confirm"
+            android:visibility="gone"/>
 
     </LinearLayout>
 

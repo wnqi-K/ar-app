@@ -10,6 +10,7 @@ public class User implements Serializable {
     private String phoneNum;
     private String gender;
     private String address;
+    private String imageUrl;
     private String admin;
 
     public User(){}
@@ -59,6 +60,8 @@ public class User implements Serializable {
     public String getAddress(){ return address; }
 
     public void setAddress(String address){ this.address = address; }
+
+    public String getImageUrl() { return imageUrl; }
 
     public String getUid() { return uid; }
 
