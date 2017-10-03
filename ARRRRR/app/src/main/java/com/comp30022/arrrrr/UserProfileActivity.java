@@ -31,8 +31,17 @@ public class UserProfileActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private DatabaseReference myRef;
-    private  String userID;
-    User uInfo = new User();
+    private String userID;
+    private User uInfo = new User();
+
+    //Text view and Image view
+    private TextView UserId;
+    private TextView UserName;
+    private TextView UserEmail;
+    private TextView UserPhone;
+    private TextView UserGender;
+    private TextView UserAddress;
+    private ImageButton UserImage;
 
 
     /**-------------------------------------**/
@@ -67,13 +76,13 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private void showData(DataSnapshot dataSnapshot) {
 
-        TextView UserId = (TextView)findViewById(R.id.search_result_email);
-        TextView UserName = (TextView)findViewById(R.id.user_profile_name);
-        TextView UserEmail = (TextView)findViewById(R.id.email);
-        TextView UserPhone = (TextView)findViewById(R.id.number);
-        TextView UserGender = (TextView)findViewById(R.id.gender);
-        TextView UserAddress = (TextView)findViewById(R.id.address);
-        ImageButton UserImage = (ImageButton)findViewById(R.id.user_profile_photo);
+        UserId = (TextView)findViewById(R.id.search_result_email);
+        UserName = (TextView)findViewById(R.id.user_profile_name);
+        UserEmail = (TextView)findViewById(R.id.email);
+        UserPhone = (TextView)findViewById(R.id.number);
+        UserGender = (TextView)findViewById(R.id.gender);
+        UserAddress = (TextView)findViewById(R.id.address);
+        UserImage = (ImageButton)findViewById(R.id.user_profile_photo);
 
         for(DataSnapshot ds : dataSnapshot.getChildren()) {
             if (ds.child(userID).hasChild(Constants.ARG_USER_NAME)) {
@@ -108,10 +117,10 @@ public class UserProfileActivity extends AppCompatActivity {
             }else
                 UserAddress.setText("Address:");
 
-            if(ds.child(userID).hasChild("imageUrl")){
+            if(ds.child(userID).hasChild(Constants.ARG_IMAGE)){
 
                 try{
-                    String url = ds.child(userID).child("imageUrl").getValue(String.class);
+                    String url = ds.child(userID).child(Constants.ARG_IMAGE).getValue(String.class);
                     Bitmap imageBitmap = decodeFromFirebaseBase64(url);
                     UserImage.setImageBitmap(imageBitmap);
                 }catch(IOException e){

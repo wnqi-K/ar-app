@@ -106,7 +106,7 @@ public class SelectPhotoActivity extends Activity {
                 {
 
                      Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                     startActivityForResult(intent, 1);
+                     startActivityForResult(intent, PICK_FROM_CAMERA);
 
                 }
 
@@ -114,7 +114,7 @@ public class SelectPhotoActivity extends Activity {
                 {
                     Intent intent = new   Intent(Intent.ACTION_PICK,
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(intent, 2);
+                    startActivityForResult(intent, PICK_FROM_FILE);
 
                 }
                 else if (options[item].equals("Cancel")) {
@@ -135,20 +135,16 @@ public class SelectPhotoActivity extends Activity {
         switch (requestCode){
 
               //Take picture use camera
-              case PICK_FROM_CAMERA:
-
-                  selectedImage = data.getData();
-                  doCrop();
-
-                break;
+                case PICK_FROM_CAMERA:
+                    selectedImage = data.getData();
+                    doCrop();
+                    break;
 
               //Choose picture from gallery
                 case PICK_FROM_FILE:
-
-                selectedImage = data.getData();
-                doCrop();
-
-                break;
+                    selectedImage = data.getData();
+                    doCrop();
+                    break;
 
                 case CROP_FROM_CAMERA:
 

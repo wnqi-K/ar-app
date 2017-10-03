@@ -64,4 +64,9 @@
     <string name="Phonenum">Phone Number</string>
     <string name="Address">Address</string>
 
+    <!--Camera!-->
+    <string name="Camera_photo">Take Photo</string>
+    <string name="Gallery_photo">Choose from Gallery</string>
+
+
 </resources>

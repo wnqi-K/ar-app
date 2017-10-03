@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -39,6 +40,9 @@ public class SettingFragment extends Fragment {
     private DatabaseReference myRef;
     private  String userID;
     User uInfo = new User();
+
+    private ImageButton userprofileButton;
+    private ImageView mPhoto;
 
     public SettingFragment() {
         // Required empty public constructor
@@ -70,8 +74,6 @@ public class SettingFragment extends Fragment {
 
         TextView mStatusView = (TextView) view.findViewById(R.id.login_status_view);
         TextView mDetailView = (TextView) view.findViewById(R.id.detail_view);
-        final ImageView mPhoto = (ImageView)view.findViewById(R.id.profilePhoto);
-
 
         mStatusView.setText("Email User: " + currentUser.getEmail());
         mDetailView.setText("Firebase Uid: " + currentUser.getUid());
@@ -91,7 +93,7 @@ public class SettingFragment extends Fragment {
         });
 
         //Go user profile
-        ImageButton userprofileButton = (ImageButton)view.findViewById(R.id.profileButton);
+        userprofileButton = (ImageButton)view.findViewById(R.id.profileButton);
         userprofileButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -101,6 +103,7 @@ public class SettingFragment extends Fragment {
         });
 
         //Set profile head portrait photo
+        mPhoto = (ImageView)view.findViewById(R.id.profilePhoto);
         myRef.addValueEventListener(new ValueEventListener() {
 
             @Override
@@ -108,10 +111,10 @@ public class SettingFragment extends Fragment {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
                 for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                    if(ds.child(userID).hasChild("imageUrl")){
+                    if(ds.child(userID).hasChild(Constants.ARG_IMAGE)){
 
                         try{
-                            String url = ds.child(userID).child("imageUrl").getValue(String.class);
+                            String url = ds.child(userID).child(Constants.ARG_IMAGE).getValue(String.class);
                             Bitmap imageBitmap = decodeFromFirebaseBase64(url);
                             mPhoto.setImageBitmap(imageBitmap);
                         }catch(IOException e){
