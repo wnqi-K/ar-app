@@ -50,8 +50,8 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     public static final String TAG = "ArViewActivity";
     public static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
-    public static final String UID_Key = "";
-    public static final String LATLNG_Key = "";
+    public static final String UID_Key = "UIDARKEY";
+    public static final String LATLNG_Key = "LATLNGARKEY";
     public static final String ALLOW_KEY = "ALLOWED";
 
     /**
@@ -145,7 +145,6 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * start Activity and get the POI
      */
 
-arNavigation/arGetPOI－169
     public static void startActivity(Context context, String uid, LatLng latlng){
         Intent intent = new Intent(context, ArViewActivity.class);
 
