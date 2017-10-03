@@ -48,7 +48,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         SelfPositionReceiver.SelfLocationListener, OnAzimuthChangedListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
-    public static final String TAG = "ArViewActivity";
+    private static final String TAG = "ArViewActivity";
     public static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
     public static final String UID_Key = "UIDARKEY";
     public static final String LATLNG_Key = "LATLNGARKEY";
@@ -119,11 +119,10 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     @Override
     protected void onResume() {
-
+            
+        super.onResume();
         //request camera permission
         camPerm.requestPermission(ArViewActivity.this, ArViewActivity.this);
-
-        super.onResume();
         myCurrentAzimuth.start();
         ServiceManager.startPositioningService(this);
     }
