@@ -39,7 +39,7 @@ public class SettingFragment extends Fragment {
     private FirebaseUser currentUser;
     private DatabaseReference myRef;
     private  String userID;
-    User uInfo = new User();
+    //private User uInfo = new User();
 
     private ImageButton userprofileButton;
     private ImageView mPhoto;
