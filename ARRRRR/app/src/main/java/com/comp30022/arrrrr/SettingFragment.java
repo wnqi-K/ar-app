@@ -1,27 +1,44 @@
 package com.comp30022.arrrrr;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.comp30022.arrrrr.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.io.IOException;
+
+import static com.comp30022.arrrrr.UserProfileActivity.decodeFromFirebaseBase64;
 
 public class SettingFragment extends Fragment {
 
     private OnSettingFragmentInteractionListener mListener;
 
+    //add Firebase Database stuff
+    private FirebaseDatabase mFirebaseDatabase;
     private FirebaseAuth mAuth;
-    FirebaseUser currentUser;
+    private FirebaseUser currentUser;
+    private DatabaseReference myRef;
+    private  String userID;
+    User uInfo = new User();
 
     public SettingFragment() {
         // Required empty public constructor
@@ -37,8 +54,13 @@ public class SettingFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
+        //declare the database reference object.
         mAuth = FirebaseAuth.getInstance();
+
         currentUser = mAuth.getCurrentUser();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        myRef = mFirebaseDatabase.getReference();
+        userID = currentUser.getUid();
     }
 
     @Override
@@ -48,6 +70,7 @@ public class SettingFragment extends Fragment {
 
         TextView mStatusView = (TextView) view.findViewById(R.id.login_status_view);
         TextView mDetailView = (TextView) view.findViewById(R.id.detail_view);
+        final ImageView mPhoto = (ImageView)view.findViewById(R.id.profilePhoto);
 
 
         mStatusView.setText("Email User: " + currentUser.getEmail());
@@ -76,6 +99,34 @@ public class SettingFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
+        //Set profile head portrait photo
+        myRef.addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                    if(ds.child(userID).hasChild("imageUrl")){
+
+                        try{
+                            String url = ds.child(userID).child("imageUrl").getValue(String.class);
+                            Bitmap imageBitmap = decodeFromFirebaseBase64(url);
+                            mPhoto.setImageBitmap(imageBitmap);
+                        }catch(IOException e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         return view;
     }
 
