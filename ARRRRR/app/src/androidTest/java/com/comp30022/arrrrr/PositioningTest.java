@@ -64,7 +64,7 @@ public class PositioningTest {
     @Test
     public void testStartService() throws InterruptedException {
         Intent intent = new Intent(mContext, PositioningService.class);
-        intent.putExtra(PositioningService.PARAM_IN_PERM_GRANTED, true);
+        intent.putExtra(PositioningService.PARAM_IN_REQUEST_START, true);
         mContext.startService(intent);
 
         Thread.sleep(100);

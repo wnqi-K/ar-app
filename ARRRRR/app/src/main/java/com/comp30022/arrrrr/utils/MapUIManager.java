@@ -22,6 +22,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.comp30022.arrrrr.ArViewActivity;
+import com.comp30022.arrrrr.ChatActivity;
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.animations.LatLngInterpolator;
 import com.comp30022.arrrrr.animations.MarkerAnimation;
@@ -273,15 +275,13 @@ public class MapUIManager implements
             mSelfMarker.setPosition(currLatLng);
         }
 
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(currLatLng, DEFAULT_CAMERA_ZOOM_LEVEL);
-        mGoogleMap.animateCamera(cameraUpdate);
+        animateCameraToPosition(currLatLng);
     }
 
     @Override
     public boolean onMyLocationButtonClick() {
         if (isMyPosInitialized()) {
-            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(mSelfMarker.getPosition()));
-            mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
+            animateCameraToPosition(mSelfMarker.getPosition());
         }
         return true;
     }
@@ -298,6 +298,15 @@ public class MapUIManager implements
                 mGoogleMap.setMyLocationEnabled(false);
             }
         }
+    }
+
+    /**
+     * Animate camera to specified position and adjust the zoom level
+     */
+    private void animateCameraToPosition(LatLng position) {
+        CameraUpdate cameraUpdate =
+                CameraUpdateFactory.newLatLngZoom(position, DEFAULT_CAMERA_ZOOM_LEVEL);
+        mGoogleMap.animateCamera(cameraUpdate);
     }
 
     /**
@@ -414,8 +423,7 @@ public class MapUIManager implements
         double longitude = sharedPref.getFloat(mFragment.getString(R.string.saved_camera_long), (float) DEFAULT_INT_LONG);
         LatLng currLatLng = new LatLng(latitude, longitude);
 
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(currLatLng, DEFAULT_CAMERA_ZOOM_LEVEL);
-        mGoogleMap.animateCamera(cameraUpdate);
+        animateCameraToPosition(currLatLng);
 
         if (latitude != DEFAULT_INI_LAT) {
             Log.v(TAG, "Last map view has been restored.");
