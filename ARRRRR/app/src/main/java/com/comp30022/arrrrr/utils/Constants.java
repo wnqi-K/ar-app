@@ -13,6 +13,7 @@ public class Constants {
     public static final String ARG_GENDER = "gender";
     public static final String ARG_ADDRESS = "address";
     public static final String ARG_EMAIL= "email";
+    public static final String ARG_IMAGE="imageUrl";
     public static final String ARG_SUCCESS = "success";
     public static final String ARG_FAILURE = "failure";
 

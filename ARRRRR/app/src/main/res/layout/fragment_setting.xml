@@ -27,7 +27,7 @@
                     android:background="@drawable/btn_border_whitebackground"
                     style="@style/ClassicButton"/>
 
-                <ImageView
+                <ImageView android:id = "@+id/profilePhoto"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:layout_marginLeft="20dp"
