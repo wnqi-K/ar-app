@@ -263,6 +263,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, null);
 
         try{
+            /*
             // looping through all rows and adding to list
             if(cursor.moveToFirst()){
                 do{
@@ -278,7 +279,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             phoneNum,gender,address,admin));
                 }while(cursor.moveToNext());
 
-            }
+            }*/
         }
         catch (SQLiteException e){
             Log.d("SQL ERROR",e.getMessage());

@@ -11,11 +11,12 @@ public class User implements Serializable {
     private String gender;
     private String address;
     private String admin;
+    private String imageUrl;
 
     public User(){}
 
     public User(String uid, String email, String firebaseToken,String username,
-                String phoneNum,String gender,String address,String admin){
+                String phoneNum,String gender,String address,String admin, String imageUrl){
         this.uid = uid;
         this.email = email;
         this.firebaseToken = firebaseToken;
@@ -28,8 +29,9 @@ public class User implements Serializable {
 
     public static User createUserWithUidEmailFirebaseToken(String uid,
                                                            String email,
-                                                           String firebaseToken){
-        return new User(uid,email,firebaseToken,null,null,null,null,null);
+                                                           String firebaseToken,
+                                                           String imageUrl){
+        return new User(uid,email,firebaseToken,null,null,null,null,null, imageUrl);
     }
 
     public static User createUserWithoutAdmin(String uid,
@@ -38,8 +40,9 @@ public class User implements Serializable {
                                               String username,
                                               String phoneNum,
                                               String gender,
-                                              String address){
-        return new User(uid,email,firebaseToken,username,phoneNum,gender,address,null);
+                                              String address,
+                                              String imageUrl){
+        return new User(uid,email,firebaseToken,username,phoneNum,gender,address,null, imageUrl);
     }
 
 
@@ -67,4 +70,12 @@ public class User implements Serializable {
     public String getFirebaseToken() { return firebaseToken; }
 
     public String getAdmin() { return admin; }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }
