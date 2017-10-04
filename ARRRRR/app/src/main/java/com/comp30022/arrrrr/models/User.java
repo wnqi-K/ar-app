@@ -25,6 +25,7 @@ public class User implements Serializable {
         this.gender = gender;
         this.address = address;
         this.admin = admin;
+        this.imageUrl = imageUrl;
     }
 
     public static User createUserWithUidEmailFirebaseToken(String uid,
