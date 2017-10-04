@@ -43,8 +43,8 @@ public class ChatInteractor implements ChatContract.Interactor {
     }
 
     /**
-     * create chat rooms if it does not exist otherwise add message(chat class) to the chat room using
-     * time stamp
+     * create chat rooms if it does not exist otherwise add message(chat class) to the chat room
+     * using time stamp
      * */
     @Override
     public void sendMessageToFirebaseUser(final Context context, final Chat chat, final String receiverFirebaseToken) {
