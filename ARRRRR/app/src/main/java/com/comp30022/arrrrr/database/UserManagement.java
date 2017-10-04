@@ -119,6 +119,11 @@ public class UserManagement {
             }
         }
 
+        // Also checks the uid is the current user
+        if (getCurrentUser().getUid().equals(uid)) {
+            imageUrl64 = getCurrentUser().getImageUrl();
+        }
+
         if (imageUrl64 == null) {
             // User does not have profile image, so return default profile image
             return BitmapFactory.decodeResource(context.getResources(),
@@ -133,7 +138,10 @@ public class UserManagement {
         // Load profile image now
         try {
             byte[] decodedByteArray = Base64.decode(imageUrl64, Base64.DEFAULT);
-            return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
+            Bitmap img = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
+            // Save image
+            mProfileImages.put(uid, img);
+            return img;
         } catch (Exception e) {
             // Return null if decoding fails.
             return null;
