@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,8 +27,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
-
-import static com.comp30022.arrrrr.UserProfileActivity.decodeFromFirebaseBase64;
 
 public class SettingFragment extends Fragment {
 
@@ -114,10 +113,11 @@ public class SettingFragment extends Fragment {
                     if(ds.child(userID).hasChild(Constants.ARG_IMAGE)){
 
                         try{
-                            String url = ds.child(userID).child(Constants.ARG_IMAGE).getValue(String.class);
-                            Bitmap imageBitmap = decodeFromFirebaseBase64(url);
+                            // Use UserManagement to get profile image
+                            //String url = ds.child(userID).child(Constants.ARG_IMAGE).getValue(String.class);
+                            Bitmap imageBitmap = UserManagement.getInstance().getUserProfileImage(userID, getActivity());
                             mPhoto.setImageBitmap(imageBitmap);
-                        }catch(IOException e){
+                        }catch(Exception e){
                             e.printStackTrace();
                         }
                     }

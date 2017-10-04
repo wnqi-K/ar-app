@@ -155,6 +155,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener{
      * */
     private void addUserToDatabase(Activity activity,FirebaseUser firebaseUser,String gender){
         String uid = firebaseUser.getUid();
+        /*
         User user = User.createUserWithoutAdmin(uid,
                 firebaseUser.getEmail(),
                 new SharedPrefUtil(activity).getString(Constants.ARG_FIREBASE_TOKEN),
@@ -180,6 +181,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener{
                         }
                     }
                 });
+        */
     }
 
 }

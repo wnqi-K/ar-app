@@ -549,6 +549,32 @@ public class LocationSharingService extends Service implements
     }
 
     /**
+     * Send intent to LocationSharingService to request for listening for a user's location updates.
+     * Provides helpful functionality for external use.
+     * @param context context t call service
+     * @param uid user's uid to listenm
+     */
+    public static void requestAddUserLocationListener(Context context, String uid) {
+        Intent intent = new Intent(context, LocationSharingService.class);
+        intent.putExtra(LocationSharingService.PARAM_IN_REQUEST_TYPE, LocationSharingService.REQUEST_ADD_LISTENER);
+        intent.putExtra(LocationSharingService.PARAM_IN_REFER_KEY, uid);
+        context.startService(intent);
+    }
+
+    /**
+     * Send intent to LocationSharingService to request for STOP listening for a user's location updates.
+     * Provides helpful functionality for external use.
+     * @param context context t call service
+     * @param uid user's uid to listenm
+     */
+    public static void requestRemoveUserLocationListener(Context context, String uid) {
+        Intent intent = new Intent(context, LocationSharingService.class);
+        intent.putExtra(LocationSharingService.PARAM_IN_REQUEST_TYPE, LocationSharingService.REQUEST_REMOVE_LISTENER);
+        intent.putExtra(LocationSharingService.PARAM_IN_REFER_KEY, uid);
+        context.startService(intent);
+    }
+
+    /**
      * Register location update listener for a given user.
      * @param uid user id
      */
