@@ -23,6 +23,12 @@ import java.util.Collection;
 import static org.junit.Assert.*;
 
 /**
+ * Test for {@link EmailLoginActivity}
+ *
+ * Tests included:
+ * - Handling successful email login
+ * - Handling fail email login
+ *
  * Testing for email login which shows an example of
  * how to mock Firebase components and simulate expected behaviours.
  * This class uses Mockito and Espresso!

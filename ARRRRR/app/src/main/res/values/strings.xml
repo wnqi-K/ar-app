@@ -67,6 +67,10 @@
     <!--Camera!-->
     <string name="Camera_photo">Take Photo</string>
     <string name="Gallery_photo">Choose from Gallery</string>
+    <string name="text_share_my_location">Share my location</string>
+    <string name="text_enable_nearby_friends_notification">Enable nearby friends notification</string>
+    <string name="text_clear_my_location_records">Clear my location records</string>
+    <string name="text_removing_location_records">Removing your location records...</string>
 
 
 </resources>

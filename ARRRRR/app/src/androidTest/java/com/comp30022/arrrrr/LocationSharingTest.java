@@ -28,7 +28,12 @@ import java.lang.annotation.Target;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Test for location sharing service
+ * Test suite for {@link LocationSharingService}
+ *
+ * Tests included:
+ * - GeoQuery event handling (enter, move, exit)
+ * - Event handling for register/unregister listener for single user's location update
+ * - Event handling for self location updates
  *
  * @author Dafu Ai
  */
