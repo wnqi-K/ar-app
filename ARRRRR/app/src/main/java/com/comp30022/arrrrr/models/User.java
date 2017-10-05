@@ -2,6 +2,11 @@ package com.comp30022.arrrrr.models;
 
 import java.io.Serializable;
 
+/*
+* This is a model of user class ,which contains all the information
+* of a user, along with getters and setters for part of attributes in
+* this calss
+* */
 public class User implements Serializable {
     private String uid;
     private String email;
