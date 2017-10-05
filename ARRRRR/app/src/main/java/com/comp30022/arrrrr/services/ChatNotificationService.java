@@ -39,7 +39,7 @@ public class ChatNotificationService extends FirebaseMessagingService {
             String fcmToken = remoteMessage.getData().get("fcm_token");
 
             // Don't show notification if chat activity is open.
-            if (!MainActivity.isActivityOpen()) {
+            if (!ChatActivity.isActivityOpen()) {
                 sendNotification(title,
                         message,
                         username,

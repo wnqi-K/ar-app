@@ -21,6 +21,7 @@ import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
@@ -45,11 +46,17 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     private String sender;
     private String senderUid;
 
+    private static boolean isActivityOpen = false;
+
     public static void startActivity(Context context,
                                      String receiverUid) {
         Intent intent = new Intent(context, ChatActivity.class);
         intent.putExtra(Constants.ARG_RECEIVER_UID, receiverUid);
         context.startActivity(intent);
+    }
+
+    public static boolean isActivityOpen() {
+        return isActivityOpen;
     }
 
     @Override
@@ -99,26 +106,13 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     @Override
     protected void onResume() {
         super.onResume();
-        MainActivity.setChatActivityOpen(true);
+        this.isActivityOpen = true;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        MainActivity.setChatActivityOpen(false);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        EventBus.getDefault().unregister(this);
+        this.isActivityOpen = false;
     }
 
     @Override
