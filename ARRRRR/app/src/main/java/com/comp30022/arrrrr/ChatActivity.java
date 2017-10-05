@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.comp30022.arrrrr.adapters.ChatRecyclerAdapter;
+import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.models.Chat;
 import com.comp30022.arrrrr.utils.ChatInterface;
 import com.comp30022.arrrrr.utils.Constants;
@@ -64,7 +65,7 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
         super.onCreate(savedInstanceState);
 
         // set all the views
-        String username = FindUserInfoHelper.getUserName(getIntent().
+        String username = DatabaseManager.getUserName(getIntent().
                 getExtras().
                 getString(Constants.ARG_RECEIVER_UID),this);
         setTitle(username);
@@ -83,8 +84,8 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
      * */
     private void init(){
         receiverUid = getIntent().getExtras().getString(Constants.ARG_RECEIVER_UID);
-        receiver = FindUserInfoHelper.getReceiverEmail(receiverUid,this);
-        receiverFirebaseToken = FindUserInfoHelper.
+        receiver = DatabaseManager.getReceiverEmail(receiverUid,this);
+        receiverFirebaseToken = DatabaseManager.
                 getReceiverFirebaseToken(receiverUid,this);
         sender = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         senderUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
