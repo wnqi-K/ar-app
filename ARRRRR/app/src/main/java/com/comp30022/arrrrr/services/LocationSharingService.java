@@ -718,8 +718,22 @@ public class LocationSharingService extends Service implements
      * Clear user's location records on the server.
      */
     private void clearLocationRecords() {
+        // First remove geo location
         mRootRef.child(getUserRefPath(RefType.GEO_LOCATION, getCurrentUserUID()))
-                .removeValue(onRecordsRemovalCompleteListener);
+                .removeValue(new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError,
+                                           DatabaseReference databaseReference) {
+                        if (databaseError != null) {
+                            Log.v(TAG, "Error clearing user's location records: " + databaseError.getMessage());
+                            sendSimpleRequestResult(REQUEST_CLEAR_LOCATION_RECORDS, false);
+                        } else {
+                            // Then remove extra info for geo location
+                            mRootRef.child(getUserRefPath(RefType.GEO_INFO, getCurrentUserUID()))
+                                    .removeValue(onRecordsRemovalCompleteListener);
+                        }
+                    }
+                });
     }
 
     /**
