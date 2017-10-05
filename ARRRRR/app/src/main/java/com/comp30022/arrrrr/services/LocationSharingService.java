@@ -181,6 +181,9 @@ public class LocationSharingService extends Service implements
     public Boolean mFirebaseQueryExecuted = false;
 
     @RestrictTo(RestrictTo.Scope.TESTS)
+    public Boolean mNearbyNotificationSent = false;
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
     public Boolean mQueryResultSent = false;
 
     @RestrictTo(RestrictTo.Scope.TESTS)
@@ -240,6 +243,11 @@ public class LocationSharingService extends Service implements
     @RestrictTo(RestrictTo.Scope.TESTS)
     public void setTestAuth(FirebaseAuth testAuth) {
         this.mTestAuth = testAuth;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public ValueEventListener getGeoInfoSingleValueListener() {
+        return mGeoInfoSingleValueListener;
     }
 
     @Override
@@ -345,15 +353,8 @@ public class LocationSharingService extends Service implements
 
         mSelfLocation = location;
 
-        SharedPreferences preferences;
         // Check settings first!
-        if (mTestPref != null) {
-            // Allow test preference injection
-            preferences = mTestPref;
-        } else {
-            preferences = PreferencesAccess.getSettingsPreferences(this);
-        }
-
+        SharedPreferences preferences = getSettingsPreferences();
         boolean enabled = preferences.getBoolean(getString(R.string.PREF_KEY_ENABLE_LOCATION_SHARING), true);
 
         if (enabled) {
@@ -388,41 +389,75 @@ public class LocationSharingService extends Service implements
      * @param key
      */
     public void updateGeoLocationInfo(String key) {
-        mRootRef.child(getUserRefPath(RefType.GEO_INFO, key)).addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        GeoLocationInfo geoLocationInfo = dataSnapshot.getValue(GeoLocationInfo.class);
-                        String key = dataSnapshot.getKey();
-                        String type;
+        mRootRef.child(getUserRefPath(RefType.GEO_INFO, key))
+                .addListenerForSingleValueEvent(mGeoInfoSingleValueListener);
+    }
 
-                        // Determine which query event was fired
-                        type = mGeoInfos.containsKey(key) ? ON_KEY_MOVED : ON_KEY_ENTERED;
+    /**
+     * SingleValueListener to retrieve geo location info after geo location data has been retrieved.
+     */
+    private ValueEventListener mGeoInfoSingleValueListener =
+            new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    GeoLocationInfo geoLocationInfo = dataSnapshot.getValue(GeoLocationInfo.class);
+                    String key = dataSnapshot.getKey();
+                    String type;
 
-                        if (geoLocationInfo != null && isGeoInfoExpired(geoLocationInfo)) {
-                            // Throw away a expired location info
-                            mGeoLocations.remove(key);
-                        } else {
-                            Log.v(TAG, "GeoQueryEvent: new location update");
-                            mQueryResultSent = false;
-                            // Only send broadcast if geo info is not expired
-                            mGeoInfos.put(key, geoLocationInfo);
-                            broadcastGeoLocationsUpdate(type, key);
-                            if (type.equals(ON_KEY_ENTERED)
-                                    || TimeUtil.isTimeCloseToNow(geoLocationInfo.time) ) {
-                                // Only send location notification if the time is close to now.
+                    // Determine which query event was fired
+                    type = mGeoInfos.containsKey(key) ? ON_KEY_MOVED : ON_KEY_ENTERED;
+
+                    if (geoLocationInfo != null && isGeoInfoExpired(geoLocationInfo)) {
+                        // Throw away a expired location info
+                        mGeoLocations.remove(key);
+                    } else {
+                        Log.v(TAG, "GeoQueryEvent: new location update");
+                        mQueryResultSent = false;
+                        // Only send broadcast if geo info is not expired
+                        mGeoInfos.put(key, geoLocationInfo);
+                        broadcastGeoLocationsUpdate(type, key);
+
+                        // Only send location notification if the time is close to now.
+                        if (type.equals(ON_KEY_ENTERED)
+                                || TimeUtil.isTimeCloseToNow(geoLocationInfo.time) ) {
+                            // Only send notification if it is enabled
+                            if (isNotificationEnabled()) {
                                 sendLocationNotification(key);
+                                mNearbyNotificationSent = true;
                             }
                         }
                     }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.v(TAG, "Error retriving extra information for a geo location record. "
-                                + databaseError.getMessage());
-                    }
                 }
-        );
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.v(TAG, "Error retriving extra information for a geo location record. "
+                            + databaseError.getMessage());
+                }
+            };
+
+    /**
+     * Retrieve {@link SharedPreferences} for settings.
+     * Allow test preference injection.
+     */
+    private SharedPreferences getSettingsPreferences() {
+        if (mTestPref != null) {
+            // Allow test preference injection
+            return mTestPref;
+        } else {
+            return PreferencesAccess.getSettingsPreferences(this);
+        }
+    }
+
+    /**
+     * Check whether the user has enabled nearby friends notification
+     */
+    private boolean isNotificationEnabled() {
+        SharedPreferences preferences = getSettingsPreferences();
+        boolean enabled = preferences.getBoolean(
+                getString(R.string.PREF_KEY_ENABLE_NEARBY_NOTIFICATION),
+                false);
+        return enabled;
     }
 
     /**
