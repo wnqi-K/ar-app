@@ -8,71 +8,77 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:593029842289:android:5920de3503a2d18c",
-        "android_client_info": {
-          "package_name": "com.google.firebase.quickstart.fcm"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "593029842289-5jcjnklqvcfe7v2migms8ljblj14r3ne.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyA2JN4W_dV9rGVS_K4sAyR8XBnwJ2qtKSw"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:593029842289:android:fcfef757a832647b",
-        "android_client_info": {
-          "package_name": "com.google.firebase.quickstart.database"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "593029842289-5jcjnklqvcfe7v2migms8ljblj14r3ne.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyA2JN4W_dV9rGVS_K4sAyR8XBnwJ2qtKSw"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:593029842289:android:20f52a37b0b32a51",
         "android_client_info": {
           "package_name": "com.comp30022.arrrrr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "593029842289-ai0rh2kv9lvrqcmtafn3geur20nt4107.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.comp30022.arrrrr",
+            "certificate_hash": "ca5db41e4bcdfad9263e5622cb296cfb78b06b24"
+          }
+        },
+        {
+          "client_id": "593029842289-sdpidm00kq734a79nipcmk4t74ovgo87.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.comp30022.arrrrr",
+            "certificate_hash": "c4c41dd62fb185849fc045ec004904560bf374d2"
+          }
+        },
+        {
+          "client_id": "593029842289-lpnfp6tr630gvm6chegid626atp6djm0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.comp30022.arrrrr",
+            "certificate_hash": "d12af389820e043e000cf80498c43f0a83e96499"
+          }
+        },
+        {
+          "client_id": "593029842289-kfrtepoj18eeqlfvvnk7umilubhg6abt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.comp30022.arrrrr",
+            "certificate_hash": "fa3a3d689391de773db473c3d03287a46b18a52d"
+          }
+        },
+        {
+          "client_id": "593029842289-5jcjnklqvcfe7v2migms8ljblj14r3ne.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2JN4W_dV9rGVS_K4sAyR8XBnwJ2qtKSw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "593029842289-5jcjnklqvcfe7v2migms8ljblj14r3ne.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:593029842289:android:7dfd1814b59f7cea",
+        "android_client_info": {
+          "package_name": "com.franmontiel.fcmnotificationhandler.sample"
         }
       },
       "oauth_client": [
