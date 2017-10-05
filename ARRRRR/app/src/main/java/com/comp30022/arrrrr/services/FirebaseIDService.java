@@ -1,5 +1,6 @@
 package com.comp30022.arrrrr.services;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.comp30022.arrrrr.utils.Constants;
@@ -23,7 +24,7 @@ public class FirebaseIDService extends FirebaseInstanceIdService {
         Log.d(TAG, "Refreshed token: " + refreshedToken);
 
         // TODO: Implement this method to send any registration to your app's servers.
-        sendRegistrationToServer(refreshedToken);
+        sendRegistrationToServer(refreshedToken,getApplicationContext());
     }
 
     /**
@@ -34,9 +35,10 @@ public class FirebaseIDService extends FirebaseInstanceIdService {
      *
      * @param token The new token.
      */
-    private void sendRegistrationToServer(String token) {
+    public void sendRegistrationToServer(String token,Context context) {
 
-        new SharedPrefUtil(getApplicationContext()).saveString(Constants.ARG_FIREBASE_TOKEN, token);
+        SharedPrefUtil.getInstance(context).
+                saveString(Constants.ARG_FIREBASE_TOKEN, token);
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             FirebaseDatabase.getInstance()

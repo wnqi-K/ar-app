@@ -99,7 +99,7 @@ public class ChatRoomManager {
             sendPushNotificationToReceiver(mChat.sender,
                     mChat.message,
                     mChat.senderUid,
-                    new SharedPrefUtil(mContext).getString(Constants.ARG_FIREBASE_TOKEN),
+                    SharedPrefUtil.getInstance(mContext).getString(Constants.ARG_FIREBASE_TOKEN),
                     mReceiverFirebaseToken);
             mListener.onSendMessageSuccess();
         }

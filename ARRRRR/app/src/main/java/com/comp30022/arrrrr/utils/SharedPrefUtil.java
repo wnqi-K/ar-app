@@ -9,13 +9,21 @@ public class SharedPrefUtil {
      * Name of the preference file
      */
     private static final String APP_PREFS = "application_preferences";
+    private static SharedPrefUtil mInstance;
 
     private Context mContext;
     private SharedPreferences mSharedPreferences;
     private SharedPreferences.Editor mEditor;
 
-    public SharedPrefUtil(Context mContext) {
+    private SharedPrefUtil(Context mContext) {
         this.mContext = mContext;
+    }
+
+    public static synchronized SharedPrefUtil getInstance(Context context){
+        if(mInstance == null){
+            mInstance = new SharedPrefUtil(context);
+        }
+        return mInstance;
     }
 
     /**

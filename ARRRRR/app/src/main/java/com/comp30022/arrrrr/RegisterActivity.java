@@ -145,7 +145,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         String uid = firebaseUser.getUid();
         User user = User.createUserWithoutAdmin(uid,
                 firebaseUser.getEmail(),
-                new SharedPrefUtil(activity).getString(Constants.ARG_FIREBASE_TOKEN),
+                SharedPrefUtil.getInstance(activity).getString(Constants.ARG_FIREBASE_TOKEN),
                 mETxtUsername.getText().toString(),
                 mETxtPhonenum.getText().toString(),
                 gender,

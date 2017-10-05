@@ -26,6 +26,7 @@ import com.comp30022.arrrrr.receivers.SimpleRequestResultReceiver;
 import com.comp30022.arrrrr.services.LocationSharingService;
 import com.comp30022.arrrrr.utils.Constants;
 import com.comp30022.arrrrr.utils.PreferencesAccess;
+import com.comp30022.arrrrr.utils.SharedPrefUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
