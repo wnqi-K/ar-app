@@ -196,13 +196,12 @@ public class SettingFragment extends Fragment
         if (requestType.equals(LocationSharingService.REQUEST_CLEAR_LOCATION_RECORDS)) {
             if (success) {
                 Toast.makeText(getActivity(),
-                                "Your location records has been successfully removed.",
+                                R.string.text_remove_locatioin_records_success,
                                 Toast.LENGTH_SHORT).show();
 
             } else {
                 Toast.makeText(getActivity(),
-                        "Your location records could not be removed at this moment due to network issues, "
-                                + "please try again later.",
+                        R.string.text_remove_locatioin_records_fail,
                         Toast.LENGTH_LONG).show();
             }
             mButtonClearRecords.setEnabled(true);
