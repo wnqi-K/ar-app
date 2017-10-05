@@ -77,7 +77,14 @@ public class MockUserDatabase {
      */
     public static User mockRandomUser() {
         String uid = UUID.randomUUID().toString();
-        User user = mockUser(UUID.randomUUID().toString(), uid+"@gmail.com");
+        User user = mockUser(uid,
+                                uid+"@gmail.com",
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null);
         return user;
     }
 
@@ -85,10 +92,30 @@ public class MockUserDatabase {
      * Mock a user by given data
      */
     public static User mockUser(String uid, String email) {
+        return mockUser(uid, email, null, null, null, null, null, null);
+    }
+
+    /**
+     * Mock a user by given data
+     */
+    public static User mockUser(String uid,
+                                String email,
+                                String username,
+                                String phoneNum,
+                                String gender,
+                                String address,
+                                String admin,
+                                String imageUrl) {
         User user = Mockito.mock(User.class);
 
         Mockito.when(user.getUid()).thenReturn(uid);
         Mockito.when(user.getEmail()).thenReturn(email);
+        Mockito.when(user.getUsername()).thenReturn(username);
+        Mockito.when(user.getPhoneNum()).thenReturn(phoneNum);
+        Mockito.when(user.getGender()).thenReturn(gender);
+        Mockito.when(user.getAddress()).thenReturn(address);
+        Mockito.when(user.getAdmin()).thenReturn(admin);
+        Mockito.when(user.getImageUrl()).thenReturn(imageUrl);
 
         return user;
     }

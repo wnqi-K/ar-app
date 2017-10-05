@@ -6,38 +6,34 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.runner.lifecycle.Stage;
+import android.support.v4.app.FragmentTransaction;
+import android.test.ActivityInstrumentationTestCase2;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
-import org.junit.Rule;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+
+import org.junit.Rule;
 import org.mockito.Mockito;
 
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
- * Test for {@link EmailLoginActivity}
+ * This class will test the functionality of registration
  *
- * Tests included:
- * - Handling successful email login
- * - Handling fail email login
- *
- * Testing for email login which shows an example of
- * how to mock Firebase components and simulate expected behaviours.
- * This class uses Mockito and Espresso!
- *
- * @author Dafu Ai
+ * @author Zijie Shen
  */
 
 @RunWith(AndroidJUnit4.class)
-public class EmailLoginTest {
+public class RegisterTest{
 
     /**
      * You will need a ActivityTestRule for testing involving any activity.
@@ -45,18 +41,18 @@ public class EmailLoginTest {
      * for more details
      */
     @Rule
-    public ActivityTestRule<EmailLoginActivity> mEmailLoginActivityRule =
-            new ActivityTestRule<>(EmailLoginActivity.class);
+    public ActivityTestRule<RegisterActivity> mRegisterActivityRule =
+            new ActivityTestRule<>(RegisterActivity.class);
 
     /**
-     * Test the case where a sign in process succeeds
+     * Test the case where a register process succeeds
      */
     @Test
     @UiThreadTest
-    public void testSignInSuccess() throws InterruptedException {
+    public void testRegisterSuccess() throws InterruptedException {
         // Retrieve listener
-        EmailLoginActivity emailLoginActivity = mEmailLoginActivityRule.getActivity();
-        OnCompleteListener listener = emailLoginActivity.getOnSignInCompleteListener();
+        RegisterActivity registerActivity = mRegisterActivityRule.getActivity();
+        OnCompleteListener onRegisterlistener = registerActivity.getOnRegisterCompleteListener();
 
         // Mock a result task
         Task task = Mockito.mock(Task.class);
@@ -67,9 +63,9 @@ public class EmailLoginTest {
         FirebaseAuth auth = MockUserDatabase.mockFirebaseAuth();
 
         // Replace mAuth with a fake one
-        emailLoginActivity.setAuth(auth);
+        registerActivity.setAuth(auth);
         // Simulates onComplete event
-        listener.onComplete(task);
+        onRegisterlistener.onComplete(task);
 
         // Retrieve the current resumed activity (which should be MainViewActivity)
         Activity currentActivity = null;
@@ -86,14 +82,14 @@ public class EmailLoginTest {
     }
 
     /**
-     * Test the case where a sign in process fails
+     * Test the case where register process fails
      */
     @Test
     @UiThreadTest
-    public void testSignInFailure() {
+    public void testRegisterFailure() {
         // Retrieve listener
-        EmailLoginActivity emailLoginActivity = mEmailLoginActivityRule.getActivity();
-        OnCompleteListener listener = emailLoginActivity.getOnSignInCompleteListener();
+        RegisterActivity registerActivity = mRegisterActivityRule.getActivity();
+        OnCompleteListener onRegisterlistener = registerActivity.getOnRegisterCompleteListener();
 
         // Mock a result task
         Task task = Mockito.mock(Task.class);
@@ -102,11 +98,9 @@ public class EmailLoginTest {
         Mockito.when(task.getException()).thenReturn(new Exception("test exception"));
 
         // Simulates onComplete event
-        listener.onComplete(task);
+        onRegisterlistener.onComplete(task);
 
         // Check the text of textview has been changed to failure message
-        TextView mStatusTextView = (TextView)emailLoginActivity.findViewById(R.id.status);
-        assertEquals(mStatusTextView.getText(),
-                            emailLoginActivity.getResources().getString(R.string.auth_failed));
     }
+
 }

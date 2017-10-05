@@ -26,7 +26,10 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Test for fetch address service
+ * Test for {@link PositioningService}
+ *
+ * Tests included:
+ * - Handling new self location update
  *
  * @author Dafu Ai
  */

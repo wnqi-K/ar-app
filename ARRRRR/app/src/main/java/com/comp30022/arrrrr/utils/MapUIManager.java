@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -27,6 +26,7 @@ import com.comp30022.arrrrr.ChatActivity;
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.animations.LatLngInterpolator;
 import com.comp30022.arrrrr.animations.MarkerAnimation;
+import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.receivers.AddressResultReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
@@ -332,9 +332,7 @@ public class MapUIManager implements
                 + String.valueOf(position.longitude)
                 + ").");
 
-
-        // TODO: use real profile photo when ready
-        Bitmap profileBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.portrait_photo);
+        Bitmap profileBitmap = UserManagement.getInstance().getUserProfileImage(key, mContext);
         Bitmap circleBitmap = BitmapUtil.getCircleCrop(profileBitmap);
         Bitmap profileIconBitmap = BitmapUtil.getResizedBitmap(circleBitmap, PROFILE_ICON_WIDTH, PROFILE_ICON_HEIGHT);
         BitmapDescriptor iconDescriptor = BitmapDescriptorFactory.fromBitmap(profileIconBitmap);
@@ -418,9 +416,9 @@ public class MapUIManager implements
      * Save current view of the map into shared preferences.
      */
     private void restorePrevMapView() {
-        SharedPreferences sharedPref = mFragment.getActivity().getPreferences(Context.MODE_PRIVATE);
-        double latitude = sharedPref.getFloat(mFragment.getString(R.string.saved_camera_lat), (float) DEFAULT_INI_LAT);
-        double longitude = sharedPref.getFloat(mFragment.getString(R.string.saved_camera_long), (float) DEFAULT_INT_LONG);
+        SharedPreferences sharedPref = PreferencesAccess.getSettingsPreferences(mFragment.getActivity());
+        double latitude = sharedPref.getFloat(mFragment.getString(R.string.PREF_KEY_CAMERA_LAT), (float) DEFAULT_INI_LAT);
+        double longitude = sharedPref.getFloat(mFragment.getString(R.string.PREF_KEY_CAMERA_LONG), (float) DEFAULT_INT_LONG);
         LatLng currLatLng = new LatLng(latitude, longitude);
 
         animateCameraToPosition(currLatLng);
@@ -459,10 +457,10 @@ public class MapUIManager implements
      */
     public void saveCurrentMapView() {
         if (isMyPosInitialized()) {
-            SharedPreferences sharedPref = mFragment.getActivity().getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences sharedPref = PreferencesAccess.getSettingsPreferences(mFragment.getActivity());
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putFloat(mFragment.getString(R.string.saved_camera_lat), (float) mSelfMarker.getPosition().latitude);
-            editor.putFloat(mFragment.getString(R.string.saved_camera_long), (float) mSelfMarker.getPosition().longitude);
+            editor.putFloat(mFragment.getString(R.string.PREF_KEY_CAMERA_LAT), (float) mSelfMarker.getPosition().latitude);
+            editor.putFloat(mFragment.getString(R.string.PREF_KEY_CAMERA_LONG), (float) mSelfMarker.getPosition().longitude);
             editor.apply();
         }
     }

@@ -2,6 +2,7 @@ package com.comp30022.arrrrr;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.IBinder;
 import android.support.test.InstrumentationRegistry;
@@ -12,6 +13,7 @@ import android.support.test.runner.AndroidJUnit4;
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.services.LocationSharingService;
+import com.comp30022.arrrrr.utils.PreferencesAccess;
 import com.firebase.geofire.GeoLocation;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -22,13 +24,19 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Test for location sharing service
+ * Test suite for {@link LocationSharingService}
+ *
+ * Tests included:
+ * - GeoQuery event handling (enter, move, exit)
+ * - Event handling for register/unregister listener for single user's location update
+ * - Event handling for self location updates (including location sharing switch)
  *
  * @author Dafu Ai
  */
@@ -65,7 +73,7 @@ public class LocationSharingTest {
         userManagement = MockUserDatabase.mockUserManagement();
         firebaseAuth = MockUserDatabase.mockFirebaseAuth();
 
-        mService.setTestUserManagement(userManagement);
+        mService.mTestUserManagement = userManagement;
         mService.setTestAuth(firebaseAuth);
     }
 
@@ -154,18 +162,39 @@ public class LocationSharingTest {
         }
     }
 
+    @Test
     public void testOnSelfLocationChanged() throws InterruptedException {
         Location location = new Location("test_provider");
         location.setLongitude(geoLocation.longitude);
         location.setLatitude(geoLocation.latitude);
 
+        // Create a mocked SharedPreferences where location sharing is ENABLED
+        SharedPreferences mockPref = Mockito.mock(SharedPreferences.class);
+        Mockito.when(mockPref.getBoolean(
+                mContext.getString(R.string.PREF_KEY_ENABLE_LOCATION_SHARING),
+                true)).thenReturn(true);
+
+        mService.mTestPref = mockPref;
+
         mService.onSelfLocationChanged(location);
         assertFirebaseQueryExecuted();
+
+        // Set the mocked SharedPreferences where location sharing is NOT ENABLED
+        Mockito.when(mockPref.getBoolean(
+                mContext.getString(R.string.PREF_KEY_ENABLE_LOCATION_SHARING),
+                true)).thenReturn(false);
+        assertFirebaseQueryNotExecuted();
     }
 
     public void assertFirebaseQueryExecuted() throws InterruptedException {
         Thread.sleep(100);
         Assert.assertTrue(mService.mFirebaseQueryExecuted);
+        mService.mFirebaseQueryExecuted = false;
+    }
+
+    public void assertFirebaseQueryNotExecuted() throws InterruptedException {
+        Thread.sleep(100);
+        Assert.assertFalse(mService.mFirebaseQueryExecuted);
         mService.mFirebaseQueryExecuted = false;
     }
 }
