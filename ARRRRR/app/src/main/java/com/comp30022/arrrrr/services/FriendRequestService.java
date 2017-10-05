@@ -39,21 +39,12 @@ public class FriendRequestService extends FirebaseMessagingService{
             String uid = remoteMessage.getData().get("uid");
             String fcmToken = remoteMessage.getData().get("fcm_token");
 
-            // Don't show notification if chat activity is open.
-            if (!MainActivity.isActivityOpen()) {
                 sendNotification(title,
                         message,
                         username,
                         uid,
                         fcmToken);
 
-            } else {
-                EventBus.getDefault().post(new PushNotificationEvent(title,
-                        message,
-                        username,
-                        uid,
-                        fcmToken));
-            }
         }
     }
 
