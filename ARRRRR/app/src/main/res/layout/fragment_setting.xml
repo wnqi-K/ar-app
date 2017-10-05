@@ -4,7 +4,9 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:background="@color/grey_background"
-             tools:context="com.comp30022.arrrrr.SettingFragment">
+             tools:context="com.comp30022.arrrrr.SettingFragment"
+             android:paddingLeft="10dp"
+             android:paddingRight="10dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,32 +23,35 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp">
 
-                <ImageButton android:id="@+id/profileButton"
+                <ImageButton
+                    android:id="@+id/profileButton"
+                    style="@style/ClassicButton"
                     android:layout_width="match_parent"
                     android:layout_height="80dp"
-                    android:background="@drawable/btn_border_whitebackground"
-                    style="@style/ClassicButton"/>
+                    android:background="@drawable/btn_border_whitebackground" />
 
-                <ImageView android:id = "@+id/profilePhoto"
+                <ImageView
+                    android:id="@+id/profilePhoto"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="20dp"
                     android:src="@drawable/profilephoto" />
 
-                <TextView android:id="@+id/login_status_view"
+                <TextView
+                    android:id="@+id/login_status_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="View profile"/>
+                    android:text="View profile" />
 
                 <TextView
+                    style="@style/setting_profilephoto_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right|center_vertical"
                     android:layout_marginRight="20dp"
-                    style="@style/setting_profilephoto_btn"
-                    android:text=">"/>
+                    android:text=">" />
 
             </FrameLayout>
 
@@ -56,36 +61,36 @@
 
         <TextView
             android:id="@+id/detail_view"
+            style="@style/SettingText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/SettingText"
-            android:text="TextView"/>
+            android:text="@string/title_settings" />
 
         <!--Seperate Line-->
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/listline"/>
+            android:src="@drawable/listline" />
 
         <!--Setting 1-->
         <LinearLayout
             android:layout_width="match_parent"
-            android:orientation="horizontal"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:layout_height="wrap_content">
-
-          <TextView
-            android:id="@+id/textView"
-            android:layout_width="@dimen/margin_setting"
             android:layout_height="wrap_content"
-            style="@style/SettingText"
-            android:text="djwidjwidjiwjdiwjidwd"/>
+            android:orientation="horizontal"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp">
 
-          <Switch
-            android:id="@+id/switch1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/textView"
+                style="@style/SettingText"
+                android:layout_width="@dimen/margin_setting"
+                android:layout_height="wrap_content"
+                android:text="@string/text_share_my_location" />
+
+            <Switch
+                android:id="@+id/switch_share_my_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
@@ -93,28 +98,28 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/listline"/>
+            android:src="@drawable/listline" />
 
 
         <!--Setting 2-->
         <LinearLayout
             android:layout_width="match_parent"
-            android:orientation="horizontal"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:layout_height="wrap_content">
-
-          <TextView
-            android:id="@+id/textView2"
-              android:layout_width="@dimen/margin_setting"
             android:layout_height="wrap_content"
-            style="@style/SettingText"
-            android:text="dsdsadfasjfiegjiejgiea"/>
+            android:orientation="horizontal"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp">
 
-          <Switch
-            android:id="@+id/switch2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/textView2"
+                style="@style/SettingText"
+                android:layout_width="@dimen/margin_setting"
+                android:layout_height="wrap_content"
+                android:text="@string/text_enable_nearby_friends_notification" />
+
+            <Switch
+                android:id="@+id/switch_enable_nearby_notification"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
@@ -122,45 +127,33 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/listline"/>
-
-        <!--Setting 3-->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:orientation="horizontal"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:layout_height="wrap_content">
-          <TextView
-            android:id="@+id/textView3"
-              android:layout_width="@dimen/margin_setting"
-            android:layout_height="wrap_content"
-            style="@style/SettingText"
-            android:text="djisadjiajiwfjiwaji"/>
-
-          <Switch
-            android:id="@+id/switch4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        </LinearLayout>
+            android:src="@drawable/listline" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dip"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="center|bottom"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:paddingBottom="10dp">
+
+            <Button
+                android:id="@+id/button_clear_records"
+                style="@style/ClassicButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/text_clear_my_location_records"
+                android:background="@drawable/btn_border_whitebackground"
+                android:textColor="@color/grey_text_real"/>
 
             <Button
                 android:id="@+id/logoutButton"
+                style="@style/ClassicButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/button_margin"
-                style="@style/ClassicButton"
                 android:background="@drawable/btn_border_whitebackground"
-                android:textColor="@color/grey_text_real"
-                android:text="Log out" />
+                android:text="Log out"
+                android:textColor="@color/grey_text_real" />
         </LinearLayout>
 
     </LinearLayout>

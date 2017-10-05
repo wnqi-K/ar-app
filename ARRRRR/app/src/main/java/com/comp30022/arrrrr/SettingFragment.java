@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.RestrictTo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -14,8 +15,11 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.database.UserManagement;
+import com.comp30022.arrrrr.receivers.SimpleRequestResultReceiver;
+import com.comp30022.arrrrr.services.LocationSharingService;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,9 +31,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 
-import static com.comp30022.arrrrr.UserProfileActivity.decodeFromFirebaseBase64;
+public class SettingFragment extends Fragment
+    implements SimpleRequestResultReceiver.SimpleRequestResultListener{
 
-public class SettingFragment extends Fragment {
+    public static String TAG = SettingFragment.class.getSimpleName();
 
     private OnSettingFragmentInteractionListener mListener;
 
@@ -43,6 +48,9 @@ public class SettingFragment extends Fragment {
 
     private ImageButton userprofileButton;
     private ImageView mPhoto;
+    private Button mButtonClearRecords;
+
+    private SimpleRequestResultReceiver mSimpleRequestResultReceiver;
 
     public SettingFragment() {
         // Required empty public constructor
@@ -68,17 +76,29 @@ public class SettingFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        SimpleRequestResultReceiver.register(getActivity(), this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        try {
+            getActivity().unregisterReceiver(mSimpleRequestResultReceiver);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_setting, container, false);
 
         TextView mStatusView = (TextView) view.findViewById(R.id.login_status_view);
-        TextView mDetailView = (TextView) view.findViewById(R.id.detail_view);
 
-        mStatusView.setText("Email User: " + currentUser.getEmail());
-        mDetailView.setText("Firebase Uid: " + currentUser.getUid());
-
-
+        mStatusView.setText(currentUser.getEmail());
 
         Button logoutButton = (Button)view.findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(new View.OnClickListener() {
@@ -102,6 +122,10 @@ public class SettingFragment extends Fragment {
             }
         });
 
+        mButtonClearRecords = (Button)view.findViewById(R.id.button_clear_records);
+        mButtonClearRecords.setOnClickListener(mOnClearRecordsClickListener);
+
+
         //Set profile head portrait photo
         mPhoto = (ImageView)view.findViewById(R.id.profilePhoto);
         myRef.addValueEventListener(new ValueEventListener() {
@@ -114,10 +138,11 @@ public class SettingFragment extends Fragment {
                     if(ds.child(userID).hasChild(Constants.ARG_IMAGE)){
 
                         try{
-                            String url = ds.child(userID).child(Constants.ARG_IMAGE).getValue(String.class);
-                            Bitmap imageBitmap = decodeFromFirebaseBase64(url);
+                            // Use UserManagement to get profile image
+                            //String url = ds.child(userID).child(Constants.ARG_IMAGE).getValue(String.class);
+                            Bitmap imageBitmap = UserManagement.getInstance().getUserProfileImage(userID, getActivity());
                             mPhoto.setImageBitmap(imageBitmap);
-                        }catch(IOException e){
+                        }catch(Exception e){
                             e.printStackTrace();
                         }
                     }
@@ -141,6 +166,48 @@ public class SettingFragment extends Fragment {
         super.onPrepareOptionsMenu(menu);
     }
 
+    /**
+     * OnClickListener for clearing records button
+     */
+    private View.OnClickListener mOnClearRecordsClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mButtonClearRecords.setEnabled(false);
+            mButtonClearRecords.setText(R.string.text_removing_location_records);
+            LocationSharingService.requestClearLocationRecords(getActivity());
+        }
+    };
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public Button getButtonClearRecords() {
+        return mButtonClearRecords;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public View.OnClickListener getOnClearRecordsClickListener() {
+        return mOnClearRecordsClickListener;
+    }
+
+    /**
+     * Handles when request result has been send back from the service.
+     */
+    @Override
+    public void onReceivingSimpleRequestResult(String requestType, boolean success) {
+        if (requestType.equals(LocationSharingService.REQUEST_CLEAR_LOCATION_RECORDS)) {
+            if (success) {
+                Toast.makeText(getActivity(),
+                                R.string.text_remove_locatioin_records_success,
+                                Toast.LENGTH_SHORT).show();
+
+            } else {
+                Toast.makeText(getActivity(),
+                        R.string.text_remove_locatioin_records_fail,
+                        Toast.LENGTH_LONG).show();
+            }
+            mButtonClearRecords.setEnabled(true);
+            mButtonClearRecords.setText(R.string.text_clear_my_location_records);
+        }
+    }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

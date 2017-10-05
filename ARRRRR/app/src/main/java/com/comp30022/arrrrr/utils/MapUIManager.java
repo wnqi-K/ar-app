@@ -27,6 +27,7 @@ import com.comp30022.arrrrr.ChatActivity;
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.animations.LatLngInterpolator;
 import com.comp30022.arrrrr.animations.MarkerAnimation;
+import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.receivers.AddressResultReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
@@ -332,9 +333,7 @@ public class MapUIManager implements
                 + String.valueOf(position.longitude)
                 + ").");
 
-
-        // TODO: use real profile photo when ready
-        Bitmap profileBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.portrait_photo);
+        Bitmap profileBitmap = UserManagement.getInstance().getUserProfileImage(key, mContext);
         Bitmap circleBitmap = BitmapUtil.getCircleCrop(profileBitmap);
         Bitmap profileIconBitmap = BitmapUtil.getResizedBitmap(circleBitmap, PROFILE_ICON_WIDTH, PROFILE_ICON_HEIGHT);
         BitmapDescriptor iconDescriptor = BitmapDescriptorFactory.fromBitmap(profileIconBitmap);

@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
@@ -120,21 +121,16 @@ public class UserProfileActivity extends AppCompatActivity {
             if(ds.child(userID).hasChild(Constants.ARG_IMAGE)){
 
                 try{
-                    String url = ds.child(userID).child(Constants.ARG_IMAGE).getValue(String.class);
-                    Bitmap imageBitmap = decodeFromFirebaseBase64(url);
+                    // Use UserManagement to get profile image
+                    //String url = ds.child(userID).child(Constants.ARG_IMAGE).getValue(String.class);
+                    Bitmap imageBitmap = UserManagement.getInstance().getUserProfileImage(userID, this);
                     UserImage.setImageBitmap(imageBitmap);
-                }catch(IOException e){
+                }catch(Exception e){
                     e.printStackTrace();
                 }
             }
 
         }
-    }
-
-    //Decode image
-    public static Bitmap decodeFromFirebaseBase64(String image) throws IOException {
-        byte[] decodedByteArray = Base64.decode(image, Base64.DEFAULT);
-        return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
     }
 
     public void EditProfile(View v){
