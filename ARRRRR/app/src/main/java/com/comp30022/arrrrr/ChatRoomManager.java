@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import com.comp30022.arrrrr.models.Chat;
 import com.comp30022.arrrrr.services.FcmNotificationBuilder;
+import com.comp30022.arrrrr.utils.ChatInterface;
 import com.comp30022.arrrrr.utils.Constants;
 import com.comp30022.arrrrr.utils.SharedPrefUtil;
 import com.google.firebase.database.ChildEventListener;
@@ -16,12 +17,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 /**
- * Created by rondo on 10/4/17.
+ * This class is responsible of managing the process of getting messages
+ * and sending messages
+ *
+ * @author Zijie Shen
  */
-
 public class ChatRoomManager {
-
     private static final String TAG = "ChatRoomManager";
     private static final String LOG_INFO_1 = "sendMessageToFirebaseUser: ";
     private static final String LOG_INFO_2 = " exists";
@@ -34,18 +39,24 @@ public class ChatRoomManager {
     private String mReceiverFirebaseToken  = null;
     private DatabaseReference mRef = null;
     private Chat mChat = null;
+    private Chat newChat = null;
+    private ChatInterface.Listener mListener;
 
-    public ChatRoomManager(Context context){
-        this.mContext = context;
-        mRef = FirebaseDatabase.getInstance().getReference();
-
+    public Chat getNewChat() {
+        return newChat;
     }
 
-    public void init(Chat chat, String receiverFirebaseToken){
-        this.room_type_1 = chat.senderUid + "_" + chat.receiverUid;
-        this.room_type_2 = chat.receiverUid + "_" + chat.senderUid;
+    public ChatRoomManager(Context context,
+                           String senderUid,
+                           String receiverUid,
+                           String receiverFirebaseToken,
+                           ChatInterface.Listener listener){
+        this.mContext = context;
+        this.room_type_1 = senderUid + "_" + receiverUid;
+        this.room_type_2 = receiverUid + "_" + senderUid;
         this.mReceiverFirebaseToken = receiverFirebaseToken;
-        this.mChat = chat;
+        mRef = FirebaseDatabase.getInstance().getReference();
+        mListener = listener;
 
     }
 
@@ -53,11 +64,16 @@ public class ChatRoomManager {
      * create chat rooms if it does not exist otherwise add message(chat class) to the chat room
      * using time stamp
      * */
-    public void sendMessageToFirebaseUser() {
+    public void sendMessageToFirebaseUser(Chat chat) {
+        this.mChat = chat;
         mRef.child(Constants.ARG_CHAT_ROOMS).getRef().
                 addListenerForSingleValueEvent(this.mSendValueEventListener);
     }
 
+    /**
+     * listener for the action of sending messages and create a new chat room if two users have
+     * never communicated with each other before
+     * */
     private ValueEventListener mSendValueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -85,12 +101,12 @@ public class ChatRoomManager {
                     mChat.senderUid,
                     new SharedPrefUtil(mContext).getString(Constants.ARG_FIREBASE_TOKEN),
                     mReceiverFirebaseToken);
-            Toast.makeText(mContext, Constants.ARG_SUCCESS, Toast.LENGTH_SHORT).show();
+            mListener.onSendMessageSuccess();
         }
 
         @Override
         public void onCancelled(DatabaseError databaseError) {
-            Toast.makeText(mContext, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            mListener.onSendMessageFailure(databaseError.getMessage());
         }
     };
 
@@ -121,63 +137,22 @@ public class ChatRoomManager {
                 addListenerForSingleValueEvent(mGetValueEventListener);
     }
 
+    /**
+     * listener for getting all the messages between two users
+     * */
     private ValueEventListener mGetValueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
+
             // get chat class from chat rooms
             if (dataSnapshot.hasChild(room_type_1)) {
                 Log.e(TAG, LOG_INFO_3 + room_type_1 + LOG_INFO_2);
-                FirebaseDatabase.getInstance()
-                        .getReference()
-                        .child(Constants.ARG_CHAT_ROOMS)
-                        .child(room_type_1).addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        Chat chat = dataSnapshot.getValue(Chat.class);
-                        Toast.makeText(mContext, Constants.ARG_SUCCESS, Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
-
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {}
-
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Toast.makeText(mContext, databaseError.getMessage(), Toast.LENGTH_SHORT)
-                                .show();
-                    }
-                });
+                mRef.child(Constants.ARG_CHAT_ROOMS)
+                        .child(room_type_1).addChildEventListener(mChidEvenListener);
             } else if (dataSnapshot.hasChild(room_type_2)) {
                 Log.e(TAG, LOG_INFO_3 + room_type_2 + LOG_INFO_2);
-                FirebaseDatabase.getInstance()
-                        .getReference()
-                        .child(Constants.ARG_CHAT_ROOMS)
-                        .child(room_type_2).addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        Chat chat = dataSnapshot.getValue(Chat.class);
-                        Toast.makeText(mContext, Constants.ARG_SUCCESS, Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
-
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {}
-
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Toast.makeText(mContext, databaseError.getMessage(), Toast.LENGTH_SHORT)
-                                .show();                    }
-                });
+                mRef.child(Constants.ARG_CHAT_ROOMS)
+                        .child(room_type_2).addChildEventListener(mChidEvenListener);
             } else {
                 // if chat room doesnt exist, print error
                 Log.e(TAG, LOG_INFO_4);
@@ -186,8 +161,33 @@ public class ChatRoomManager {
 
         @Override
         public void onCancelled(DatabaseError databaseError) {
-            Toast.makeText(mContext, databaseError.getMessage(), Toast.LENGTH_SHORT)
-                    .show();
+            mListener.onGetMessagesFailure(databaseError.getMessage());
+        }
+    };
+
+    /**
+     * listener for any new message that has been sent and update chat
+     * UI interface
+     * */
+    private ChildEventListener mChidEvenListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            newChat = dataSnapshot.getValue(Chat.class);
+            mListener.onGetMessagesSuccess(newChat);
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {}
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            mListener.onGetMessagesFailure(databaseError.getMessage());
         }
     };
 

@@ -1,5 +1,6 @@
 package com.comp30022.arrrrr.utils;
 
+
 public class Constants {
     public static final String ARG_USERS = "users";
     public static final String ARG_RECEIVER = "receiver";
@@ -15,9 +16,13 @@ public class Constants {
     public static final String ARG_EMAIL= "email";
     public static final String ARG_SUCCESS = "success";
     public static final String ARG_FAILURE = "failure";
-
-
     public static final String ACTION_PACKAGE = "com.comp30022.arrrrr.intent.action";
     public static final String ARG_MALE = "male";
     public static final String ARG_FEMALE = "female";
+
+    public static final String EMPTY_STRING = "";
+    public static final String MESSAGE_SENT = "Message sent";
+    public static final String GET_RECEIVER_ERROR = "get receiver error";
+
+
 }
