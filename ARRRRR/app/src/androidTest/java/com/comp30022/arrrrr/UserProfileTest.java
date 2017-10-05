@@ -20,8 +20,11 @@ import static org.junit.Assert.*;
 /**
  * Test for user profile information.
  *
+ * Tests included:
+ * - Result handling for loading profile image
+ *
  * @author Dafu Ai
- * // TODO: Add co-author here
+ * // TODO: To group members: Add co-author here
  * @author ____
  */
 
