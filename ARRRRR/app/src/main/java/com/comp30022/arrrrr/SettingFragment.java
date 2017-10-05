@@ -3,6 +3,7 @@ package com.comp30022.arrrrr;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,8 +13,11 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +25,7 @@ import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.receivers.SimpleRequestResultReceiver;
 import com.comp30022.arrrrr.services.LocationSharingService;
 import com.comp30022.arrrrr.utils.Constants;
+import com.comp30022.arrrrr.utils.PreferencesAccess;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,8 +33,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.io.IOException;
 
 public class SettingFragment extends Fragment
     implements SimpleRequestResultReceiver.SimpleRequestResultListener{
@@ -49,6 +52,8 @@ public class SettingFragment extends Fragment
     private ImageButton userprofileButton;
     private ImageView mPhoto;
     private Button mButtonClearRecords;
+    private Switch mSwitchLocationSharing;
+    private Switch mSwitchNearbyNotification;
 
     private SimpleRequestResultReceiver mSimpleRequestResultReceiver;
 
@@ -79,6 +84,7 @@ public class SettingFragment extends Fragment
     public void onResume() {
         super.onResume();
         SimpleRequestResultReceiver.register(getActivity(), this);
+        updateUIFromPreferences();
     }
 
     @Override
@@ -125,6 +131,10 @@ public class SettingFragment extends Fragment
         mButtonClearRecords = (Button)view.findViewById(R.id.button_clear_records);
         mButtonClearRecords.setOnClickListener(mOnClearRecordsClickListener);
 
+        mSwitchLocationSharing = (Switch)view.findViewById(R.id.switch_location_sharing);
+        mSwitchLocationSharing.setOnCheckedChangeListener(onLocSharingCheckedChangeListener);
+
+        mSwitchNearbyNotification = (Switch)view.findViewById(R.id.switch_nearby_friend_notification);
 
         //Set profile head portrait photo
         mPhoto = (ImageView)view.findViewById(R.id.profilePhoto);
@@ -165,6 +175,31 @@ public class SettingFragment extends Fragment
         menu.findItem(R.id.quick_ar_entry).setVisible(false);
         super.onPrepareOptionsMenu(menu);
     }
+
+    /**
+     * OnCheckedChangeListener for location sharing switch
+     */
+    private CompoundButton.OnCheckedChangeListener onLocSharingCheckedChangeListener
+            = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            // Save to preferences
+            compoundButton.setEnabled(false);
+
+            SharedPreferences preferences = PreferencesAccess.getSettingsPreferences(getActivity());
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(getString(R.string.PREF_KEY_ENABLE_LOCATION_SHARING), b);
+            editor.apply();
+
+            if (!b) {
+                // Give user friendly help message.
+                Toast.makeText(getActivity(),
+                        getString(R.string.text_location_sharing_disabled),
+                        Toast.LENGTH_LONG).show();
+            }
+            compoundButton.setEnabled(true);
+        }
+    };
 
     /**
      * OnClickListener for clearing records button
@@ -233,18 +268,24 @@ public class SettingFragment extends Fragment
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
+
     public interface OnSettingFragmentInteractionListener {
         // TODO: Update argument type and name
         void onSettingFragmentInteraction(Uri uri);
+    }
+
+    /**
+     * Update settings UI from saved shared preferences
+     */
+    private void updateUIFromPreferences() {
+        SharedPreferences preferences = PreferencesAccess.getSettingsPreferences(getActivity());
+
+        boolean isLocationSharingEnabled = preferences.getBoolean(
+                getString(R.string.PREF_KEY_ENABLE_LOCATION_SHARING), true);
+        boolean isNearbyNotificationEnabled = preferences.getBoolean(
+                getString(R.string.PREF_KEY_ENABLE_NEARBY_NOTIFICATION), true);
+
+        mSwitchLocationSharing.setChecked(isLocationSharingEnabled);
+        mSwitchNearbyNotification.setChecked(isNearbyNotificationEnabled);
     }
 }

@@ -48,8 +48,8 @@
     <string name="please_wait">Please wait...</string>
     <string name="title_activity_user_listing">UserListingActivity</string>
 
-    <string name="saved_camera_lat">SAVED_CAMERA_LAT</string>
-    <string name="saved_camera_long">SAVED_CAMERA_LONG</string>
+    <string name="PREF_KEY_CAMERA_LAT">SAVED_CAMERA_LAT</string>
+    <string name="PREF_KEY_CAMERA_LONG">SAVED_CAMERA_LONG</string>
     <string name="type_a_message">Type a message</string>
     <string name="adding_new_friend">Adding new friend</string>
     <string name="quick_ar_entry">Quick AR entry</string>
@@ -73,6 +73,9 @@
     <string name="text_removing_location_records">Removing your location records...</string>
     <string name="text_remove_locatioin_records_success">Your location records has been successfully removed.</string>
     <string name="text_remove_locatioin_records_fail">Your location records could not be removed at this moment due to network issues, please try again later.</string>
+    <string name="PREF_KEY_ENABLE_LOCATION_SHARING">SAVED_ENABLE_LOCATION_SHARING</string>
+    <string name="PREF_KEY_ENABLE_NEARBY_NOTIFICATION">SAVED_ENABLE_NEARBY_NOTIFICATION</string>
+    <string name="text_location_sharing_disabled">You are now invisible with all your future location updates. If you wish to delete your historical records please click the button in this page.</string>
 
 
 </resources>
