@@ -245,6 +245,11 @@ public class LocationSharingService extends Service implements
         return mGeoInfoSingleValueListener;
     }
 
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public double getActualGeoQueryRadius() {
+        return mGeoQuery.getRadius();
+    }
+
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
         if (intent != null) {
@@ -363,7 +368,7 @@ public class LocationSharingService extends Service implements
      * Retrieve query radius from preferences, if not return default radius.
      */
     public double getGeoQueryRadius() {
-        SharedPreferences preferences = PreferencesAccess.getSettingsPreferences(this);
+        SharedPreferences preferences = getSettingsPreferences();
         long radius = preferences.getLong(getString(R.string.PREF_KEY_FILTER_DISTANCE),
                 (long)(double)DEFAULT_GEO_QUERY_RADIUS);
         return radius;
@@ -511,13 +516,17 @@ public class LocationSharingService extends Service implements
      */
     private String getFriendLastLocationTime(String uid) {
         GeoLocationInfo geoLocationInfo = mGeoInfos.get(uid);
-
+        GeoLocationInfo geoLocationInfoBuffer = mInfoBuffer.get(uid);
         // Return empty string if friend's location is unknown.
-        if (geoLocationInfo == null) {
+        if (geoLocationInfo == null && geoLocationInfoBuffer == null) {
             return "";
         }
 
-        return TimeUtil.getFriendlyTime(geoLocationInfo.time);
+        if (geoLocationInfoBuffer == null) {
+            return TimeUtil.getFriendlyTime(geoLocationInfo.time);
+        } else {
+            return TimeUtil.getFriendlyTime(geoLocationInfoBuffer.time);
+        }
     }
 
     /**
@@ -667,8 +676,7 @@ public class LocationSharingService extends Service implements
                 String uid = dataSnapshot.getKey();
                 GeoLocationInfo info = dataSnapshot.getValue(GeoLocationInfo.class);
 
-                // Check for expiry of geoinfo
-                if(info != null && !isGeoInfoExpired(info)) {
+                if(info != null) {
                     mInfoBuffer.put(uid, info);
 
                     mRootRef.child(getUserRefPath(RefType.GEO_LOCATION, uid))
