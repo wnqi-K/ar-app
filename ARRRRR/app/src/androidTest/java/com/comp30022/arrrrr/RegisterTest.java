@@ -6,9 +6,6 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.runner.lifecycle.Stage;
-import android.support.v4.app.FragmentTransaction;
-import android.test.ActivityInstrumentationTestCase2;
-import android.widget.TextView;
 
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -57,8 +54,9 @@ public class RegisterTest{
     }
 
     /**
-     * Test the case where the whole process of registration succeeds including
-     * register with email and password and add user to Firebase database
+     * Test the case where the whole process of registration including
+     * registering with email and password and adding user to Firebase database
+     * succeeds
      */
     @Test
     @UiThreadTest
