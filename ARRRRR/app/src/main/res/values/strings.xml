@@ -76,6 +76,7 @@
     <string name="PREF_KEY_ENABLE_LOCATION_SHARING">SAVED_ENABLE_LOCATION_SHARING</string>
     <string name="PREF_KEY_ENABLE_NEARBY_NOTIFICATION">SAVED_ENABLE_NEARBY_NOTIFICATION</string>
     <string name="text_location_sharing_disabled">You are now invisible with all your future location updates. If you wish to delete your historical records please click the button in this page.</string>
+    <string name="clear_history">Clear History</string>
 
 
 </resources>

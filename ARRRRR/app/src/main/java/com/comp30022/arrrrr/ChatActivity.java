@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -20,9 +21,7 @@ import com.comp30022.arrrrr.models.Chat;
 import com.comp30022.arrrrr.utils.ChatInterface;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
+import com.google.firebase.database.FirebaseDatabase;;
 
 import java.util.ArrayList;
 
@@ -105,6 +104,36 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.clear_history:
+                clearHistory(senderUid,receiverUid);
+                break;
+        }
+        return true;
+    }
+
+    /**
+     * This method will clear history of a chatroom
+     * */
+    private void clearHistory(String senderUid, String receiverUid) {
+        String chat_room_1 = senderUid + "_" + receiverUid;
+        String chat_room_2 = receiverUid + "_" + senderUid;
+        FirebaseDatabase.getInstance().
+                getReference().
+                child(Constants.ARG_CHAT_ROOMS).
+                child(chat_room_1).
+                removeValue();
+        FirebaseDatabase.getInstance().
+                getReference().
+                child(Constants.ARG_CHAT_ROOMS).
+                child(chat_room_2).
+                removeValue();
+        finish();
+        startActivity(this,getIntent().getExtras().getString(Constants.ARG_RECEIVER_UID));
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         this.isActivityOpen = true;
@@ -132,13 +161,17 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     private void sendMessage() {
         // Need to check message(length..etc)!!!!
         String message = mETxtMessage.getText().toString();
-        Chat chat = new Chat(sender,
-                receiver,
-                senderUid,
-                receiverUid,
-                message,
-                System.currentTimeMillis());
-        mChatRoomManager.sendMessageToFirebaseUser(chat);
+        if(message.isEmpty()){
+            mETxtMessage.setError(Constants.NON_EMPTY);
+        }else{
+            Chat chat = new Chat(sender,
+                    receiver,
+                    senderUid,
+                    receiverUid,
+                    message,
+                    System.currentTimeMillis());
+            mChatRoomManager.sendMessageToFirebaseUser(chat);
+        }
     }
 
     @Override

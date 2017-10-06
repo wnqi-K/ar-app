@@ -93,6 +93,7 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
+
     private static class MyChatViewHolder extends RecyclerView.ViewHolder {
         private TextView txtChatMessage, txtUserAlphabet;
 
