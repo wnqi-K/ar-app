@@ -141,7 +141,7 @@
             <TextView
                 android:id="@+id/textView3"
                 style="@style/SettingText"
-                android:layout_width="202dp"
+                android:layout_width="0"
                 android:layout_height="wrap_content"
                 android:text="@string/text_nearby_friends_filter_distance"
                 android:layout_weight="0.30" />
@@ -160,7 +160,7 @@
             android:layout_weight="1"
             android:gravity="center|bottom"
             android:orientation="vertical"
-            android:paddingBottom="10dp">
+            android:paddingBottom="@dimen/standard_padding_bottom">
 
             <TextView
                 android:id="@+id/text_view_last_location"
