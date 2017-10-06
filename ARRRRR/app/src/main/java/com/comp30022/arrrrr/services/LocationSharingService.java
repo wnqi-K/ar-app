@@ -5,25 +5,21 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Binder;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.comp30022.arrrrr.MainActivity;
 import com.comp30022.arrrrr.MainViewActivity;
 import com.comp30022.arrrrr.MapContainerFragment;
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
-import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
 import com.comp30022.arrrrr.receivers.SimpleRequestResultReceiver;
@@ -37,8 +33,6 @@ import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.firebase.geofire.core.GeoHash;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -114,7 +108,7 @@ public class LocationSharingService extends Service implements
     public static final String ON_REQUEST_CURR_DATA = "ON_REQUEST_CURR_DATA";
 
     // Geo query settings
-    private final static Double GEO_QUERY_RADIUS = 2.0;
+    public final static Double DEFAULT_GEO_QUERY_RADIUS = 2.0;
 
     /**
      * Receiver for self position updates.
@@ -343,7 +337,7 @@ public class LocationSharingService extends Service implements
     @Override
     public void onSelfLocationChanged(Location location) {
         GeoLocation geoLocation = new GeoLocation(location.getLatitude(), location.getLongitude());
-        Double radius = GEO_QUERY_RADIUS;
+        Double radius = getGeoQueryRadius();
 
         if (mGeoQuery == null) {
             mGeoQuery = mGeoFire.queryAtLocation(geoLocation, radius);
@@ -363,6 +357,16 @@ public class LocationSharingService extends Service implements
             sendNewSelfLocation(location);
             mFirebaseQueryExecuted = true;
         }
+    }
+
+    /**
+     * Retrieve query radius from preferences, if not return default radius.
+     */
+    public double getGeoQueryRadius() {
+        SharedPreferences preferences = PreferencesAccess.getSettingsPreferences(this);
+        long radius = preferences.getLong(getString(R.string.PREF_KEY_FILTER_DISTANCE),
+                (long)(double)DEFAULT_GEO_QUERY_RADIUS);
+        return radius;
     }
 
     /**

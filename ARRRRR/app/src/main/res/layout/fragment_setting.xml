@@ -141,13 +141,15 @@
             <TextView
                 android:id="@+id/textView3"
                 style="@style/SettingText"
-                android:layout_width="0"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/text_nearby_friends_filter_distance"
-                android:layout_weight="0.30" />
+                android:layout_weight="0.60" />
 
             <Spinner
-                android:layout_width="wrap_content"
+                android:id="@+id/spinner_filter_distance"
+                android:layout_width="0dp"
+                android:layout_weight="0.40"
                 android:layout_height="wrap_content"
                 android:entries="@array/nearby_filter_options"
             />
