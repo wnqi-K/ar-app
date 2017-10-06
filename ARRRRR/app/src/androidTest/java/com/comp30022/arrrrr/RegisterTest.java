@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.TextView;
 
+import com.comp30022.arrrrr.utils.Constants;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -44,15 +45,24 @@ public class RegisterTest{
     public ActivityTestRule<RegisterActivity> mRegisterActivityRule =
             new ActivityTestRule<>(RegisterActivity.class);
 
+    private RegisterActivity registerActivity;
+    private  OnCompleteListener onRegisterlistener;
+    private OnCompleteListener onAddToDatabaseListener;
+
+    @Before
+    public void setup(){
+        registerActivity = mRegisterActivityRule.getActivity();
+        onRegisterlistener = registerActivity.getOnRegisterCompleteListener();
+        onAddToDatabaseListener = registerActivity.getOnAddUserToDatabaseCompleteListener();
+    }
+
     /**
-     * Test the case where a register process succeeds
+     * Test the case where the whole process of registration succeeds including
+     * register with email and password and add user to Firebase database
      */
     @Test
     @UiThreadTest
     public void testRegisterSuccess() throws InterruptedException {
-        // Retrieve listener
-        RegisterActivity registerActivity = mRegisterActivityRule.getActivity();
-        OnCompleteListener onRegisterlistener = registerActivity.getOnRegisterCompleteListener();
 
         // Mock a result task
         Task task = Mockito.mock(Task.class);
@@ -82,15 +92,30 @@ public class RegisterTest{
     }
 
     /**
-     * Test the case where register process fails
+     * Test the case where registration process succeeds
      */
     @Test
     @UiThreadTest
-    public void testRegisterFailure() {
-        // Retrieve listener
-        RegisterActivity registerActivity = mRegisterActivityRule.getActivity();
-        OnCompleteListener onRegisterlistener = registerActivity.getOnRegisterCompleteListener();
+    public void testRegisterWithEmailPasswordSuccess() {
+        // Mock a result task
+        Task task = Mockito.mock(Task.class);
+        // Make sure the task indicates success
+        Mockito.when(task.isSuccessful()).thenReturn(true);
+        Mockito.when(task.getException()).thenReturn(new Exception("test exception"));
 
+        // Simulates onComplete event
+        onRegisterlistener.onComplete(task);
+
+        // Check the toast text show register failure
+        assertEquals(registerActivity.toast_text, Constants.REGISTER_SUCCESS);
+    }
+
+    /**
+     * Test the case where registration process fails
+     */
+    @Test
+    @UiThreadTest
+    public void testRegisterWithEmailPasswordFailure() {
         // Mock a result task
         Task task = Mockito.mock(Task.class);
         // Make sure the task indicates failure
@@ -100,7 +125,46 @@ public class RegisterTest{
         // Simulates onComplete event
         onRegisterlistener.onComplete(task);
 
-        // Check the text of textview has been changed to failure message
+        // Check the toast text show register failure
+        assertEquals(registerActivity.toast_text, Constants.REGISTER_FAILURE);
+    }
+
+    /**
+     * Test the case where adding user to Firebase database succeeds
+     */
+    @Test
+    @UiThreadTest
+    public void testAddToDatabaseSuccess() {
+        // Mock a result task
+        Task task = Mockito.mock(Task.class);
+        // Make sure the task indicates success
+        Mockito.when(task.isSuccessful()).thenReturn(true);
+        Mockito.when(task.getException()).thenReturn(new Exception("test exception"));
+
+        // Simulates onComplete event
+        onAddToDatabaseListener.onComplete(task);
+
+        // Check the toast text show register failure
+        assertEquals(registerActivity.toast_text, Constants.ADD_TO_DATABASE_SUCCESS);
+    }
+
+    /**
+     * Test the case where adding user to Firebase database fails
+     */
+    @Test
+    @UiThreadTest
+    public void testAddToDatabaseFailure() {
+        // Mock a result task
+        Task task = Mockito.mock(Task.class);
+        // Make sure the task indicates failure
+        Mockito.when(task.isSuccessful()).thenReturn(false);
+        Mockito.when(task.getException()).thenReturn(new Exception("test exception"));
+
+        // Simulates onComplete event
+        onAddToDatabaseListener.onComplete(task);
+
+        // Check the toast text show register failure
+        assertEquals(registerActivity.toast_text, Constants.ADD_TO_DATABASE_FAILURE);
     }
 
 }
