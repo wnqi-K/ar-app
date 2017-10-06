@@ -13,13 +13,16 @@
 
     <!-- UI Design  -->
     <color name="white">#ffffff</color>
-    <color name="black_background">#1E1E1E</color>
+    <color name="black_background">#070C17</color>
     <color name="grey_background">#DCDCDC</color>
 
     <color name="grey_btn_outline">#5B5B5B</color>
+    <color name="grey_btn_background">#98A7AD</color>
     <color name="grey_subtitle">#999999</color>
     <color name="grey_text_show">#BCBCBC</color>
     <color name="grey_text_real">#5B5B5B</color>
+
+    <color name="text">#C6C9CD</color>
 
 
 </resources>
