@@ -46,12 +46,6 @@ public class ChatNotificationService extends FirebaseMessagingService {
                         uid,
                         fcmToken);
 
-            } else {
-                EventBus.getDefault().post(new PushNotificationEvent(title,
-                        message,
-                        username,
-                        uid,
-                        fcmToken));
             }
         }
 
