@@ -2,6 +2,7 @@ package com.comp30022.arrrrr;
 
 import android.content.Context;
 import android.renderscript.Sampler;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -191,4 +192,18 @@ public class ChatRoomManager {
         }
     };
 
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public ValueEventListener getmSendValueEventListener() {
+        return mSendValueEventListener;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public ValueEventListener getmGetValueEventListener() {
+        return mGetValueEventListener;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public ChildEventListener getmChidEvenListener() {
+        return mChidEvenListener;
+    }
 }

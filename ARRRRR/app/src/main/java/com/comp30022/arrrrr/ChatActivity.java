@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.RestrictTo;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
@@ -47,6 +48,21 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     private String senderUid;
 
     private static boolean isActivityOpen = false;
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public ChatRoomManager getmChatRoomManager() {
+        return mChatRoomManager;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public ChatRecyclerAdapter getmChatRecyclerAdapter() {
+        return mChatRecyclerAdapter;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public RecyclerView getmRecyclerViewChat() {
+        return mRecyclerViewChat;
+    }
 
     public static void startActivity(Context context,
                                      String receiverUid) {
