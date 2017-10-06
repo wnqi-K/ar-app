@@ -88,7 +88,7 @@
                 android:text="@string/text_share_my_location" />
 
             <Switch
-                android:id="@+id/switch_share_my_location"
+                android:id="@+id/switch_location_sharing"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
@@ -117,7 +117,7 @@
                 android:text="@string/text_enable_nearby_friends_notification" />
 
             <Switch
-                android:id="@+id/switch_enable_nearby_notification"
+                android:id="@+id/switch_nearby_friend_notification"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
@@ -142,9 +142,9 @@
                 style="@style/ClassicButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/text_clear_my_location_records"
                 android:background="@drawable/btn_border_whitebackground"
-                android:textColor="@color/grey_text_real"/>
+                android:text="@string/text_clear_my_location_records"
+                android:textColor="@color/grey_text_real" />
 
             <Button
                 android:id="@+id/logoutButton"

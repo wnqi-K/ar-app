@@ -6,9 +6,11 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Binder;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -27,6 +29,7 @@ import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
 import com.comp30022.arrrrr.receivers.SimpleRequestResultReceiver;
 import com.comp30022.arrrrr.receivers.SingleUserLocationReceiver;
 import com.comp30022.arrrrr.utils.GeoUtil;
+import com.comp30022.arrrrr.utils.PreferencesAccess;
 import com.comp30022.arrrrr.utils.TimeUtil;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -180,6 +183,9 @@ public class LocationSharingService extends Service implements
     @RestrictTo(RestrictTo.Scope.TESTS)
     public Boolean mQueryResultSent = false;
 
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public SharedPreferences mTestPref;
+
     public LocationSharingService() {
     }
 
@@ -234,11 +240,6 @@ public class LocationSharingService extends Service implements
     @RestrictTo(RestrictTo.Scope.TESTS)
     public void setTestAuth(FirebaseAuth testAuth) {
         this.mTestAuth = testAuth;
-    }
-
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    public void setTestUserManagement(UserManagement userManagement) {
-        this.mTestUserManagement = userManagement;
     }
 
     @Override
@@ -342,10 +343,24 @@ public class LocationSharingService extends Service implements
             mGeoQuery.setLocation(geoLocation, radius);
         }
 
-        // Send new location to server
-        sendNewSelfLocation(location);
-        mFirebaseQueryExecuted = true;
         mSelfLocation = location;
+
+        SharedPreferences preferences;
+        // Check settings first!
+        if (mTestPref != null) {
+            // Allow test preference injection
+            preferences = mTestPref;
+        } else {
+            preferences = PreferencesAccess.getSettingsPreferences(this);
+        }
+
+        boolean enabled = preferences.getBoolean(getString(R.string.PREF_KEY_ENABLE_LOCATION_SHARING), true);
+
+        if (enabled) {
+            // Send new location to server
+            sendNewSelfLocation(location);
+            mFirebaseQueryExecuted = true;
+        }
     }
 
     /**
