@@ -54,7 +54,7 @@ public class RegisterTest{
     }
 
     /**
-     * Test the case where the whole process of registration including
+     * Test the case when the whole process of registration including
      * registering with email and password and adding user to Firebase database
      * succeeds
      */
@@ -90,7 +90,7 @@ public class RegisterTest{
     }
 
     /**
-     * Test the case where registration process succeeds
+     * Test the case when registration process succeeds
      */
     @Test
     @UiThreadTest
@@ -105,11 +105,11 @@ public class RegisterTest{
         onRegisterlistener.onComplete(task);
 
         // Check the toast text show register failure
-        assertEquals(registerActivity.toast_text, Constants.REGISTER_SUCCESS);
+        assertEquals(registerActivity.getToast_text(), Constants.REGISTER_SUCCESS);
     }
 
     /**
-     * Test the case where registration process fails
+     * Test the case when registration process fails
      */
     @Test
     @UiThreadTest
@@ -124,11 +124,11 @@ public class RegisterTest{
         onRegisterlistener.onComplete(task);
 
         // Check the toast text show register failure
-        assertEquals(registerActivity.toast_text, Constants.REGISTER_FAILURE);
+        assertEquals(registerActivity.getToast_text(), Constants.REGISTER_FAILURE);
     }
 
     /**
-     * Test the case where adding user to Firebase database succeeds
+     * Test the case when adding user to Firebase database succeeds
      */
     @Test
     @UiThreadTest
@@ -143,11 +143,11 @@ public class RegisterTest{
         onAddToDatabaseListener.onComplete(task);
 
         // Check the toast text show register failure
-        assertEquals(registerActivity.toast_text, Constants.ADD_TO_DATABASE_SUCCESS);
+        assertEquals(registerActivity.getToast_text(), Constants.ADD_TO_DATABASE_SUCCESS);
     }
 
     /**
-     * Test the case where adding user to Firebase database fails
+     * Test the case when adding user to Firebase database fails
      */
     @Test
     @UiThreadTest
@@ -162,7 +162,7 @@ public class RegisterTest{
         onAddToDatabaseListener.onComplete(task);
 
         // Check the toast text show register failure
-        assertEquals(registerActivity.toast_text, Constants.ADD_TO_DATABASE_FAILURE);
+        assertEquals(registerActivity.getToast_text(), Constants.ADD_TO_DATABASE_FAILURE);
     }
 
 }

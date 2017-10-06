@@ -50,7 +50,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private FirebaseAuth mAuth;
     private DatabaseReference mRef;
     private String gender = null;
-    public CharSequence toast_text;
+    private CharSequence toast_text;
 
 
     public static void startActivity(Context context) {
@@ -200,5 +200,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     @RestrictTo(RestrictTo.Scope.TESTS)
     public void setAuth(FirebaseAuth auth) {
         this.mAuth = auth;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public CharSequence getToast_text() {
+        return toast_text;
     }
 }
