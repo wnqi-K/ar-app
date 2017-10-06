@@ -79,8 +79,8 @@
                 android:textColor="@color/text" />
 
             <ImageView
-                android:paddingLeft="15dp"
-                android:paddingRight="15dp"
+                android:paddingLeft="60dp"
+                android:paddingRight="60dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_above="@+id/field_password"
@@ -99,8 +99,8 @@
                 android:textColor="@color/text" />
 
             <ImageView
-                android:paddingLeft="15dp"
-                android:paddingRight="15dp"
+                android:paddingLeft="60dp"
+                android:paddingRight="60dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/field_password"
