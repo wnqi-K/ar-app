@@ -42,6 +42,9 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_email_login);
 
+        //hide Action bar in Login Activity
+        getSupportActionBar().hide();
+
         mStatusTextView = (TextView)findViewById(R.id.status);
         mDetailTextView = (TextView)findViewById(R.id.detail);
         mEmailField = (EditText)findViewById(R.id.field_email);
@@ -130,8 +133,8 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
             mStatusTextView.setText(R.string.sign_out);
             mDetailTextView.setText(null);
 
-            findViewById(R.id.sign_in_layout).setVisibility(View.VISIBLE);
-            findViewById(R.id.create_account_layout).setVisibility(View.VISIBLE);
+            //findViewById(R.id.sign_in_layout).setVisibility(View.VISIBLE);
+            //findViewById(R.id.create_account_layout).setVisibility(View.VISIBLE);
             findViewById(R.id.email_password_fields).setVisibility(View.VISIBLE);
 
         }
