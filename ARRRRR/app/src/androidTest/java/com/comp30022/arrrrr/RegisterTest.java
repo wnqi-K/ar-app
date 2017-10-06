@@ -105,7 +105,7 @@ public class RegisterTest{
         onRegisterlistener.onComplete(task);
 
         // Check the toast text show register failure
-        assertEquals(registerActivity.getToast_text(), Constants.REGISTER_SUCCESS);
+        assertEquals(registerActivity.getToastText(), Constants.REGISTER_SUCCESS);
     }
 
     /**
@@ -124,7 +124,7 @@ public class RegisterTest{
         onRegisterlistener.onComplete(task);
 
         // Check the toast text show register failure
-        assertEquals(registerActivity.getToast_text(), Constants.REGISTER_FAILURE);
+        assertEquals(registerActivity.getToastText(), Constants.REGISTER_FAILURE);
     }
 
     /**
@@ -143,7 +143,7 @@ public class RegisterTest{
         onAddToDatabaseListener.onComplete(task);
 
         // Check the toast text show register failure
-        assertEquals(registerActivity.getToast_text(), Constants.ADD_TO_DATABASE_SUCCESS);
+        assertEquals(registerActivity.getToastText(), Constants.ADD_TO_DATABASE_SUCCESS);
     }
 
     /**
@@ -162,7 +162,7 @@ public class RegisterTest{
         onAddToDatabaseListener.onComplete(task);
 
         // Check the toast text show register failure
-        assertEquals(registerActivity.getToast_text(), Constants.ADD_TO_DATABASE_FAILURE);
+        assertEquals(registerActivity.getToastText(), Constants.ADD_TO_DATABASE_FAILURE);
     }
 
 }

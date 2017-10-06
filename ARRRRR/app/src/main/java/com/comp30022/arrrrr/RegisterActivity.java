@@ -203,7 +203,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @RestrictTo(RestrictTo.Scope.TESTS)
-    public CharSequence getToast_text() {
+    public CharSequence getToastText() {
         return toast_text;
     }
 }
