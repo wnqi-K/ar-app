@@ -135,6 +135,7 @@ public class SettingFragment extends Fragment
         mSwitchLocationSharing.setOnCheckedChangeListener(onLocSharingCheckedChangeListener);
 
         mSwitchNearbyNotification = (Switch)view.findViewById(R.id.switch_nearby_friend_notification);
+        mSwitchNearbyNotification.setOnCheckedChangeListener(onNearbyNotifyCheckedChangeListener);
 
         //Set profile head portrait photo
         mPhoto = (ImageView)view.findViewById(R.id.profilePhoto);
@@ -197,6 +198,25 @@ public class SettingFragment extends Fragment
                         getString(R.string.text_location_sharing_disabled),
                         Toast.LENGTH_LONG).show();
             }
+            compoundButton.setEnabled(true);
+        }
+    };
+
+    /**
+     * OnCheckedChangeListener for nearby friends notification switch
+     */
+    private CompoundButton.OnCheckedChangeListener onNearbyNotifyCheckedChangeListener
+            = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            // Save to preferences
+            compoundButton.setEnabled(false);
+
+            SharedPreferences preferences = PreferencesAccess.getSettingsPreferences(getActivity());
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(getString(R.string.PREF_KEY_ENABLE_NEARBY_NOTIFICATION), b);
+            editor.apply();
+
             compoundButton.setEnabled(true);
         }
     };
