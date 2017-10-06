@@ -40,10 +40,10 @@ public class FriendRequestService extends FirebaseMessagingService{
             String fcmToken = remoteMessage.getData().get("fcm_token");
 
             sendNotification(title,
-                        message,
-                        username,
-                        uid,
-                        fcmToken);
+                    message,
+                    username,
+                    uid,
+                    fcmToken);
 
         }
     }
