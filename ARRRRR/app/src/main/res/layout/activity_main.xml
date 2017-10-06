@@ -28,14 +28,13 @@
         android:weightSum="1">
 
         <TextView
+            style="@style/TitleText"
             android:id="@+id/editText2"
             android:layout_width="240dp"
             android:layout_height="50dp"
             android:layout_marginTop="20dp"
             android:text="Login Via"
-            android:textSize="25dp"
-            android:textAlignment="center"
-            android:textColor="@color/text" />
+            android:textAlignment="center"/>
 
         <Button
             android:id="@+id/emailLoginButton"
@@ -49,9 +48,8 @@
             style="@style/ClassicButton"
             android:background="@drawable/btn_border"
             android:onClick="googleLogin"
-            android:text="Google">
+            android:text="Google"/>
 
-        </Button>
 
         <Button
             android:id="@+id/facebookLoginButton"
