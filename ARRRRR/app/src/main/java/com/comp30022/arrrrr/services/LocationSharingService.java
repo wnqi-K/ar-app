@@ -1,21 +1,31 @@
 package com.comp30022.arrrrr.services;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.comp30022.arrrrr.MainViewActivity;
+import com.comp30022.arrrrr.MapContainerFragment;
+import com.comp30022.arrrrr.R;
+import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
+import com.comp30022.arrrrr.receivers.SimpleRequestResultReceiver;
 import com.comp30022.arrrrr.receivers.SingleUserLocationReceiver;
 import com.comp30022.arrrrr.utils.GeoUtil;
+import com.comp30022.arrrrr.utils.PreferencesAccess;
 import com.comp30022.arrrrr.utils.TimeUtil;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -52,6 +62,8 @@ public class LocationSharingService extends Service implements
         GeoQueryEventListener,
         SelfPositionReceiver.SelfLocationListener {
 
+    private final String TAG = LocationSharingService.class.getSimpleName();
+
     /**
      * Type of database reference for the user location records.
      */
@@ -62,39 +74,61 @@ public class LocationSharingService extends Service implements
     @RestrictTo(RestrictTo.Scope.TESTS)
     private final IBinder mBinder = new LocationSharingBinder();
 
+    // Reference strings for Firebase database
     private final static String DB_REF_GEO_INFO = "userlocations_info";
     private final static String DB_REF_GEO = "userlocations_geo";
     private final static String INFO_LABEL_TIME = "time";
 
+    // Keys for request sending in
     public static final String PARAM_IN_REQUEST_TYPE = "IN_REQUEST_TYPE";
-    public static final String REQUEST_ADD_LISTENER = "REQUEST_ADD_LISTENER";
-    public static final String REQUEST_REMOVE_LISTENER = "REQUEST_REMOVE_LISTENER";
     public static final String PARAM_IN_REFER_KEY = "IN_REFER_KEY";
 
+    // Values for request type
+    public static final String REQUEST_ADD_LISTENER = "REQUEST_ADD_LISTENER";
+    public static final String REQUEST_REMOVE_LISTENER = "REQUEST_REMOVE_LISTENER";
+    public static final String REQUEST_GET_CURR_GEODATA = "REQUEST_GET_CURRENT_GEODATA";
+    public static final String REQUEST_CLEAR_LOCATION_RECORDS = "REQUEST_CLEAR_LOCATION_RECORDS";
+
+    // Keys for data sending out
     public static final String PARAM_OUT_REFER_EVENT = "OUT_REFER_TO_EVENT";
     public static final String PARAM_OUT_REFER_KEY = "OUT_REFER_TO_KEY";
     public static final String PARAM_OUT_LOCATIONS = "OUT_LOCATIONS";
     public static final String PARAM_OUT_LOCATION_INFOS = "OUT_LOCATION_INFOS";
-
     public static final String PARAM_OUT_UID = "OUT_UID";
-    public static final String PARAM_OUT_LOCATION = "OUT_LOCATION";
-    public static final String PARAM_OUT_LOCATION_INFO = "OUT_LOCATION_INFO";
+    public static final String PARAM_OUT_DISTANCE = "OUT_DISTANCE";
+    public static final String PARAM_OUT_TIME = "OUT_TIME";
+    public static final String PARAM_OUT_LATLNG = "OUT_LATLNG";
+    public static final String PARAM_OUT_REQUEST_TYPE = "PARAM_OUT_REQUEST_TYPE";
+    public static final String PARAM_OUT_REQUEST_SUCCESS = "PARAM_OUT_REQUEST_SUCCESS";
 
     // Indicates the type of GeoQueryEvent for broadcasting purposes.
     public static final String ON_KEY_ENTERED = "ON_KEY_ENTERED";
     public static final String ON_KEY_EXITED = "ON_KEY_EXITED";
     public static final String ON_KEY_MOVED = "ON_KEY_MOVED";
+    public static final String ON_REQUEST_CURR_DATA = "ON_REQUEST_CURR_DATA";
+
+    // Geo query settings
+    public final static Double DEFAULT_GEO_QUERY_RADIUS = 2.0;
 
     /**
-     * TODO: Consider change radius to dynamic
+     * Receiver for self position updates.
      */
-    private final static Double GEO_QUERY_RADIUS = 2.0;
-
-    private final String TAG = LocationSharingService.class.getSimpleName();
-
     private SelfPositionReceiver mSelfPositionReceiver;
+
+    /**
+     * Root database reference.
+     */
     private DatabaseReference mRootRef;
+
+    /**
+     * Main GeoFire object.
+     */
     private GeoFire mGeoFire;
+
+    /**
+     * Current location of user's device.
+     */
+    private Location mSelfLocation;
 
     /**
      * GeoFire location query. Will only start when the device location has been detected.
@@ -132,11 +166,23 @@ public class LocationSharingService extends Service implements
      */
     public ValueEventListener mSingleGeoLocationListener;
 
-    // TEST ONLY
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public FirebaseAuth mTestAuth;
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public UserManagement mTestUserManagement;
+
     @RestrictTo(RestrictTo.Scope.TESTS)
     public Boolean mFirebaseQueryExecuted = false;
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public Boolean mNearbyNotificationSent = false;
+
     @RestrictTo(RestrictTo.Scope.TESTS)
     public Boolean mQueryResultSent = false;
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public SharedPreferences mTestPref;
 
     public LocationSharingService() {
     }
@@ -159,18 +205,13 @@ public class LocationSharingService extends Service implements
 
         createSingleGeoLocationListener();
         registerReceivers();
-
-        String testUser = "4yP0T1QjH3ZIraUIHIuoQpYhOkU2";
-        registerLocationListenerForUser(testUser);
     }
-
 
     @RestrictTo(RestrictTo.Scope.TESTS)
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
-
 
     @RestrictTo(RestrictTo.Scope.TESTS)
     public class LocationSharingBinder extends Binder {
@@ -184,9 +225,6 @@ public class LocationSharingService extends Service implements
         return mUserLocationListeners.containsKey(uid);
     }
 
-    /**
-     * TEST ONLY
-     */
     @RestrictTo(RestrictTo.Scope.TESTS)
     public boolean containsUserLocation(String uid) {
         return mGeoLocations.containsKey(uid);
@@ -197,10 +235,22 @@ public class LocationSharingService extends Service implements
         return mGeoLocations.get(uid);
     }
 
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public void setTestAuth(FirebaseAuth testAuth) {
+        this.mTestAuth = testAuth;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public ValueEventListener getGeoInfoSingleValueListener() {
+        return mGeoInfoSingleValueListener;
+    }
+
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
         if (intent != null) {
+            // Process requests
             String requestType = intent.getStringExtra(PARAM_IN_REQUEST_TYPE);
+
             if (requestType != null && requestType.equals(REQUEST_ADD_LISTENER)) {
                 String key = intent.getStringExtra(PARAM_IN_REFER_KEY);
                 if (key == null) {
@@ -216,6 +266,12 @@ public class LocationSharingService extends Service implements
                 } else {
                     unregisterLocationListenerForUser(key);
                 }
+            }
+            if (requestType != null && requestType.equals(REQUEST_GET_CURR_GEODATA)) {
+                broadcastCurrentGeoData();
+            }
+            if (requestType != null && requestType.equals(REQUEST_CLEAR_LOCATION_RECORDS)) {
+                clearLocationRecords();
             }
         }
 
@@ -233,8 +289,7 @@ public class LocationSharingService extends Service implements
     public void onKeyEntered(String key, GeoLocation location) {
         // Only report information that has not expire
         //Log.v(TAG, "GeoQueryEvent: Key entered." + key);
-        if (key.equals(getCurrentUserUID())) {
-            // No need to know self location
+        if (!isGeoQueryKeyNeeded(key)) {
             return;
         }
         mGeoLocations.put(key, GeoUtil.geoToLatLng(location));
@@ -244,8 +299,7 @@ public class LocationSharingService extends Service implements
     @Override
     public void onKeyExited(String key) {
         Log.v(TAG, "GeoQueryEvent: Key exited." + key);
-        if (key.equals(getCurrentUserUID())) {
-            // No need to know self location
+        if (!isGeoQueryKeyNeeded(key)) {
             return;
         }
         mQueryResultSent = false;
@@ -257,8 +311,7 @@ public class LocationSharingService extends Service implements
     @Override
     public void onKeyMoved(String key, GeoLocation location) {
         Log.v(TAG, "GeoQueryEvent: Key moved." + key);
-        if (key.equals(getCurrentUserUID())) {
-            // No need to know self location
+        if (!isGeoQueryKeyNeeded(key)) {
             return;
         }
         mGeoLocations.put(key, GeoUtil.geoToLatLng(location));
@@ -267,13 +320,12 @@ public class LocationSharingService extends Service implements
 
     @Override
     public void onGeoQueryReady() {
-        Log.v(TAG, "GeoQuery has been initialized.");
+        Log.v(TAG, "GeoQuery is ready: listening for nearby friends.");
     }
 
     @Override
     public void onGeoQueryError(DatabaseError error) {
         Log.v(TAG, "GeoQuery error." + error.getMessage());
-        // TODO: Consider notifying UI to display error
     }
 
     /**
@@ -285,7 +337,7 @@ public class LocationSharingService extends Service implements
     @Override
     public void onSelfLocationChanged(Location location) {
         GeoLocation geoLocation = new GeoLocation(location.getLatitude(), location.getLongitude());
-        Double radius = GEO_QUERY_RADIUS;
+        Double radius = getGeoQueryRadius();
 
         if (mGeoQuery == null) {
             mGeoQuery = mGeoFire.queryAtLocation(geoLocation, radius);
@@ -294,9 +346,27 @@ public class LocationSharingService extends Service implements
             mGeoQuery.setLocation(geoLocation, radius);
         }
 
-        // Send new location to server
-        sendNewSelfLocation(location);
-        mFirebaseQueryExecuted = true;
+        mSelfLocation = location;
+
+        // Check settings first!
+        SharedPreferences preferences = getSettingsPreferences();
+        boolean enabled = preferences.getBoolean(getString(R.string.PREF_KEY_ENABLE_LOCATION_SHARING), true);
+
+        if (enabled) {
+            // Send new location to server
+            sendNewSelfLocation(location);
+            mFirebaseQueryExecuted = true;
+        }
+    }
+
+    /**
+     * Retrieve query radius from preferences, if not return default radius.
+     */
+    public double getGeoQueryRadius() {
+        SharedPreferences preferences = PreferencesAccess.getSettingsPreferences(this);
+        long radius = preferences.getLong(getString(R.string.PREF_KEY_FILTER_DISTANCE),
+                (long)(double)DEFAULT_GEO_QUERY_RADIUS);
+        return radius;
     }
 
     /**
@@ -324,40 +394,170 @@ public class LocationSharingService extends Service implements
      * @param key
      */
     public void updateGeoLocationInfo(String key) {
-        mRootRef.child(getUserRefPath(RefType.GEO_INFO, key)).addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        GeoLocationInfo geoLocationInfo = dataSnapshot.getValue(GeoLocationInfo.class);
-                        String key = dataSnapshot.getKey();
-                        String type;
+        mRootRef.child(getUserRefPath(RefType.GEO_INFO, key))
+                .addListenerForSingleValueEvent(mGeoInfoSingleValueListener);
+    }
 
-                        // Determine which query event was fired
-                        if (mGeoInfos.containsKey(key)) {
-                            type = ON_KEY_MOVED;
-                        } else {
-                            type = ON_KEY_ENTERED;
+    /**
+     * SingleValueListener to retrieve geo location info after geo location data has been retrieved.
+     */
+    private ValueEventListener mGeoInfoSingleValueListener =
+            new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    GeoLocationInfo geoLocationInfo = dataSnapshot.getValue(GeoLocationInfo.class);
+                    String key = dataSnapshot.getKey();
+                    String type;
+
+                    // Determine which query event was fired
+                    type = mGeoInfos.containsKey(key) ? ON_KEY_MOVED : ON_KEY_ENTERED;
+
+                    if (geoLocationInfo != null && isGeoInfoExpired(geoLocationInfo)) {
+                        // Throw away a expired location info
+                        mGeoLocations.remove(key);
+                    } else {
+                        Log.v(TAG, "GeoQueryEvent: new location update");
+                        mQueryResultSent = false;
+                        // Only send broadcast if geo info is not expired
+                        mGeoInfos.put(key, geoLocationInfo);
+                        broadcastGeoLocationsUpdate(type, key);
+
+                        // Only send location notification if the time is close to now.
+                        if (type.equals(ON_KEY_ENTERED)
+                                || TimeUtil.isTimeCloseToNow(geoLocationInfo.time) ) {
+                            // Only send notification if it is enabled
+                            if (isNotificationEnabled()) {
+                                sendLocationNotification(key);
+                                mNearbyNotificationSent = true;
+                            }
                         }
-
-                        if (geoLocationInfo != null && isGeoInfoExpired(geoLocationInfo)) {
-                            // Throw away a expired location info
-                            mGeoLocations.remove(key);
-                        } else {
-                            Log.v(TAG, "GeoQueryEvent: new location update");
-                            mQueryResultSent = false;
-                            // Only send broadcast if geo info is not expired
-                            mGeoInfos.put(key, geoLocationInfo);
-                            broadcastGeoLocationsUpdate(type, key);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.v(TAG, "Error retriving extra information for a geo location record. "
-                                + databaseError.getMessage());
                     }
                 }
-        );
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.v(TAG, "Error retriving extra information for a geo location record. "
+                            + databaseError.getMessage());
+                }
+            };
+
+    /**
+     * Retrieve {@link SharedPreferences} for settings.
+     * Allow test preference injection.
+     */
+    private SharedPreferences getSettingsPreferences() {
+        if (mTestPref != null) {
+            // Allow test preference injection
+            return mTestPref;
+        } else {
+            return PreferencesAccess.getSettingsPreferences(this);
+        }
+    }
+
+    /**
+     * Check whether the user has enabled nearby friends notification
+     */
+    private boolean isNotificationEnabled() {
+        SharedPreferences preferences = getSettingsPreferences();
+        boolean enabled = preferences.getBoolean(
+                getString(R.string.PREF_KEY_ENABLE_NEARBY_NOTIFICATION),
+                false);
+        return enabled;
+    }
+
+    /**
+     * Determines whether we need the information associated with the key from geo query result.
+     * (The key is current user's uid -> no)
+     * (The key is a not a friend' uid -> no)
+     * @param key uid
+     */
+    private boolean isGeoQueryKeyNeeded(String key) {
+        UserManagement userManagement;
+        if (mTestUserManagement != null) {
+            // Inject fake UserManagement for test mode
+            userManagement = mTestUserManagement;
+        } else {
+            userManagement = UserManagement.getInstance();
+        }
+        return !key.equals(getCurrentUserUID()) && userManagement.isUserFriend(key);
+    }
+
+    /**
+     * Get human-readable distance between the user and a friend's locations.
+     * @param uid friend's uid
+     */
+    private String getFriendDistanceReadable(String uid) {
+        // Return empty string if self location is unknown.
+        if (mSelfLocation == null) {
+            return "";
+        }
+
+        LatLng latLngSelf = GeoUtil.locationToLatLng(mSelfLocation);
+        LatLng latLngFriend = mGeoLocations.get(uid);
+
+        // Return empty string if friend's location is unknown.
+        if (latLngFriend == null) {
+            return "";
+        }
+
+        Log.v(TAG, "Distance from " + latLngSelf.toString() + " to " + latLngFriend.toString());
+        double distance = GeoUtil.distanceBetween(latLngSelf, latLngFriend);
+        return GeoUtil.distanceToReadable(distance);
+    }
+
+    /**
+     * Get human-readable time of friend's last location update.
+     * @param uid friend's uid
+     */
+    private String getFriendLastLocationTime(String uid) {
+        GeoLocationInfo geoLocationInfo = mGeoInfos.get(uid);
+
+        // Return empty string if friend's location is unknown.
+        if (geoLocationInfo == null) {
+            return "";
+        }
+
+        return TimeUtil.getFriendlyTime(geoLocationInfo.time);
+    }
+
+    /**
+     * Send friend's location update to the system.
+     * @param uid friend's uid
+     */
+    private void sendLocationNotification(String uid) {
+        if (MapContainerFragment.sIsMapOpen == true) {
+            return;
+        }
+
+        String distance = getFriendDistanceReadable(uid);
+        String time = getFriendLastLocationTime(uid);
+
+        Intent intent = new Intent(this, MainViewActivity.class);
+
+        // Remove an older notification if there is
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                .setContentTitle(getResources().getString(R.string.app_name))
+                .setContentText("Your friend " + uid + " is " + distance + " away " + time)
+                .setSmallIcon(R.drawable.logo)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent);
+
+        int notificationId = (int) System.currentTimeMillis();
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(notificationId, mBuilder.build());
+    }
+
+    /**
+     * Send current geo data broadcast to receivers.
+     */
+    private void broadcastCurrentGeoData() {
+        broadcastGeoLocationsUpdate(ON_REQUEST_CURR_DATA, null);
     }
 
     /**
@@ -384,10 +584,7 @@ public class LocationSharingService extends Service implements
     }
 
     public void registerPositioningReceiver() {
-        IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        mSelfPositionReceiver = new SelfPositionReceiver(this);
-        registerReceiver(mSelfPositionReceiver, filter);
+        mSelfPositionReceiver = SelfPositionReceiver.register(this, this);
     }
 
     /**
@@ -428,6 +625,32 @@ public class LocationSharingService extends Service implements
                 }
             }
         });
+    }
+
+    /**
+     * Send intent to LocationSharingService to request for listening for a user's location updates.
+     * Provides helpful functionality for external use.
+     * @param context context t call service
+     * @param uid user's uid to listenm
+     */
+    public static void requestAddUserLocationListener(Context context, String uid) {
+        Intent intent = new Intent(context, LocationSharingService.class);
+        intent.putExtra(LocationSharingService.PARAM_IN_REQUEST_TYPE, LocationSharingService.REQUEST_ADD_LISTENER);
+        intent.putExtra(LocationSharingService.PARAM_IN_REFER_KEY, uid);
+        context.startService(intent);
+    }
+
+    /**
+     * Send intent to LocationSharingService to request for STOP listening for a user's location updates.
+     * Provides helpful functionality for external use.
+     * @param context context t call service
+     * @param uid user's uid to listenm
+     */
+    public static void requestRemoveUserLocationListener(Context context, String uid) {
+        Intent intent = new Intent(context, LocationSharingService.class);
+        intent.putExtra(LocationSharingService.PARAM_IN_REQUEST_TYPE, LocationSharingService.REQUEST_REMOVE_LISTENER);
+        intent.putExtra(LocationSharingService.PARAM_IN_REFER_KEY, uid);
+        context.startService(intent);
     }
 
     /**
@@ -486,8 +709,9 @@ public class LocationSharingService extends Service implements
 
         broadcastIntent.putExtra(PARAM_OUT_UID, uid);
         // Pass LatLng since it is parcelable.
-        broadcastIntent.putExtra(PARAM_OUT_LOCATION, GeoUtil.geoToLatLng(geoLocation));
-        broadcastIntent.putExtra(PARAM_OUT_LOCATION_INFO, info);
+        broadcastIntent.putExtra(PARAM_OUT_LATLNG, GeoUtil.geoToLatLng(geoLocation));
+        broadcastIntent.putExtra(PARAM_OUT_DISTANCE, getFriendDistanceReadable(uid));
+        broadcastIntent.putExtra(PARAM_OUT_TIME, getFriendLastLocationTime(uid));
 
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(broadcastIntent);
@@ -521,7 +745,13 @@ public class LocationSharingService extends Service implements
      */
     private String getCurrentUserUID(){
         // Get current user('s id).
-        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseAuth auth;
+        if (mTestAuth != null) {
+            // Inject fake FirebaseAuth for test mode
+            auth = mTestAuth;
+        } else {
+            auth = FirebaseAuth.getInstance();
+        }
         FirebaseUser user = auth.getCurrentUser();
         if (user == null) {
             return null;
@@ -530,6 +760,71 @@ public class LocationSharingService extends Service implements
         }
     }
 
+    /**
+     * Send running {@link LocationSharingService} a request to clear current user's location records
+     * @param context context that sends of the intent
+     */
+    public static void requestClearLocationRecords(Context context) {
+        Intent intent = new Intent(context, LocationSharingService.class);
+        intent.putExtra(PARAM_IN_REQUEST_TYPE, REQUEST_CLEAR_LOCATION_RECORDS);
+        context.startService(intent);
+    }
+
+    /**
+     * Clear user's location records on the server.
+     */
+    private void clearLocationRecords() {
+        // First remove geo location
+        mRootRef.child(getUserRefPath(RefType.GEO_LOCATION, getCurrentUserUID()))
+                .removeValue(new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError,
+                                           DatabaseReference databaseReference) {
+                        if (databaseError != null) {
+                            Log.v(TAG, "Error clearing user's location records: " + databaseError.getMessage());
+                            sendSimpleRequestResult(REQUEST_CLEAR_LOCATION_RECORDS, false);
+                        } else {
+                            // Then remove extra info for geo location
+                            mRootRef.child(getUserRefPath(RefType.GEO_INFO, getCurrentUserUID()))
+                                    .removeValue(onRecordsRemovalCompleteListener);
+                        }
+                    }
+                });
+    }
+
+    /**
+     * Handles when location records removal is complete.
+     */
+    private DatabaseReference.CompletionListener onRecordsRemovalCompleteListener =
+            new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError,
+                                       DatabaseReference databaseReference) {
+                    if (databaseError != null) {
+                        Log.v(TAG, "Error clearing user's location records: " + databaseError.getMessage());
+                        sendSimpleRequestResult(REQUEST_CLEAR_LOCATION_RECORDS, false);
+                    } else {
+                        Log.v(TAG, "User's location records has been successfully removed from server.");
+                        sendSimpleRequestResult(REQUEST_CLEAR_LOCATION_RECORDS, true);
+                    }
+                }
+    };
+
+    /**
+     * Send back the result of clearing location records.
+     * @param success status of the result
+     */
+    private void sendSimpleRequestResult(String requestType, boolean success) {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(SimpleRequestResultReceiver.ACTION_SIMPLE_REQUEST_RESULT);
+
+        broadcastIntent.putExtra(PARAM_OUT_REQUEST_TYPE, requestType);
+        broadcastIntent.putExtra(PARAM_OUT_REQUEST_SUCCESS, success);
+
+        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(broadcastIntent);
+        Log.v(TAG, requestType + " has been processed and result has been sent.");
+    }
 
     /**
      * Get specific reference path (of UserLocation data) by user id

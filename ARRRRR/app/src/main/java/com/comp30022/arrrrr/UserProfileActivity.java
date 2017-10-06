@@ -1,11 +1,18 @@
 package com.comp30022.arrrrr;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.comp30022.arrrrr.database.UserManagement;
+import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -14,8 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import com.comp30022.arrrrr.models.User;
-import com.comp30022.arrrrr.utils.Constants;
+import java.io.IOException;
 
 public class UserProfileActivity extends AppCompatActivity {
 
@@ -26,8 +32,17 @@ public class UserProfileActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private DatabaseReference myRef;
-    private  String userID;
-    User uInfo = new User();
+    private String userID;
+    private User uInfo = new User();
+
+    //Text view and Image view
+    private TextView UserId;
+    private TextView UserName;
+    private TextView UserEmail;
+    private TextView UserPhone;
+    private TextView UserGender;
+    private TextView UserAddress;
+    private ImageButton UserImage;
 
 
     /**-------------------------------------**/
@@ -62,19 +77,22 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private void showData(DataSnapshot dataSnapshot) {
 
-        TextView UserId = (TextView)findViewById(R.id.search_result_email);
-        TextView UserEmail = (TextView)findViewById(R.id.email);
-        TextView UserPhone = (TextView)findViewById(R.id.number);
-        TextView UserGender = (TextView)findViewById(R.id.gender);
-        TextView UserAddress = (TextView)findViewById(R.id.address);
-
+        UserId = (TextView)findViewById(R.id.search_result_email);
+        UserName = (TextView)findViewById(R.id.user_profile_name);
+        UserEmail = (TextView)findViewById(R.id.email);
+        UserPhone = (TextView)findViewById(R.id.number);
+        UserGender = (TextView)findViewById(R.id.gender);
+        UserAddress = (TextView)findViewById(R.id.address);
+        UserImage = (ImageButton)findViewById(R.id.user_profile_photo);
 
         for(DataSnapshot ds : dataSnapshot.getChildren()) {
             if (ds.child(userID).hasChild(Constants.ARG_USER_NAME)) {
                 uInfo.setUsername(ds.child(userID).getValue(User.class).getUsername()); //set the name
                 UserId.setText("Name:  "+ uInfo.getUsername());
+                UserName.setText(uInfo.getUsername());
             }else {
-                UserId.setText("Name: please complete your profile by clicking Edit");
+                UserId.setText("Name: ");
+                UserName.setText("User");
             }
 
             if (ds.child(userID).hasChild(Constants.ARG_PHONE_NUM)) {
@@ -99,6 +117,18 @@ public class UserProfileActivity extends AppCompatActivity {
                 UserAddress.setText("Address: "+uInfo.getAddress());
             }else
                 UserAddress.setText("Address:");
+
+            if(ds.child(userID).hasChild(Constants.ARG_IMAGE)){
+
+                try{
+                    // Use UserManagement to get profile image
+                    //String url = ds.child(userID).child(Constants.ARG_IMAGE).getValue(String.class);
+                    Bitmap imageBitmap = UserManagement.getInstance().getUserProfileImage(userID, this);
+                    UserImage.setImageBitmap(imageBitmap);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
 
         }
     }

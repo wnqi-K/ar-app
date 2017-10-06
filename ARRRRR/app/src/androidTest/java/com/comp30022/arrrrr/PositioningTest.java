@@ -26,7 +26,10 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Test for fetch address service
+ * Test for {@link PositioningService}
+ *
+ * Tests included:
+ * - Handling new self location update
  *
  * @author Dafu Ai
  */
@@ -64,7 +67,7 @@ public class PositioningTest {
     @Test
     public void testStartService() throws InterruptedException {
         Intent intent = new Intent(mContext, PositioningService.class);
-        intent.putExtra(PositioningService.PARAM_IN_PERM_GRANTED, true);
+        intent.putExtra(PositioningService.PARAM_IN_REQUEST_START, true);
         mContext.startService(intent);
 
         Thread.sleep(100);

@@ -12,33 +12,35 @@
 
         <ImageView
             android:id="@+id/header_cover_image"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_width="180dp"
+            android:layout_height="250dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
             android:scaleType="centerCrop" />
 
         <ImageButton
             android:id="@+id/user_profile_photo"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginTop="23dp"
-            android:elevation="5dp"
-            android:padding="20dp"
-            android:scaleType="centerCrop"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
             android:onClick="SelectPhoto"
+            android:padding="2dp"
+            android:scaleType="centerCrop"
             android:src="@drawable/profilephoto"
+            android:background="@drawable/imagebtn_selector_border"
             android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_alignStart="@+id/header_cover_image"
+            android:layout_marginTop="15dp" />
 
         <TextView
             android:id="@+id/user_profile_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="150dp"
-            android:text="User"
             android:textColor="#fff"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_marginTop="13dp"
+            android:layout_below="@+id/user_profile_photo"
+            android:layout_centerHorizontal="true" />
 
 
         <!--User info-->
@@ -47,15 +49,17 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/header_cover_image"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:id="@+id/linearLayout2">
 
-            <TextView android:id="@+id/search_result_email"
+            <TextView
+                android:id="@+id/search_result_email"
                 android:layout_width="@dimen/padding_user_profile"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="5dp"
-                android:padding="10dp"
-                android:background="@drawable/userprofile_rounded_bg" />
+                android:background="@drawable/userprofile_rounded_bg"
+                android:padding="10dp" />
 
             <TextView android:id="@+id/gender"
                 android:layout_width="@dimen/padding_user_profile"

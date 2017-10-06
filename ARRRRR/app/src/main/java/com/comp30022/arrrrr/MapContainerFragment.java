@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import com.comp30022.arrrrr.receivers.AddressResultReceiver;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
+import com.comp30022.arrrrr.utils.BroadcastReceiverManager;
 import com.comp30022.arrrrr.utils.LocationPermissionHelper;
 import com.comp30022.arrrrr.utils.LocationSettingsHelper;
 import com.comp30022.arrrrr.utils.MapUIManager;
@@ -53,8 +54,7 @@ public class MapContainerFragment extends Fragment implements
      */
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
 
-    // Keys for storing activity state in the Bundle.
-    private final static String KEY_SELF_LOCATION = "self_location";
+    public static boolean sIsMapOpen;
 
     /**
      * Tracks the status of the location updates request. Value changes when the user presses the
@@ -65,7 +65,7 @@ public class MapContainerFragment extends Fragment implements
     /**
      * Contains all broadcast receivers
      */
-    private ArrayList<BroadcastReceiver> mBroadcastReceivers;
+    private BroadcastReceiverManager mBroadcastReceivers;
 
     /**
      * Context that this fragment is running under.
@@ -104,7 +104,7 @@ public class MapContainerFragment extends Fragment implements
         setHasOptionsMenu(true);
 
         mRequestingLocationUpdates = false;
-        mBroadcastReceivers = new ArrayList<>();
+        mBroadcastReceivers = new BroadcastReceiverManager(getActivity());
         // TODO: Update values using data stored in the Bundle.
     }
 
@@ -142,6 +142,7 @@ public class MapContainerFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
+        sIsMapOpen = true;
 
         ServiceManager.startLocationSharingService(getActivity());
 
@@ -162,8 +163,9 @@ public class MapContainerFragment extends Fragment implements
     @Override
     public void onPause() {
         super.onPause();
+        sIsMapOpen = false;
 
-        unregisterReceivers();
+        mBroadcastReceivers.unregisterAll();
         if (mMapUIManager != null) {
             // mMapUIManager may not have been initialized.
             mMapUIManager.saveCurrentMapView();
@@ -304,43 +306,20 @@ public class MapContainerFragment extends Fragment implements
 
     public void registerPositioningReceiver(
             @NonNull SelfPositionReceiver.SelfLocationListener listener) {
-
-        IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        SelfPositionReceiver mPositioningReceiver = new SelfPositionReceiver(listener);
-        getActivity().registerReceiver(mPositioningReceiver, filter);
-        mBroadcastReceivers.add(mPositioningReceiver);
+        SelfPositionReceiver receiver = SelfPositionReceiver.register(getActivity(), listener);
+        mBroadcastReceivers.add(receiver);
     }
 
     public void registerServerLocationsReceiver(
             @NonNull GeoQueryLocationsReceiver.GeoQueryLocationsListener listener) {
-        IntentFilter filter = new IntentFilter(GeoQueryLocationsReceiver.ACTION_GEOQUERY_LOCATIONS);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        GeoQueryLocationsReceiver mServerLocationsReceiver = new GeoQueryLocationsReceiver(listener);
-        getActivity().registerReceiver(mServerLocationsReceiver, filter);
-        mBroadcastReceivers.add(mServerLocationsReceiver);
+        GeoQueryLocationsReceiver receiver = GeoQueryLocationsReceiver.register(getActivity(), listener);
+        mBroadcastReceivers.add(receiver);
     }
 
     public void registerAddressResultReceiver(
             @NonNull AddressResultReceiver.AddressResultListener listener) {
-        IntentFilter filter = new IntentFilter(AddressResultReceiver.ACTION_ADDRESS_RESULT);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        AddressResultReceiver mAddressResultReceiver = new AddressResultReceiver(listener);
-        getActivity().registerReceiver(mAddressResultReceiver, filter);
-        mBroadcastReceivers.add(mAddressResultReceiver);
-    }
-
-    /**
-     * Unregister all receives. Should be called in onPause().
-     */
-    public void unregisterReceivers() {
-        for (BroadcastReceiver receiver: mBroadcastReceivers) {
-            try {
-                getActivity().unregisterReceiver(receiver);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            }
-        }
+        AddressResultReceiver receiver = AddressResultReceiver.register(getActivity(), listener);
+        mBroadcastReceivers.add(receiver);
     }
 
     public interface OnMapContainerFragmentInteractionListener {

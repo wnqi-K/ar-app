@@ -1,5 +1,8 @@
 package com.comp30022.arrrrr.utils;
 
+import android.location.Location;
+import android.support.annotation.NonNull;
+
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.util.GeoUtils;
 import com.google.android.gms.maps.model.LatLng;
@@ -16,8 +19,25 @@ public class GeoUtil {
      * Convert a GeoLocation object to a LatLng object (to make it parcelable)
      * We can do this since geolocation contains essentially the same information with LatLng.
      */
-    public static LatLng geoToLatLng(GeoLocation geoLocation) {
+    public static LatLng geoToLatLng(@NonNull GeoLocation geoLocation) {
         return new LatLng(geoLocation.latitude, geoLocation.longitude);
+    }
+
+    /**
+     * Convert a Location object to a LatLng object
+     */
+    public static LatLng locationToLatLng(@NonNull Location location) {
+        return new LatLng(location.getLatitude(), location.getLongitude());
+    }
+
+    /**
+     * Convert a LatLng object to a Location object
+     */
+    public static Location latLngToLocation(@NonNull LatLng latLng) {
+        Location location = new Location("");
+        location.setLatitude(latLng.latitude);
+        location.setLongitude(latLng.longitude);
+        return location;
     }
 
     /**

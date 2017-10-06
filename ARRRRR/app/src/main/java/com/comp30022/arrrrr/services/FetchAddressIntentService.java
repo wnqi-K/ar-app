@@ -1,6 +1,7 @@
 package com.comp30022.arrrrr.services;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
@@ -81,6 +82,15 @@ public class FetchAddressIntentService extends IntentService {
         Log.v(TAG, "Fetching address: an address has been found.");
         Address address = addresses.get(0);
         sendResultBroadcast(true, address, location);
+    }
+
+    /**
+     * Send an intent to {@link FetchAddressIntentService} to request fetching location to address
+     */
+    public static void requestFetchAddress(Context context, Location location) {
+        Intent intent = new Intent(context, FetchAddressIntentService.class);
+        intent.putExtra(FetchAddressIntentService.PARAM_IN_LOCATION_DATA, location);
+        context.startService(intent);
     }
 
     /**

@@ -3,6 +3,7 @@ package com.comp30022.arrrrr.receivers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 
 import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.services.LocationSharingService;
@@ -30,17 +31,33 @@ public class SingleUserLocationReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String uid = intent.getStringExtra(LocationSharingService.PARAM_OUT_UID);
-        LatLng latLng = intent.getParcelableExtra(LocationSharingService.PARAM_OUT_LOCATION);
-        GeoLocationInfo info = intent.getParcelableExtra(LocationSharingService.PARAM_OUT_LOCATION_INFO);
+        String distance = intent.getStringExtra(LocationSharingService.PARAM_OUT_DISTANCE);
+        String time = intent.getStringExtra(LocationSharingService.PARAM_OUT_TIME);
+        LatLng latLng = intent.getParcelableExtra(LocationSharingService.PARAM_OUT_LATLNG);
 
         // Notify listener.
-        mListener.onReceivingSingleUserLocation(uid, latLng, info);
+        mListener.onReceivingSingleUserLocation(uid, latLng, distance, time);
     }
 
     /**
      * Required interface in order to use this receiver.
      */
     public interface SingleUserLocationListener {
-        void onReceivingSingleUserLocation(String uid, LatLng latLng, GeoLocationInfo info);
+        void onReceivingSingleUserLocation(String uid, LatLng latLng, String distance, String time);
+    }
+
+    /**
+     * Provides receiver registration functionality.
+     * @param context context which registration is attached
+     * @param listener {@link SingleUserLocationListener}
+     * @return a SingleUserLocationReceiver object which has been registered
+     */
+    public static SingleUserLocationReceiver register(Context context,
+                                                      SingleUserLocationListener listener) {
+        SingleUserLocationReceiver receiver = new SingleUserLocationReceiver(listener);
+        IntentFilter filter = new IntentFilter(ACTION_SINGE_USER_LOCATION);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        context.registerReceiver(receiver, filter);
+        return receiver;
     }
 }

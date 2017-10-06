@@ -1,12 +1,20 @@
 package com.comp30022.arrrrr.database;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 
+import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -22,6 +30,7 @@ public class UserManagement {
     private List<User> mFriendList =  new ArrayList<>();
     private List<User> mAdminList = new ArrayList<>();
     private User mCurrentUser;
+    private HashMap<String, Bitmap> mProfileImages = new HashMap<>();
 
     // getters and setters.
     public List<User> getFriendList() {
@@ -81,4 +90,122 @@ public class UserManagement {
     public void getUsersUnsuccessfully(String message){
         Log.d("Firebase", message);
     }
+
+    /**
+     * Given a user uid, determines whether this user is a friend of the device user.
+     */
+    public boolean isUserFriend(String uid) {
+        List<User> friends = getFriendList();
+        for (User user : friends) {
+            if (user.getUid().equals(uid)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Retrieve user profile image. Lazy loading.
+     * @param uid user's uid
+     * @return profile image in {@link Bitmap}
+     */
+    public Bitmap getUserProfileImage(String uid, Context context) {
+        String imageUrl64 = null;
+
+        User user = getUserByUID(uid);
+
+        if (user == null) {
+            return null;
+        }
+
+        imageUrl64 = user.getImageUrl();
+
+
+        if (imageUrl64 == null) {
+            // User does not have profile image, so return default profile image
+            return BitmapFactory.decodeResource(context.getResources(),
+                                                             R.drawable.portrait_photo);
+        }
+
+        // Return loaded profile image
+        if (mProfileImages.containsKey(uid)) {
+            return mProfileImages.get(uid);
+        }
+
+        // Load profile image now
+        try {
+            byte[] decodedByteArray = Base64.decode(imageUrl64, Base64.DEFAULT);
+            Bitmap img = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
+            // Save image
+            mProfileImages.put(uid, img);
+            return img;
+        } catch (Exception e) {
+            // Return null if decoding fails.
+            return null;
+        }
+    }
+
+    /**
+     * Retrieve the User object given a user's uid
+     * @param uid user's uid
+     * @return User object if found; null if not found
+     */
+    public User getUserByUID(String uid) {
+        User userFound = null;
+        for (User user: getUserList()) {
+            if (user.getUid().equals(uid)) {
+                userFound = user;
+                break;
+            }
+        }
+        if (getCurrentUser().getUid().equals(uid)) {
+            userFound = getCurrentUser();
+        }
+        return userFound;
+    }
+
+    /**
+     * Define the standard method to get a user's display name.
+     * @param uid user's uid
+     * @return display name in String; empty string if uid not found
+     */
+    public String getUserDisplayName(String uid) {
+        User user = getUserByUID(uid);
+        if (user == null) {
+            return "";
+        }
+        return user.getEmail();
+    }
+
+    /**
+     * FOR TEST ONLY.
+     * Check whether a user exists using its uid
+     * @param uid user's uid
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public boolean isUserExist(String uid) {
+        for (User user : getUserList()) {
+            if (user.getUid().equals(uid)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * FOR TEST ONLY.
+     * Add user to the local user list
+     * @param user new user
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public void addUser(User user) {
+        if (getCurrentUser().getUid().equals(user.getUid()) || isUserExist(user.getUid())) {
+            return;
+        }
+        if (user.getAdmin().equals("True")) {
+            mAdminList.add(user);
+        }
+        mUserList.add(user);
+    }
+
 }

@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -18,7 +17,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -35,7 +33,7 @@ import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.services.FetchAddressIntentService;
 import com.comp30022.arrrrr.services.LocationSharingService;
-import com.firebase.geofire.GeoLocation;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -73,6 +71,9 @@ public class MapUIManager implements
     private final int CIRCLE_STROKE_WIDTH = 3;
     private final int PROFILE_ICON_WIDTH = 100;
     private final int PROFILE_ICON_HEIGHT = 100;
+    private final double DEFAULT_INI_LAT = -37.8141;
+    private final double DEFAULT_INT_LONG = 144.9633;
+
 
     private GoogleMap mGoogleMap;
     private Marker mSelfMarker;
@@ -107,12 +108,12 @@ public class MapUIManager implements
      */
     @Override
     public void onInfoWindowClick(Marker marker) {
-        CharSequence options[] = new CharSequence[] {"Navigate by AR", "Chat"};
+        CharSequence options[] = new CharSequence[]{"Navigate by AR", "Chat"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         String uid = (String) marker.getTag();
         mBufferFriendUid = uid;
-        builder.setTitle(uid);
+        builder.setTitle(UserManagement.getInstance().getUserDisplayName(uid));
         builder.setIcon(new BitmapDrawable(mContext.getResources(), mFriendIcons.get(uid)));
         builder.setItems(options, new DialogInterface.OnClickListener() {
             @Override
@@ -160,7 +161,7 @@ public class MapUIManager implements
             String time = TimeUtil.getFriendlyTime(mUserGeoLocationInfos.get(uid).time);
 
             textViewClickHint.setText(R.string.friend_info_window_click_hint);
-            textViewUserName.setText(uid);
+            textViewUserName.setText(UserManagement.getInstance().getUserDisplayName(uid));
             textViewGeoInfo.setText(time);
         }
     }
@@ -179,60 +180,49 @@ public class MapUIManager implements
         hideProgressBarLocating();
     }
 
+    /**
+     * Handles a GeoQuery event result by updating markers accordingly.
+     */
     @Override
-    public void onGeoQueryEvent(String type, String key, HashMap<String, LatLng> geoLocations, HashMap<String, GeoLocationInfo> geoLocationInfos) {
+    public void onGeoQueryEvent(String type,
+                                String key,
+                                HashMap<String, LatLng> geoLocations,
+                                HashMap<String, GeoLocationInfo> geoLocationInfos) {
         if (type == null) {
             Log.v(TAG, "Error receiving intent content.");
             return;
         }
-        if (type.equals(LocationSharingService.ON_KEY_ENTERED) ) {
-            // Create new marker
-            LatLng position = geoLocations.get(key);
-            Log.v(TAG, "Found a friend at ("
-                    + String.valueOf(position.latitude)
-                    + ", "
-                    + String.valueOf(position.longitude)
-                    + ").");
-
-
-            // TODO: use real profile photo when ready
-            Bitmap profileBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.portrait_photo);
-            Bitmap circleBitmap = BitmapUtil.getCircleCrop(profileBitmap);
-            Bitmap profileIconBitmap = BitmapUtil.getResizedBitmap(circleBitmap, PROFILE_ICON_WIDTH, PROFILE_ICON_HEIGHT);
-            BitmapDescriptor iconDescriptor = BitmapDescriptorFactory.fromBitmap(profileIconBitmap);
-
-
-            Marker FriendMarker = mGoogleMap.addMarker(new MarkerOptions()
-                    .position(position)
-                    .icon(iconDescriptor)
-            );
-            FriendMarker.setTag(key);
-
-            mFriendMarkers.put(key, FriendMarker);
-            if (!mFriendIcons.containsKey(key)) {
-                mFriendIcons.put(key, profileIconBitmap);
-            }
-            this.mUserGeoLocationInfos = geoLocationInfos;
-            this.mUserGeoLocations = geoLocations;
-        } else if (type.equals(LocationSharingService.ON_KEY_EXITED) ) {
+        if (type.equals(LocationSharingService.ON_KEY_ENTERED)) {
+            updateLocalGeoData(geoLocations, geoLocationInfos);
+            addFriendMarker(key);
+        } else if (type.equals(LocationSharingService.ON_KEY_EXITED)) {
             // Remove marker
-            mFriendMarkers.get(key).remove();
-            mFriendMarkers.remove(key);
+            if (mFriendMarkers.containsKey(key)) {
+                mFriendMarkers.get(key).remove();
+                mFriendMarkers.remove(key);
+            }
         } else if (type.equals(LocationSharingService.ON_KEY_MOVED)) {
-            // Move marker
-            LatLng position = geoLocations.get(key);
-            // mFriendMarkers.get(key).setPosition(position);
-            // Animate marker intead of simply changing its location
-            LatLngInterpolator interpolator = new LatLngInterpolator.LinearFixed();
-            MarkerAnimation.animateMarkerToICS(mFriendMarkers.get(key), position, interpolator);
-            this.mUserGeoLocationInfos = geoLocationInfos;
-            this.mUserGeoLocations = geoLocations;
+            if (!geoLocations.containsKey(key)) {
+                // A new friend!
+                updateLocalGeoData(geoLocations, geoLocationInfos);
+                addFriendMarker(key);
+            } else {
+                // Move marker
+                LatLng position = geoLocations.get(key);
+                moveMarkerSmoothly(key, position);
+                updateLocalGeoData(geoLocations, geoLocationInfos);
+            }
+        } else if (type.equals(LocationSharingService.ON_REQUEST_CURR_DATA)) {
+            updateLocalGeoData(geoLocations, geoLocationInfos);
+            restoreFriendMarkers();
         }
     }
 
     /**
      * Initialize GoogleMaps UI:
-     * TODO: add comments
+     * - set up listeners for GoogleMap
+     * - restore previous camera view
+     * - add customized my location button
      */
     public void initializeMapUI() {
         mGoogleMap.setOnMarkerClickListener(this);
@@ -240,7 +230,8 @@ public class MapUIManager implements
         mGoogleMap.setOnInfoWindowClickListener(this);
         mGoogleMap.setOnCameraMoveListener(this);
         mGoogleMap.setOnMyLocationButtonClickListener(this);
-        restoreCurrentMapView();
+        restorePrevMapView();
+        requestToGetCurrData();
 
         // Relocate my location button
         View locationButton = ((View) mContext.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
@@ -257,7 +248,7 @@ public class MapUIManager implements
      */
     @Override
     public void onSelfLocationChanged(Location location) {
-        requestFetchAddress(location);
+        FetchAddressIntentService.requestFetchAddress(mContext, location);
         showProgressBarLocating();
 
         LatLng currLatLng = locationToLatLng(location);
@@ -286,14 +277,13 @@ public class MapUIManager implements
             mSelfMarker.setPosition(currLatLng);
         }
 
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
+        animateCameraToPosition(currLatLng);
     }
 
     @Override
     public boolean onMyLocationButtonClick() {
         if (isMyPosInitialized()) {
-            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(mSelfMarker.getPosition()));
-            mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
+            animateCameraToPosition(mSelfMarker.getPosition());
         }
         return true;
     }
@@ -302,7 +292,7 @@ public class MapUIManager implements
     public void onCameraMove() {
         if (isMyPosInitialized()) {
             if (mGoogleMap.getCameraPosition().target != mSelfMarker.getPosition() ||
-                  mGoogleMap.getCameraPosition().zoom != DEFAULT_CAMERA_ZOOM_LEVEL) {
+                    mGoogleMap.getCameraPosition().zoom != DEFAULT_CAMERA_ZOOM_LEVEL) {
                 //noinspection MissingPermission
                 mGoogleMap.setMyLocationEnabled(true);
             } else {
@@ -313,20 +303,83 @@ public class MapUIManager implements
     }
 
     /**
+     * Animate camera to specified position and adjust the zoom level
+     */
+    private void animateCameraToPosition(LatLng position) {
+        CameraUpdate cameraUpdate =
+                CameraUpdateFactory.newLatLngZoom(position, DEFAULT_CAMERA_ZOOM_LEVEL);
+        mGoogleMap.animateCamera(cameraUpdate);
+    }
+
+    /**
+     * Update local data (from geo query results)
+     */
+    private void updateLocalGeoData(HashMap<String, LatLng> geoLocations,
+                                    HashMap<String, GeoLocationInfo> geoLocationInfos) {
+        mUserGeoLocations = geoLocations;
+        mUserGeoLocationInfos = geoLocationInfos;
+    }
+
+    /**
+     * Add a new marker associated with a friend.
+     *
+     * @param key friend's uid
+     */
+    private void addFriendMarker(String key) {
+        // Create new marker
+        LatLng position = mUserGeoLocations.get(key);
+        Log.v(TAG, "Found a friend at ("
+                + String.valueOf(position.latitude)
+                + ", "
+                + String.valueOf(position.longitude)
+                + ").");
+
+        Bitmap profileBitmap = UserManagement.getInstance().getUserProfileImage(key, mContext);
+        Bitmap circleBitmap = BitmapUtil.getCircleCrop(profileBitmap);
+        Bitmap profileIconBitmap = BitmapUtil.getResizedBitmap(circleBitmap, PROFILE_ICON_WIDTH, PROFILE_ICON_HEIGHT);
+        BitmapDescriptor iconDescriptor = BitmapDescriptorFactory.fromBitmap(profileIconBitmap);
+
+        Marker FriendMarker = mGoogleMap.addMarker(new MarkerOptions()
+                .position(position)
+                .icon(iconDescriptor)
+        );
+        FriendMarker.setTag(key);
+
+        mFriendMarkers.put(key, FriendMarker);
+        if (!mFriendIcons.containsKey(key)) {
+            mFriendIcons.put(key, profileIconBitmap);
+        }
+    }
+
+    /**
+     * Move marker smoothly to a new position
+     *
+     * @param key user's uid
+     */
+    private void moveMarkerSmoothly(String key, LatLng position) {
+        // Animate marker instead of simply changing its location
+        LatLngInterpolator interpolator = new LatLngInterpolator.LinearFixed();
+        MarkerAnimation.animateMarkerToICS(mFriendMarkers.get(key), position, interpolator);
+    }
+
+
+    /**
      * Switch to AR window, targeting the specified friend.
+     *
      * @param uid Friend's uid
      */
     private void switchToAR(String uid) {
         LatLng location = mUserGeoLocations.get(uid);
-        // ArViewActivity.startActivity(mContext, uid, location);
+        ArViewActivity.startActivity(mContext, uid, location);
     }
 
     /**
      * Switch to chat window, targeting the specified friend.
+     *
      * @param uid Friend's uid
      */
     private void switchToChat(String uid) {
-        // ChatActivity.startActivity(mContext, uid);
+        ChatActivity.startActivity(mContext, uid);
     }
 
     /**
@@ -353,47 +406,67 @@ public class MapUIManager implements
     }
 
     /**
-     * Send an intent to {@link FetchAddressIntentService} to request fetching location to address
+     * Save current view of the map into shared preferences.
      */
-    private void requestFetchAddress(Location location) {
-        Intent intent = new Intent(mContext, FetchAddressIntentService.class);
-        intent.putExtra(FetchAddressIntentService.PARAM_IN_LOCATION_DATA, location);
+    private void restorePrevMapView() {
+        SharedPreferences sharedPref = PreferencesAccess.getSettingsPreferences(mFragment.getActivity());
+        double latitude = sharedPref.getFloat(mFragment.getString(R.string.PREF_KEY_CAMERA_LAT), (float) DEFAULT_INI_LAT);
+        double longitude = sharedPref.getFloat(mFragment.getString(R.string.PREF_KEY_CAMERA_LONG), (float) DEFAULT_INT_LONG);
+        LatLng currLatLng = new LatLng(latitude, longitude);
+
+        animateCameraToPosition(currLatLng);
+
+        if (latitude != DEFAULT_INI_LAT) {
+            Log.v(TAG, "Last map view has been restored.");
+        }
+    }
+
+    /**
+     * Send a request intent to location sharing service to get current geo data.
+     */
+    private void requestToGetCurrData() {
+        Intent intent = new Intent(mContext, LocationSharingService.class);
+        intent.putExtra(LocationSharingService.PARAM_IN_REQUEST_TYPE,
+                        LocationSharingService.REQUEST_GET_CURR_GEODATA);
         mContext.startService(intent);
     }
 
     /**
-     * Save current view of the map into shared preferences.
+     * Restore previous markers
+     * ('previous' refers to last time the map is opened in current app lifecycle)
      */
-    public void restoreCurrentMapView() {
-        SharedPreferences sharedPref = mFragment.getActivity().getPreferences(Context.MODE_PRIVATE);
-        double latitude = sharedPref.getFloat(mFragment.getString(R.string.saved_camera_lat), (float) -37.8141);
-        double longitude = sharedPref.getFloat(mFragment.getString(R.string.saved_camera_long), (float) 144.9633);
-        LatLng currLatLng = new LatLng(latitude, longitude);
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(currLatLng));
-        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_CAMERA_ZOOM_LEVEL));
+    private void restoreFriendMarkers() {
+        // Check whether we do have previous data first.
+        if (mUserGeoLocations != null) {
+            for (String key : mUserGeoLocations.keySet()) {
+                addFriendMarker(key);
+            }
+            Log.v(TAG, "Previous (friend) markers have been restored.");
+        }
     }
 
     /**
      * Save current view of the map into shared preferences.
      */
     public void saveCurrentMapView() {
-        if(isMyPosInitialized()) {
-            SharedPreferences sharedPref = mFragment.getActivity().getPreferences(Context.MODE_PRIVATE);
+        if (isMyPosInitialized()) {
+            SharedPreferences sharedPref = PreferencesAccess.getSettingsPreferences(mFragment.getActivity());
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putFloat(mFragment.getString(R.string.saved_camera_lat), (float) mSelfMarker.getPosition().latitude);
-            editor.putFloat(mFragment.getString(R.string.saved_camera_long), (float) mSelfMarker.getPosition().longitude);
+            editor.putFloat(mFragment.getString(R.string.PREF_KEY_CAMERA_LAT), (float) mSelfMarker.getPosition().latitude);
+            editor.putFloat(mFragment.getString(R.string.PREF_KEY_CAMERA_LONG), (float) mSelfMarker.getPosition().longitude);
             editor.apply();
         }
     }
 
     /**
      * Convert a vector asset resource to a {@link BitmapDescriptor}
+     *
      * @param enlarge enlarge from original size
      */
     public static BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId, int enlarge) {
         Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
-        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth()*enlarge, vectorDrawable.getIntrinsicHeight()*enlarge);
-        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth()*enlarge, vectorDrawable.getIntrinsicHeight()*enlarge, Bitmap.Config.ARGB_8888);
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth() * enlarge, vectorDrawable.getIntrinsicHeight() * enlarge);
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth() * enlarge, vectorDrawable.getIntrinsicHeight() * enlarge, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
@@ -407,40 +480,4 @@ public class MapUIManager implements
         Double longitude = location.getLongitude();
         return new LatLng(latitude, longitude);
     }
-
-//    /**
-//     * Credit to https://stackoverflow.com/questions/29222864/get-radius-of-visible-map-in-android
-//     * @param visibleRegion
-//     * @return Approximate visible radius of the visible region
-//     */
-//    private double calculateVisibleRadius(VisibleRegion visibleRegion) {
-//        float[] distanceWidth = new float[1];
-//        float[] distanceHeight = new float[1];
-//
-//        LatLng farRight = visibleRegion.farRight;
-//        LatLng farLeft = visibleRegion.farLeft;
-//        LatLng nearRight = visibleRegion.nearRight;
-//        LatLng nearLeft = visibleRegion.nearLeft;
-//
-//        //calculate the distance width (left <-> right of map on screen)
-//        Location.distanceBetween(
-//                (farLeft.latitude + nearLeft.latitude) / 2,
-//                farLeft.longitude,2
-//                (farRight.latitude + nearRight.latitude) / 2,
-//                farRight.longitude,
-//                distanceWidth
-//        );
-//
-//        //calculate the distance height (top <-> bottom of map on screen)
-//        Location.distanceBetween(
-//                farRight.latitude,
-//                (farRight.longitude + farLeft.longitude) / 2,
-//                nearRight.latitude,
-//                (nearRight.longitude + nearLeft.longitude) / 2,
-//                distanceHeight
-//        );
-//
-//        //visible radius is (smaller distance) / 2:
-//        return (distanceWidth[0] < distanceHeight[0]) ? distanceWidth[0] / 2 : distanceHeight[0] / 2;
-//    }
 }

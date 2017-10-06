@@ -1,5 +1,6 @@
 package com.comp30022.arrrrr.utils;
 
+
 public class Constants {
     public static final String ARG_USERS = "users";
     public static final String ARG_RECEIVER = "receiver";
@@ -13,11 +14,20 @@ public class Constants {
     public static final String ARG_GENDER = "gender";
     public static final String ARG_ADDRESS = "address";
     public static final String ARG_EMAIL= "email";
+    public static final String ARG_IMAGE="imageUrl";
     public static final String ARG_SUCCESS = "success";
-    public static final String ARG_FAILURE = "failure";
-
-
     public static final String ACTION_PACKAGE = "com.comp30022.arrrrr.intent.action";
     public static final String ARG_MALE = "male";
     public static final String ARG_FEMALE = "female";
+
+    public static final String EMPTY_STRING = "";
+    public static final String MESSAGE_SENT = "Message sent";
+    public static final String GET_RECEIVER_ERROR = "get receiver error";
+
+    public static final String REGISTER_FAILURE = " Registration Failure";
+    public static final String REGISTER_SUCCESS = " Registration Success";
+    public static final String ADD_TO_DATABASE_FAILURE = "Add To Firebase Failure";
+
+
+    public static final CharSequence ADD_TO_DATABASE_SUCCESS = "Success";
 }
