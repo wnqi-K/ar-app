@@ -1,10 +1,13 @@
 package com.comp30022.arrrrr;
 
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.RestrictTo;
@@ -22,10 +25,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.comp30022.arrrrr.database.UserManagement;
+import com.comp30022.arrrrr.receivers.AddressResultReceiver;
 import com.comp30022.arrrrr.receivers.SimpleRequestResultReceiver;
+import com.comp30022.arrrrr.receivers.SingleUserLocationReceiver;
+import com.comp30022.arrrrr.services.FetchAddressIntentService;
 import com.comp30022.arrrrr.services.LocationSharingService;
+import com.comp30022.arrrrr.utils.BroadcastReceiverManager;
 import com.comp30022.arrrrr.utils.Constants;
+import com.comp30022.arrrrr.utils.GeoUtil;
 import com.comp30022.arrrrr.utils.PreferencesAccess;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -34,8 +43,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class SettingFragment extends Fragment
-    implements SimpleRequestResultReceiver.SimpleRequestResultListener{
+import java.util.ArrayList;
+import java.util.List;
+
+public class SettingFragment extends Fragment implements
+        SimpleRequestResultReceiver.SimpleRequestResultListener,
+        SingleUserLocationReceiver.SingleUserLocationListener,
+        AddressResultReceiver.AddressResultListener{
 
     public static String TAG = SettingFragment.class.getSimpleName();
 
@@ -54,8 +68,10 @@ public class SettingFragment extends Fragment
     private Button mButtonClearRecords;
     private Switch mSwitchLocationSharing;
     private Switch mSwitchNearbyNotification;
+    private TextView mTextViewLastLocation;
 
-    private SimpleRequestResultReceiver mSimpleRequestResultReceiver;
+    private BroadcastReceiverManager mBroadcastReceivers;
+    private String mTimeBuffer;
 
     public SettingFragment() {
         // Required empty public constructor
@@ -78,23 +94,27 @@ public class SettingFragment extends Fragment
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         myRef = mFirebaseDatabase.getReference();
         userID = currentUser.getUid();
+
+        mBroadcastReceivers = new BroadcastReceiverManager(getActivity());
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        SimpleRequestResultReceiver.register(getActivity(), this);
+
+        // Register receivers
+        mBroadcastReceivers.add(SimpleRequestResultReceiver.register(getActivity(), this));
+        mBroadcastReceivers.add(SingleUserLocationReceiver.register(getActivity(), this));
+        mBroadcastReceivers.add(AddressResultReceiver.register(getActivity(), this));
+
         updateUIFromPreferences();
+        updateLastLocationDisplay();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        try {
-            getActivity().unregisterReceiver(mSimpleRequestResultReceiver);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
+        mBroadcastReceivers.unregisterAll();
     }
 
     @Override
@@ -137,6 +157,8 @@ public class SettingFragment extends Fragment
         mSwitchNearbyNotification = (Switch)view.findViewById(R.id.switch_nearby_friend_notification);
         mSwitchNearbyNotification.setOnCheckedChangeListener(onNearbyNotifyCheckedChangeListener);
 
+        mTextViewLastLocation = (TextView)view.findViewById(R.id.text_view_last_location);
+
         //Set profile head portrait photo
         mPhoto = (ImageView)view.findViewById(R.id.profilePhoto);
         myRef.addValueEventListener(new ValueEventListener() {
@@ -175,6 +197,50 @@ public class SettingFragment extends Fragment
         menu.findItem(R.id.adding_friends).setVisible(false);
         menu.findItem(R.id.quick_ar_entry).setVisible(false);
         super.onPrepareOptionsMenu(menu);
+    }
+
+
+    /**
+     * Display user's last location
+     */
+    private void updateLastLocationDisplay() {
+        LocationSharingService.requestAddUserLocationListener(getActivity(), UserManagement
+                .getInstance()
+                .getCurrentUser()
+                .getUid());
+    }
+
+    /**
+     * Handles when we have received last user's location
+     */
+    @Override
+    public void onReceivingSingleUserLocation(String uid,
+                                              LatLng latLng,
+                                              String distance,
+                                              String time) {
+        FetchAddressIntentService.requestFetchAddress(getActivity(),
+                GeoUtil.latLngToLocation(latLng));
+        mTimeBuffer = time;
+    }
+
+    /**
+     * Handles when we have successfully fetched the address
+     */
+    @Override
+    public void onAddressFetchSuccess(Address address, Location location) {
+        String text = getString(R.string.text_your_last_location_was_at)
+                + address.getLocality() + " " + mTimeBuffer;
+        mTextViewLastLocation.setText(text);
+    }
+
+    /**
+     * Handles when we have failed fetching the address
+     */
+    @Override
+    public void onAddressFetchFailure(Location location) {
+        String text = getString(R.string.text_your_last_location_was_at) +
+                getString(R.string.text_unknown);
+        mTextViewLastLocation.setText(text);
     }
 
     /**
@@ -287,7 +353,6 @@ public class SettingFragment extends Fragment
         super.onDetach();
         mListener = null;
     }
-
 
     public interface OnSettingFragmentInteractionListener {
         // TODO: Update argument type and name

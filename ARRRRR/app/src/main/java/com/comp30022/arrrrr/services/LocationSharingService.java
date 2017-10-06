@@ -103,6 +103,7 @@ public class LocationSharingService extends Service implements
     public static final String PARAM_OUT_UID = "OUT_UID";
     public static final String PARAM_OUT_DISTANCE = "OUT_DISTANCE";
     public static final String PARAM_OUT_TIME = "OUT_TIME";
+    public static final String PARAM_OUT_LATLNG = "OUT_LATLNG";
     public static final String PARAM_OUT_REQUEST_TYPE = "PARAM_OUT_REQUEST_TYPE";
     public static final String PARAM_OUT_REQUEST_SUCCESS = "PARAM_OUT_REQUEST_SUCCESS";
 
@@ -704,6 +705,7 @@ public class LocationSharingService extends Service implements
 
         broadcastIntent.putExtra(PARAM_OUT_UID, uid);
         // Pass LatLng since it is parcelable.
+        broadcastIntent.putExtra(PARAM_OUT_LATLNG, GeoUtil.geoToLatLng(geoLocation));
         broadcastIntent.putExtra(PARAM_OUT_DISTANCE, getFriendDistanceReadable(uid));
         broadcastIntent.putExtra(PARAM_OUT_TIME, getFriendLastLocationTime(uid));
 

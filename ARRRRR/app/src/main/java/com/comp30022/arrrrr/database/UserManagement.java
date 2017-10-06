@@ -112,17 +112,14 @@ public class UserManagement {
     public Bitmap getUserProfileImage(String uid, Context context) {
         String imageUrl64 = null;
 
-        // Retrieve url first
-        for (User user : getUserList()) {
-            if (user.getUid().equals(uid)) {
-                imageUrl64 = user.getImageUrl();
-            }
+        User user = getUserByUID(uid);
+
+        if (user == null) {
+            return null;
         }
 
-        // Also checks the uid is the current user
-        if (getCurrentUser().getUid().equals(uid)) {
-            imageUrl64 = getCurrentUser().getImageUrl();
-        }
+        imageUrl64 = user.getImageUrl();
+
 
         if (imageUrl64 == null) {
             // User does not have profile image, so return default profile image
@@ -146,6 +143,38 @@ public class UserManagement {
             // Return null if decoding fails.
             return null;
         }
+    }
+
+    /**
+     * Retrieve the User object given a user's uid
+     * @param uid user's uid
+     * @return User object if found; null if not found
+     */
+    public User getUserByUID(String uid) {
+        User userFound = null;
+        for (User user: getUserList()) {
+            if (user.getUid().equals(uid)) {
+                userFound = user;
+                break;
+            }
+        }
+        if (getCurrentUser().getUid().equals(uid)) {
+            userFound = getCurrentUser();
+        }
+        return userFound;
+    }
+
+    /**
+     * Define the standard method to get a user's display name.
+     * @param uid user's uid
+     * @return display name in String; empty string if uid not found
+     */
+    public String getUserDisplayName(String uid) {
+        User user = getUserByUID(uid);
+        if (user == null) {
+            return "";
+        }
+        return user.getEmail();
     }
 
     /**
