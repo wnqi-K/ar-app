@@ -80,6 +80,13 @@
     <string name="text_your_last_location_was_at">Your last known location:\n</string>
     <string name="text_unknown">unknown</string>
 
+    <string name="item_distance_2km">&lt;2km</string>
+    <string name="item_distance_10km">&lt;10km</string>
+    <string name="item_distance_100km">&lt;100km</string>
+    <string name="PREF_KEY_FILTER_DISTANCE">PREF_KEY_FILTER_DISTANCE</string>
+    <string name="PREF_KEY_FILTER_DISTANCE_INDEX">PREF_KEY_FILTER_DISTANCE_INDEX</string>
+    <string name="text_change_filter_distance_success">You have changed the search radius for nearby friends. New setting will apply on your next positioning update.</string>
+
     <string-array name="nearby_filter_options">
         <item>&lt;2km</item>
         <item>&lt;10km</item>
