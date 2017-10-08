@@ -197,8 +197,10 @@ public class MapUIManager implements
             addFriendMarker(key);
         } else if (type.equals(LocationSharingService.ON_KEY_EXITED)) {
             // Remove marker
-            mFriendMarkers.get(key).remove();
-            mFriendMarkers.remove(key);
+            if (mFriendMarkers.containsKey(key)) {
+                mFriendMarkers.get(key).remove();
+                mFriendMarkers.remove(key);
+            }
         } else if (type.equals(LocationSharingService.ON_KEY_MOVED)) {
             if (!geoLocations.containsKey(key)) {
                 // A new friend!

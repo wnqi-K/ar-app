@@ -289,9 +289,9 @@ public class SettingFragment extends Fragment implements
                                               LatLng latLng,
                                               String distance,
                                               String time) {
+        mTimeBuffer = time;
         FetchAddressIntentService.requestFetchAddress(getActivity(),
                 GeoUtil.latLngToLocation(latLng));
-        mTimeBuffer = time;
     }
 
     /**
@@ -299,8 +299,9 @@ public class SettingFragment extends Fragment implements
      */
     @Override
     public void onAddressFetchSuccess(Address address, Location location) {
+        String timeString = mTimeBuffer.equals("") ? "" : " (" + mTimeBuffer + ")";
         String text = getString(R.string.text_your_last_location_was_at)
-                + address.getLocality() + " " + mTimeBuffer;
+                + address.getLocality() + " " + timeString;
         mTextViewLastLocation.setText(text);
     }
 

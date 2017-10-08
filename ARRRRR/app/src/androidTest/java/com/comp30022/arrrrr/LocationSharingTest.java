@@ -39,6 +39,7 @@ import java.util.concurrent.TimeoutException;
  * - GeoQuery event handling (enter, move, exit) (also including nearby notification switch)
  * - Event handling for register/unregister listener for single user's location update
  * - Event handling for self location updates (including location sharing switch)
+ * - GeoQuery filter distance(/radius)
  *
  * @author Dafu Ai
  */
@@ -79,6 +80,9 @@ public class LocationSharingTest {
         mService.setTestAuth(firebaseAuth);
     }
 
+    /**
+     * Test event handling of location listener registration for a single user
+     */
     @Test
     public void testRegisterLocationListenerForUser() throws InterruptedException {
         Intent intent = new Intent(mContext, LocationSharingService.class);
@@ -92,6 +96,9 @@ public class LocationSharingTest {
         Assert.assertTrue(mService.isUserLocationListenerRegistered(testUID));
     }
 
+    /**
+     * Test event handling of location listener removal for a single user
+     */
     @Test
     public void testRemoveLocationListenerForUser() throws InterruptedException {
         Intent intent = new Intent(mContext, LocationSharingService.class);
@@ -164,6 +171,9 @@ public class LocationSharingTest {
         }
     }
 
+    /**
+     * Test event handling of changing device's position.
+     */
     @Test
     public void testOnSelfLocationChanged() throws InterruptedException {
         Location location = new Location("test_provider");
@@ -204,6 +214,9 @@ public class LocationSharingTest {
         mService.mFirebaseQueryExecuted = false;
     }
 
+    /**
+     * Test whether we have a working switch for nearby notification.
+     */
     @Test
     public void testNearbyNotificationSwitch() {
         // Mock a DataSnapShot to inject to the onDataChange event
@@ -240,4 +253,22 @@ public class LocationSharingTest {
         mService.mNearbyNotificationSent = false;
     }
 
+    /**
+     * Test whether query filter distance can be correctly set.
+     */
+    @Test
+    public void testQueryFilterDistance() {
+        long testRadius = (long)3;
+
+        SharedPreferences preferences = Mockito.mock(SharedPreferences.class);
+        Mockito.when(preferences.getLong(mContext.getString(R.string.PREF_KEY_FILTER_DISTANCE),
+                (long)(double)LocationSharingService.DEFAULT_GEO_QUERY_RADIUS)).thenReturn(testRadius);
+
+        mService.mTestPref = preferences;
+
+        Location location = Mockito.mock(Location.class);
+        mService.onSelfLocationChanged(location);
+
+        Assert.assertEquals(mService.getActualGeoQueryRadius(), (double)testRadius);
+    }
 }
