@@ -156,6 +156,39 @@
 
         </LinearLayout>
 
+        <!--Seperate Line-->
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/listline" />
+
+        <!--Account privacy-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:weightSum="1">
+
+            <TextView
+                android:id="@+id/accountPrivacy"
+                style="@style/SettingText"
+                android:clickable="true"
+                android:layout_width="@dimen/margin_setting"
+                android:layout_height="wrap_content"
+                android:text="@string/account_privacy"/>
+
+            <TextView
+                android:id="@+id/textView"
+                style="@style/setting_profilephoto_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:text="   >" />
+
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"

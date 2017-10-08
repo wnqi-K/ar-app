@@ -70,6 +70,7 @@
     <string name="text_share_my_location">Share my location</string>
     <string name="text_enable_nearby_friends_notification">Enable nearby friends notification</string>
     <string name="text_clear_my_location_records">Clear my location records</string>
+    <string name="text_clear_user_data">Delete user account</string>
     <string name="text_removing_location_records">Removing your location records...</string>
     <string name="text_remove_locatioin_records_success">Your location records has been successfully removed.</string>
     <string name="text_remove_locatioin_records_fail">Your location records could not be removed at this moment due to network issues, please try again later.</string>
@@ -86,6 +87,8 @@
     <string name="PREF_KEY_FILTER_DISTANCE">PREF_KEY_FILTER_DISTANCE</string>
     <string name="PREF_KEY_FILTER_DISTANCE_INDEX">PREF_KEY_FILTER_DISTANCE_INDEX</string>
     <string name="text_change_filter_distance_success">You have changed the search radius for nearby friends. New setting will apply on your next positioning update.</string>
+
+    <string name="account_privacy">Account Privacy</string>
 
     <string-array name="nearby_filter_options">
         <item>&lt;2km</item>

@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.annotation.RestrictTo;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -134,6 +135,8 @@ public class SettingFragment extends Fragment implements
 
         TextView mStatusView = (TextView) view.findViewById(R.id.login_status_view);
 
+        TextView accountPrivacy = (TextView)view.findViewById(R.id.accountPrivacy);
+
         mStatusView.setText(currentUser.getEmail());
 
         Button logoutButton = (Button)view.findViewById(R.id.logoutButton);
@@ -155,6 +158,22 @@ public class SettingFragment extends Fragment implements
             public void onClick(View v){
                 Intent intent = new Intent(getActivity(),UserProfileActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        //Go user account privacy
+        accountPrivacy.setOnTouchListener(new View.OnTouchListener(){
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_UP){
+
+                    // Do what you want
+                    Intent intent = new Intent(getActivity(),AccountPrivacyActivity.class);
+                    startActivity(intent);
+
+                    return true;
+                }
+                return false;
             }
         });
 
@@ -382,6 +401,7 @@ public class SettingFragment extends Fragment implements
             mButtonClearRecords.setText(R.string.text_clear_my_location_records);
         }
     }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
