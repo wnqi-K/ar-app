@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.comp30022.arrrrr.adapters.ChatRecyclerAdapter;
 import com.comp30022.arrrrr.database.DatabaseManager;
+import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.Chat;
 import com.comp30022.arrrrr.utils.ChatInterface;
 import com.comp30022.arrrrr.utils.Constants;
@@ -51,6 +52,7 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private Chat chat = null;
+    private static boolean isActivityOpen = false;
 
     @RestrictTo(RestrictTo.Scope.TESTS)
     public String getMessage() {
@@ -68,23 +70,6 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     }
 
     @RestrictTo(RestrictTo.Scope.TESTS)
-    public String getReceiverUid() {
-        return receiverUid;
-    }
-
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    public String getSenderUid() {
-        return senderUid;
-    }
-
-    private static boolean isActivityOpen = false;
-
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    public ChatRoomManager getmChatRoomManager() {
-        return mChatRoomManager;
-    }
-
-    @RestrictTo(RestrictTo.Scope.TESTS)
     public void setChatRoomManager(ChatRoomManager chatRoomManager) {
         this.mChatRoomManager = chatRoomManager;
     }
@@ -98,12 +83,6 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     public void setChatRecyclerAdapter(ChatRecyclerAdapter mChatRecyclerAdapter) {
         this.mChatRecyclerAdapter = mChatRecyclerAdapter;
     }
-
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    public RecyclerView getmRecyclerViewChat() {
-        return mRecyclerViewChat;
-    }
-
 
     public static void startActivity(Context context,
                                      String receiverUid) {
@@ -121,10 +100,10 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
         super.onCreate(savedInstanceState);
 
         // set all the views
-        String username = DatabaseManager.getUserName(getIntent().
+        String receiverEmail = UserManagement.getReceiverEmail(getIntent().
                 getExtras().
                 getString(Constants.ARG_RECEIVER_UID),this);
-        setTitle(username);
+        setTitle(receiverEmail);
         setContentView(R.layout.activity_chat);
         mRecyclerViewChat = (RecyclerView) findViewById(R.id.recycler_view_chat);
         mETxtMessage = (EditText) findViewById(R.id.edit_text_message);
@@ -141,8 +120,8 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
      * */
     private void init(){
         receiverUid = getIntent().getExtras().getString(Constants.ARG_RECEIVER_UID);
-        receiver = DatabaseManager.getReceiverEmail(receiverUid,this);
-        receiverFirebaseToken = DatabaseManager.
+        receiver = UserManagement.getReceiverEmail(receiverUid,this);
+        receiverFirebaseToken = UserManagement.
                 getReceiverFirebaseToken(receiverUid,this);
         if(currentUser != null){
             sender = currentUser.getEmail();
@@ -248,7 +227,7 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     @Override
     public void onGetMessagesSuccess(Chat chat) {
         if (mChatRecyclerAdapter == null) {
-            mChatRecyclerAdapter = new ChatRecyclerAdapter(new ArrayList<Chat>());
+            mChatRecyclerAdapter = new ChatRecyclerAdapter(new ArrayList<Chat>(),this);
             mRecyclerViewChat.setAdapter(mChatRecyclerAdapter);
         }
         mChatRecyclerAdapter.add(chat);

@@ -7,9 +7,11 @@ import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.IOException;
@@ -146,6 +148,79 @@ public class UserManagement {
             // Return null if decoding fails.
             return null;
         }
+    }
+
+
+    /**
+     * Using user id to find this user's Email
+     * */
+    public static String getReceiverEmail(String receiverUid,Context context) {
+        User usr = getUserUsingID(receiverUid);
+        String email = null;
+        if(usr == null){
+            Toast.makeText(context, Constants.GET_RECEIVER_ERROR, Toast.LENGTH_SHORT).show();
+        }else{
+            email = usr.getEmail();
+        }
+        return email;
+    }
+
+    /**
+     * Using user id to find this user's FirebaseToken
+     * */
+    public static String getReceiverFirebaseToken(String receiverUid,Context context) {
+        User usr = getUserUsingID(receiverUid);
+        String firebaseToken = null;
+        if(usr == null){
+            Toast.makeText(context, Constants.GET_RECEIVER_ERROR, Toast.LENGTH_SHORT).show();
+        }else{
+            firebaseToken = usr.getFirebaseToken();
+        }
+        return firebaseToken;
+    }
+
+    /**
+     * Using user id to find this user's user name
+     * */
+    public static String getUserName(String receiverUid,Context context){
+        User usr = getUserUsingID(receiverUid);
+        String username = null;
+        if(usr == null){
+            Toast.makeText(context, Constants.GET_RECEIVER_ERROR, Toast.LENGTH_SHORT).show();
+        }else{
+            username = usr.getUsername();
+        }
+        return username;
+    }
+
+    /**
+     *  find object User using user id
+     * */
+    public static User getUserUsingID(String Uid){
+        User usr = null;
+        UserManagement friendManagement = UserManagement.getInstance();
+        ArrayList<User> allUsersList = (ArrayList<User>) friendManagement.getUserList();
+        for(User user:allUsersList){
+            if(user.getUid().equals(Uid)){
+                usr = user;
+                break;
+            }
+        }
+        return usr;
+    }
+
+    /**
+     * Using user id to find this user's firebasetoken
+     * */
+    public static String getFirebaseToken(String Uid, Context context) {
+        User usr = getUserUsingID(Uid);
+        String firebaseToken = null;
+        if(usr == null){
+            Toast.makeText(context, Constants.GET_TOKEN_ERROR, Toast.LENGTH_SHORT).show();
+        }else{
+            firebaseToken = usr.getFirebaseToken();
+        }
+        return firebaseToken;
     }
 
     /**

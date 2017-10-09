@@ -36,4 +36,5 @@ public class Constants {
 
 
     public static final String NON_EMPTY = "message can not be empty";
+    public static final String GET_TOKEN_ERROR = "Get Firebase Token ERROR!";
 }
