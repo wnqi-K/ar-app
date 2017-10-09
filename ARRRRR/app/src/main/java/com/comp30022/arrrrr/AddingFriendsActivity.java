@@ -61,7 +61,7 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
 
                 TextView userName = (TextView)mCardView.findViewById(R.id.user_name);
                 TextView userEmail = (TextView)mCardView.findViewById(R.id.user_email);
-                ImageView userAvatar = (ImageView) mCardView.findViewById(R.id.user_avatar);
+                ImageView userAvatar = (ImageView) mCardView.findViewById(R.id.friend_list_user_avatar);
                 Button addFriend = (Button)mCardView.findViewById(R.id.add_friend_button);
 
                 userName.setText(onClickUser.getUsername());
