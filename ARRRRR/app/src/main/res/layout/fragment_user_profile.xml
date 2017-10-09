@@ -101,13 +101,6 @@
                 android:onClick="EditProfile"
                 android:background="@drawable/btn_border" />
 
-            <Button
-                style="@style/ShortButton"
-                android:text="Back"
-                android:onClick="Back"
-                android:background="@drawable/btn_border" />
-
-
         </LinearLayout>
     </RelativeLayout>
 </ScrollView>

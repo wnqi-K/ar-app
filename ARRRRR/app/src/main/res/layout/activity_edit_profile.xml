@@ -101,14 +101,6 @@
                 android:gravity="left|center_vertical"
                 android:paddingLeft="15dp"/>
 
-            <!--Back to User Profile-->
-            <Button
-                style="@style/ShortButton"
-                android:id="@+id/btn_back_userProfile"
-                android:background="@drawable/btn_border"
-                android:onClick="back_UserProfile"
-                android:text="Back" />
-
             <!--Save new information-->
             <Button
                 style="@style/ShortButton"
