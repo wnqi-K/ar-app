@@ -3,18 +3,17 @@ package com.comp30022.arrrrr;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ExpandableListView;
 
-import com.comp30022.arrrrr.adapters.ExpandableListAdapter;
+import com.comp30022.arrrrr.adapters.RecyclerFriendListAdapter;
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.User;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * This fragment is to contain five pre-placed friends and newly added friends.
@@ -40,48 +39,42 @@ public class FriendsFragment extends Fragment{
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_users_list, container, false);
+        View view = inflater.inflate(R.layout.recycler_friend_list, container, false);
         final Context context = view.getContext();
 
-        //Used to contain all the friends, including pre-placed friends and new added ones.
-        final HashMap<String, ArrayList<User>> expandableList = getFriendLists();
+        RecyclerView recyclerView;
+        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_friend_list);
+        LinearLayoutManager llm = new LinearLayoutManager(context);
+        recyclerView.setLayoutManager(llm);
 
-        //Set up the expandable view.
-        ExpandableListView expandableListView;
-        ExpandableListAdapter expandableListAdapter;
-        final List<String> expandableListTitle;
-        expandableListView = (ExpandableListView) view.findViewById(R.id.admin_friend_list);
-        expandableListTitle = new ArrayList<>(expandableList.keySet());
-        expandableListAdapter = new ExpandableListAdapter(context, expandableListTitle, expandableList);
-        expandableListView.setAdapter(expandableListAdapter);
-        expandableListView.expandGroup(1);
+        final ArrayList<User> allFriends = getFriendList();
+        RecyclerFriendListAdapter adapter = new RecyclerFriendListAdapter(allFriends, getActivity());
+        recyclerView.setAdapter(adapter);
 
-        //Start a new chat room once friend is clicked.
-        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+        adapter.setOnItemClickListener(new RecyclerFriendListAdapter.ClickListener() {
             @Override
-            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                User user = expandableList.get(expandableListTitle.get(groupPosition)).get(childPosition);
+            public void onItemClick(int position, View v) {
+                User user = allFriends.get(position);
                 ChatActivity.startActivity(context, user.getUid());
-                return false;
             }
         });
+
         return view;
     }
 
     /**
-     * This method is to create a hashmap<String, ArrayList<User>> to contain two required friend list.
-     * It would be used by the expandable List view to display and lead to create new chat room.
+     * This method is to create an arraylist of friends.
+     * It would be used by the recycler view to display and lead to create new chat room.
      */
-    private HashMap<String, ArrayList<User>> getFriendLists() {
+    private ArrayList<User> getFriendList(){
         MainViewActivity activity = (MainViewActivity)getActivity();
         UserManagement friendManagement = activity.getUserManagement();
         ArrayList<User> friendList = (ArrayList<User>) friendManagement.getFriendList();
         ArrayList<User> adminList = (ArrayList<User>) friendManagement.getAdminList();
 
-        HashMap<String, ArrayList<User>> expandableList = new HashMap<>();
-        expandableList.put("Pre-placed Friends", adminList);
-        expandableList.put("Users", friendList);
-        return expandableList;
+        ArrayList<User> allFriends = new ArrayList<>(friendList);
+        allFriends.addAll(adminList);
+        return allFriends;
     }
 
     @Override

@@ -7,18 +7,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.comp30022.arrrrr.models.User;
@@ -62,6 +56,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mETxtEmail = (EditText) findViewById(R.id.edit_text_email_id);
         mETxtPassword = (EditText) findViewById(R.id.edit_text_password);
@@ -186,6 +181,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             }
         }
     };
+
+    @Override
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
+    }
 
     @RestrictTo(RestrictTo.Scope.TESTS)
     public OnCompleteListener getOnRegisterCompleteListener() {
