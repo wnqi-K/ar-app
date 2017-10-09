@@ -8,6 +8,13 @@
         <item name="colorPrimaryDark">@color/black_background</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+
+    <style name="Logo" parent="">
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:layout_width">100dp</item>
+        <item name="android:layout_height">150dp</item>
+        <item name="android:layout_margin">15dp</item>
+    </style>
     
     <!-- Login Page Button -->
     <style name="ClassicButton" parent="ThemeOverlay.AppCompat.Dark">
