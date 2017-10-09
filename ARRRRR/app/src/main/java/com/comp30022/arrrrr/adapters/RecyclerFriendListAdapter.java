@@ -2,6 +2,7 @@ package com.comp30022.arrrrr.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,26 +18,34 @@ import com.comp30022.arrrrr.models.User;
 import java.util.ArrayList;
 
 /**
- * Created by Ricky_KUANG on 9/10/2017.
+ * This adapter is used to display the friend list in a recycler list.
+ * Created by Wenqiang Kuang on 9/10/2017.
  */
 
 public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFriendListAdapter.FriendViewHolder>{
-
+    private static ClickListener clickListener;
     private ArrayList<User> mAllFriends;
     private Context mContext;
 
-    public static class FriendViewHolder extends RecyclerView.ViewHolder {
-        CardView mCardView;
-        TextView mFriendName;
-        TextView mFriendGender;
-        ImageView mFriendAvatar;
+    public static class FriendViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        FriendViewHolder(View itemView) {
+        public CardView mCardView;
+        public TextView mFriendName;
+        public TextView mFriendEmail;
+        public ImageView mFriendAvatar;
+
+        public FriendViewHolder(View itemView) {
             super(itemView);
+            itemView.setOnClickListener(this);
             mCardView = (CardView)itemView.findViewById(R.id.friend_list_user_card);
             mFriendName = (TextView)itemView.findViewById(R.id.friend_list_username);
-            mFriendGender = (TextView)itemView.findViewById(R.id.friend_list_user_gender);
+            mFriendEmail = (TextView)itemView.findViewById(R.id.friend_list_user_email);
             mFriendAvatar = (ImageView)itemView.findViewById(R.id.friend_list_user_avatar);
+        }
+
+        @Override
+        public void onClick(View view) {
+            clickListener.onItemClick(getAdapterPosition(), view);
         }
     }
 
@@ -58,9 +67,15 @@ public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFrie
         User user = mAllFriends.get(position);
         String userID = user.getUid();
         holder.mFriendName.setText(user.getUsername());
-        holder.mFriendGender.setText(user.getGender());
-        Bitmap imageBitmap = UserManagement.getInstance().getUserProfileImage(userID, mContext);
-        holder.mFriendAvatar.setImageBitmap(imageBitmap);
+        holder.mFriendEmail.setText(user.getEmail());
+
+        try {
+            Bitmap imageBitmap = UserManagement.getInstance().getUserProfileImage(userID, mContext);
+            holder.mFriendAvatar.setImageBitmap(imageBitmap);
+        } catch (Exception e) {
+            holder.mFriendAvatar.setImageBitmap(BitmapFactory.decodeResource(mContext.getResources(),
+                    R.drawable.portrait_photo));
+        }
     }
 
     @Override
@@ -71,5 +86,13 @@ public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFrie
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
+    }
+
+    public void setOnItemClickListener(ClickListener clickListener) {
+        RecyclerFriendListAdapter.clickListener = clickListener;
+    }
+
+    public interface ClickListener {
+        void onItemClick(int position, View v);
     }
 }

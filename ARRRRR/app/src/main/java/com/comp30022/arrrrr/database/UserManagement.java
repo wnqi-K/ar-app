@@ -12,7 +12,6 @@ import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -119,7 +118,6 @@ public class UserManagement {
         }
 
         imageUrl64 = user.getImageUrl();
-
 
         if (imageUrl64 == null) {
             // User does not have profile image, so return default profile image

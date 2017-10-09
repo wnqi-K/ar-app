@@ -73,9 +73,18 @@ public class FriendsFragment extends Fragment{
         LinearLayoutManager llm = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(llm);
 
-        ArrayList<User> allFriends = getFriendList();
+        final ArrayList<User> allFriends = getFriendList();
         RecyclerFriendListAdapter adapter = new RecyclerFriendListAdapter(allFriends, getActivity());
         recyclerView.setAdapter(adapter);
+
+        adapter.setOnItemClickListener(new RecyclerFriendListAdapter.ClickListener() {
+            @Override
+            public void onItemClick(int position, View v) {
+                User user = allFriends.get(position);
+                ChatActivity.startActivity(context, user.getUid());
+            }
+        });
+
         return view;
     }
 
