@@ -2,10 +2,8 @@ package com.comp30022.arrrrr;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -20,8 +18,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.io.IOException;
 
 public class UserProfileActivity extends AppCompatActivity {
 
@@ -51,6 +47,7 @@ public class UserProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_user_profile);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //declare the database reference object.
         mAuth = FirebaseAuth.getInstance();
@@ -146,9 +143,9 @@ public class UserProfileActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
     }
 
-    public void Back(View v){
-        Intent intent = new Intent(this, MainViewActivity.class);
-        startActivity(intent);
-        overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
+    @Override
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
     }
 }

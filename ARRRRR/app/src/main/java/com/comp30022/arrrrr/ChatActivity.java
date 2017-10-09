@@ -21,9 +21,6 @@ import com.comp30022.arrrrr.utils.ChatInterface;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import java.util.ArrayList;
 
 /**
@@ -63,6 +60,7 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // set all the views
         String username = DatabaseManager.getUserName(getIntent().
@@ -165,5 +163,11 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     @Override
     public void onGetMessagesFailure(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
     }
 }
