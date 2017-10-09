@@ -1,7 +1,6 @@
 package com.comp30022.arrrrr;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -14,7 +13,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
-
 
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
@@ -56,6 +54,7 @@ public class EditProfileActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Value passed by UserProfileActivity.class
         //String UserName  = getIntent().getStringExtra(UserProfileActivity.EXTRA_NAME);
@@ -112,8 +111,6 @@ public class EditProfileActivity extends AppCompatActivity{
                     myRef.child(Constants.ARG_USERS).child(userID).child(Constants.ARG_ADDRESS).setValue(mAddress);
                     toastMessage("New Information has been saved.");
                 }
-
-                back_UserProfile(view);
             }
         });
 
@@ -244,15 +241,13 @@ public class EditProfileActivity extends AppCompatActivity{
         return valid;
     }
 
-
-    public void back_UserProfile(View v){
-        Intent intent = new Intent(this, UserProfileActivity.class);
-        startActivity(intent);
-        overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
-    }
-
     private void toastMessage(String message){
         Toast.makeText(this,message,Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
+    }
 }
