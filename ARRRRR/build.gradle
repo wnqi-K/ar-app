@@ -9,7 +9,7 @@ buildscript {
         classpath 'com.google.gms:google-services:3.1.0'
 
 
-        // NOTE: Do not place your application dependencies here; they belong
+        // NOTE: Do not place your application depende ncies here; they belong
         // in the individual module build.gradle files
     }
 }
@@ -19,6 +19,7 @@ allprojects {
         mavenCentral()
         maven {
             url "https://maven.google.com"
+            "https://oss.sonatype.org/content/repositories/snapshots"
         }
     }
 }
