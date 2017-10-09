@@ -22,6 +22,7 @@ import com.comp30022.arrrrr.models.Chat;
 import com.comp30022.arrrrr.utils.ChatInterface;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
 
     private RecyclerView mRecyclerViewChat;
     private EditText mETxtMessage;
+    private String message;
 
     private ProgressDialog mProgressDialog;
     private ChatRecyclerAdapter mChatRecyclerAdapter;
@@ -46,6 +48,24 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     private String receiverFirebaseToken;
     private String sender;
     private String senderUid;
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
+    private Chat chat = null;
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public String getMessage() {
+        return message;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public Chat getChat() {
+        return chat;
+    }
 
     @RestrictTo(RestrictTo.Scope.TESTS)
     public String getReceiverUid() {
@@ -65,14 +85,25 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     }
 
     @RestrictTo(RestrictTo.Scope.TESTS)
+    public void setChatRoomManager(ChatRoomManager chatRoomManager) {
+        this.mChatRoomManager = chatRoomManager;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
     public ChatRecyclerAdapter getmChatRecyclerAdapter() {
         return mChatRecyclerAdapter;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public void setChatRecyclerAdapter(ChatRecyclerAdapter mChatRecyclerAdapter) {
+        this.mChatRecyclerAdapter = mChatRecyclerAdapter;
     }
 
     @RestrictTo(RestrictTo.Scope.TESTS)
     public RecyclerView getmRecyclerViewChat() {
         return mRecyclerViewChat;
     }
+
 
     public static void startActivity(Context context,
                                      String receiverUid) {
@@ -98,7 +129,8 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
         mRecyclerViewChat = (RecyclerView) findViewById(R.id.recycler_view_chat);
         mETxtMessage = (EditText) findViewById(R.id.edit_text_message);
         mETxtMessage.setOnEditorActionListener(this);
-
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
         // start a chat room
         init();
     }
@@ -112,8 +144,10 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
         receiver = DatabaseManager.getReceiverEmail(receiverUid,this);
         receiverFirebaseToken = DatabaseManager.
                 getReceiverFirebaseToken(receiverUid,this);
-        sender = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        senderUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if(currentUser != null){
+            sender = currentUser.getEmail();
+            senderUid = currentUser.getUid();
+        }
         mChatRoomManager = new ChatRoomManager(this,
                 senderUid,
                 receiverUid,
@@ -174,6 +208,7 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_SEND) {
+            message = mETxtMessage.getText().toString();
             sendMessage();
             v.setText(null);
             return true;
@@ -184,13 +219,12 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     /*
     * create a new chat object and send it to the firebase database
     * */
-    private void sendMessage() {
+    public void sendMessage() {
         // Need to check message(length..etc)!!!!
-        String message = mETxtMessage.getText().toString();
         if(message.isEmpty()){
             mETxtMessage.setError(Constants.NON_EMPTY);
         }else{
-            Chat chat = new Chat(sender,
+            chat = new Chat(sender,
                     receiver,
                     senderUid,
                     receiverUid,
@@ -225,4 +259,6 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     public void onGetMessagesFailure(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
+
+
 }

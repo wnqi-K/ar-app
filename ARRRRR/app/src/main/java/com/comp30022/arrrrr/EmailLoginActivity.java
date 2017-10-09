@@ -57,13 +57,6 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         //findViewById(R.id.verify_email_button).setOnClickListener(this);
 
         mAuth = FirebaseAuth.getInstance();
-        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
-        if(!refreshedToken.equals(SharedPrefUtil.getInstance(getApplicationContext())
-                .getString(Constants.ARG_FIREBASE_TOKEN))){
-            new FirebaseIDService().
-                    sendRegistrationToServer(refreshedToken,getApplicationContext());
-        }
-
     }
 
     @Override

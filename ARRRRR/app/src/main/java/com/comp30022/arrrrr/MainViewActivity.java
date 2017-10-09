@@ -14,7 +14,11 @@ import android.view.MenuItem;
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.database.RequestFirebaseUsers;
 import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.services.FirebaseIDService;
 import com.comp30022.arrrrr.services.PositioningService;
+import com.comp30022.arrrrr.utils.Constants;
+import com.comp30022.arrrrr.utils.SharedPrefUtil;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 
 /**
@@ -51,6 +55,14 @@ public class MainViewActivity extends AppCompatActivity implements
         // Get all users from database
         mUserManagement = UserManagement.getInstance();
         mRequestUsers = new RequestFirebaseUsers(mUserManagement);
+
+        // refresh Firebase Token
+        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+        if(!refreshedToken.equals(SharedPrefUtil.getInstance(getApplicationContext())
+                .getString(Constants.ARG_FIREBASE_TOKEN))){
+            new FirebaseIDService().
+                    sendRegistrationToServer(refreshedToken,getApplicationContext());
+        }
     }
 
     @Override

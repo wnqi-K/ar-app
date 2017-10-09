@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.models.Chat;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 
@@ -20,9 +21,12 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private static final int VIEW_TYPE_OTHER = 2;
 
     private List<Chat> mChats;
+    private FirebaseUser currentUser;
+
 
     public ChatRecyclerAdapter(List<Chat> chats) {
         mChats = chats;
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
     }
 
     public void add(Chat chat) {
@@ -49,11 +53,13 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (TextUtils.equals(mChats.get(position).senderUid,
-                FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-            configureMyChatViewHolder((MyChatViewHolder) holder, position);
-        } else {
-            configureOtherChatViewHolder((OtherChatViewHolder) holder, position);
+        if(currentUser != null){
+            if (TextUtils.equals(mChats.get(position).senderUid,
+                    currentUser.getUid())) {
+                configureMyChatViewHolder((MyChatViewHolder) holder, position);
+            } else {
+                configureOtherChatViewHolder((OtherChatViewHolder) holder, position);
+            }
         }
     }
 
@@ -85,12 +91,15 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public int getItemViewType(int position) {
-        if (TextUtils.equals(mChats.get(position).senderUid,
-                FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-            return VIEW_TYPE_ME;
-        } else {
-            return VIEW_TYPE_OTHER;
+        if(currentUser != null){
+            if (TextUtils.equals(mChats.get(position).senderUid,
+                    currentUser.getUid())) {
+                return VIEW_TYPE_ME;
+            } else {
+                return VIEW_TYPE_OTHER;
+            }
         }
+        return VIEW_TYPE_ME;
     }
 
 
