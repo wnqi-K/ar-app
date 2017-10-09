@@ -47,6 +47,16 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     private String sender;
     private String senderUid;
 
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public String getReceiverUid() {
+        return receiverUid;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public String getSenderUid() {
+        return senderUid;
+    }
+
     private static boolean isActivityOpen = false;
 
     @RestrictTo(RestrictTo.Scope.TESTS)
