@@ -19,7 +19,6 @@
         android:id="@+id/frame_layout_content_register"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="60dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -30,7 +29,7 @@
 
             <EditText
                 android:id="@+id/edit_text_email_id"
-                style="@style/LoginText"
+                style="@style/RegisterText"
                 android:hint="@string/email"
                 android:inputType="textEmailAddress" />
 
@@ -40,7 +39,7 @@
 
             <EditText
                 android:id="@+id/edit_text_password"
-                style="@style/LoginText"
+                style="@style/RegisterText"
                 android:hint="@string/password"
                 android:inputType="textPassword" />
 
@@ -50,7 +49,7 @@
 
             <EditText
                 android:id="@+id/edit_text_username"
-                style="@style/LoginText"
+                style="@style/RegisterText"
                 android:hint="@string/Username" />
 
             <ImageView
@@ -59,7 +58,7 @@
 
             <EditText
                 android:id="@+id/edit_text_phonenum"
-                style="@style/LoginText"
+                style="@style/RegisterText"
                 android:hint="@string/Phonenum" />
 
             <ImageView
@@ -68,12 +67,13 @@
 
             <EditText
                 android:id="@+id/edit_text_address"
-                style="@style/LoginText"
+                style="@style/RegisterText"
                 android:hint="@string/Address" />
 
             <ImageView
                 style="@style/RegisterLine"
-                app:srcCompat="@drawable/listline" />
+                app:srcCompat="@drawable/listline"
+                android:layout_marginBottom="10dp"/>
 
             <RadioGroup
                 android:id="@+id/radioGroup"

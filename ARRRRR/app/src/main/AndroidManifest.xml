@@ -55,7 +55,9 @@
             android:value="@string/google_maps_key" />
 
         <activity android:name=".MainActivity" />
-        <activity android:name=".EmailLoginActivity" />
+        <activity android:name=".EmailLoginActivity"
+                  android:icon="@drawable/back"
+            />
         <activity android:name=".GoogleLoginActivity" />
         <activity android:name=".RegisterActivity" />
         <activity

@@ -63,9 +63,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        //hide Action bar
-        getSupportActionBar().hide();
-
         mETxtEmail = (EditText) findViewById(R.id.edit_text_email_id);
         mETxtPassword = (EditText) findViewById(R.id.edit_text_password);
         mETxtUsername = (EditText) findViewById(R.id.edit_text_username);

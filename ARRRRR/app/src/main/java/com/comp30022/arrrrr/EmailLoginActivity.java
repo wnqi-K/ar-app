@@ -43,8 +43,6 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_email_login);
 
-        //hide Action bar in Login Activity
-        getSupportActionBar().hide();
 
         mStatusTextView = (TextView)findViewById(R.id.status);
         mDetailTextView = (TextView)findViewById(R.id.detail);
