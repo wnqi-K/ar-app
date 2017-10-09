@@ -375,4 +375,18 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return usr;
     }
 
+    /**
+     * Using user id to find this user's firebasetoken
+     * */
+    public static String findFirebaseTokenById(String Uid, Context context) {
+        User usr = getUserUsingID(Uid);
+        String firebaseToken = null;
+        if(usr == null){
+            Toast.makeText(context, Constants.GET_RECEIVER_ERROR, Toast.LENGTH_SHORT).show();
+        }else{
+            firebaseToken = usr.getFirebaseToken();
+        }
+        return firebaseToken;
+    }
+
 }

@@ -80,7 +80,9 @@ public class FriendsFragment extends Fragment{
 
         HashMap<String, ArrayList<User>> expandableList = new HashMap<>();
         expandableList.put("Pre-placed Friends", adminList);
-        expandableList.put("Users", friendList);
+//        expandableList.put("Users", friendList);
+        expandableList.put("Users", (ArrayList<User>)friendManagement.getUserList());
+
         return expandableList;
     }
 
