@@ -23,6 +23,7 @@ import java.util.ArrayList;
  */
 
 public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFriendListAdapter.FriendViewHolder>{
+    private static final int AVATAR_SIZE = 200;
     private static ClickListener clickListener;
     private ArrayList<User> mAllFriends;
     private Context mContext;
@@ -54,7 +55,6 @@ public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFrie
         this.mContext = context;
     }
 
-
     @Override
     public RecyclerFriendListAdapter.FriendViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.friend_list_card_user, parent, false);
@@ -71,10 +71,10 @@ public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFrie
 
         try {
             Bitmap imageBitmap = UserManagement.getInstance().getUserProfileImage(userID, mContext);
-            holder.mFriendAvatar.setImageBitmap(imageBitmap);
+            holder.mFriendAvatar.setImageBitmap(Bitmap.createScaledBitmap(imageBitmap, AVATAR_SIZE, AVATAR_SIZE, false));
         } catch (Exception e) {
-            holder.mFriendAvatar.setImageBitmap(BitmapFactory.decodeResource(mContext.getResources(),
-                    R.drawable.portrait_photo));
+            Bitmap avatar = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.portrait_photo);
+            holder.mFriendAvatar.setImageBitmap(Bitmap.createScaledBitmap(avatar, AVATAR_SIZE, AVATAR_SIZE, false));
         }
     }
 

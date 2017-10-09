@@ -14,7 +14,6 @@ import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.User;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * This fragment is to contain five pre-placed friends and newly added friends.
@@ -43,31 +42,6 @@ public class FriendsFragment extends Fragment{
         View view = inflater.inflate(R.layout.recycler_friend_list, container, false);
         final Context context = view.getContext();
 
-        /*//Used to contain all the friends, including pre-placed friends and new added ones.
-        final HashMap<String, ArrayList<User>> expandableList = getFriendLists();
-
-        //Set up the expandable view.
-        ExpandableListView expandableListView;
-        ExpandableListAdapter expandableListAdapter;
-        final List<String> expandableListTitle;
-        expandableListView = (ExpandableListView) view.findViewById(R.id.admin_friend_list);
-        expandableListTitle = new ArrayList<>(expandableList.keySet());
-
-        expandableListAdapter = new ExpandableListAdapter(context, expandableListTitle, expandableList);
-        expandableListView.setAdapter(expandableListAdapter);
-        expandableListView.expandGroup(1);
-
-        //Start a new chat room once friend is clicked.
-        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                User user = expandableList.get(expandableListTitle.get(groupPosition)).get(childPosition);
-                ChatActivity.startActivity(context, user.getUid());
-                return false;
-            }
-        });
-        return view;*/
-
         RecyclerView recyclerView;
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_friend_list);
         LinearLayoutManager llm = new LinearLayoutManager(context);
@@ -89,21 +63,9 @@ public class FriendsFragment extends Fragment{
     }
 
     /**
-     * This method is to create a hashmap<String, ArrayList<User>> to contain two required friend list.
-     * It would be used by the expandable List view to display and lead to create new chat room.
+     * This method is to create an arraylist of friends.
+     * It would be used by the recycler view to display and lead to create new chat room.
      */
-    private HashMap<String, ArrayList<User>> getFriendLists() {
-        MainViewActivity activity = (MainViewActivity)getActivity();
-        UserManagement friendManagement = activity.getUserManagement();
-        ArrayList<User> friendList = (ArrayList<User>) friendManagement.getFriendList();
-        ArrayList<User> adminList = (ArrayList<User>) friendManagement.getAdminList();
-
-        HashMap<String, ArrayList<User>> expandableList = new HashMap<>();
-        expandableList.put("Pre-placed Friends", adminList);
-        expandableList.put("Users", friendList);
-        return expandableList;
-    }
-
     private ArrayList<User> getFriendList(){
         MainViewActivity activity = (MainViewActivity)getActivity();
         UserManagement friendManagement = activity.getUserManagement();
