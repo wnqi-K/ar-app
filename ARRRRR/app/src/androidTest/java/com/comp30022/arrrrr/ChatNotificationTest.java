@@ -1,37 +1,24 @@
 package com.comp30022.arrrrr;
 
-import android.app.Activity;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.os.IBinder;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
-import android.support.test.rule.ServiceTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
-import android.support.test.runner.lifecycle.Stage;
 
 import com.comp30022.arrrrr.models.User;
-import com.comp30022.arrrrr.services.ChatNotificationService;
-import com.comp30022.arrrrr.services.LocationSharingService;
+import com.comp30022.arrrrr.services.NotificationService;
 import com.comp30022.arrrrr.utils.Constants;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-
-import java.util.Collection;
-import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doNothing;
 
 /**
- * Test for {@link ChatNotificationService}
+ * Test for {@link NotificationService}
  *
  * Tests included:
  * - Notification is successfully delivered.
@@ -49,7 +36,7 @@ public class ChatNotificationTest {
             ChatActivity.class,
             true,     // initialTouchMode
             false);   // launchActivity. False to customize the intent
-    private ChatNotificationService mService;
+    private NotificationService mService;
 
     private User sender;
     private User receiver;
@@ -63,7 +50,7 @@ public class ChatNotificationTest {
         message = "test";
 
         //setup service
-        mService = Mockito.mock(ChatNotificationService.class);
+        mService = Mockito.mock(NotificationService.class);
         doNothing().when(mService).sendNotification(null,null,null,null,null);
         Intent intent = new Intent();
         intent.putExtra(Constants.ARG_RECEIVER_UID,receiver.getUid());
