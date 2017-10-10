@@ -30,10 +30,11 @@ public class ChatNotificationService extends FirebaseMessagingService {
     private static final String TAG = "FCM Service";
     private static final String TAG_INFO = "Message data payload: ";
     private static final String DATE_FORMAT = "ddHHmmss";
+    private Intent intent;
 
     /*
-    * This class manages messages receiving
-    * */
+     * This method manages messages receiving
+     * */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         // Check if message contains a data payload.
@@ -61,21 +62,22 @@ public class ChatNotificationService extends FirebaseMessagingService {
 
 
     /*
-    * This class will build a notification and send it to the user
+    * This method will build a notification and send it to the user
     * */
-    private void sendNotification(String title,
+    public void sendNotification(String title,
                                   String message,
                                   String receiver,
                                   String receiverUid,
                                   String firebaseToken){
 
-
-        // Add information to Chat activity
-        Intent intent = new Intent(this, ChatActivity.class);
-        intent.putExtra(Constants.ARG_RECEIVER, receiver);
-        intent.putExtra(Constants.ARG_RECEIVER_UID, receiverUid);
-        intent.putExtra(Constants.ARG_FIREBASE_TOKEN, firebaseToken);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        if(intent == null){
+            // Add information to Chat activity
+            intent = new Intent(this, ChatActivity.class);
+            intent.putExtra(Constants.ARG_RECEIVER, receiver);
+            intent.putExtra(Constants.ARG_RECEIVER_UID, receiverUid);
+            intent.putExtra(Constants.ARG_FIREBASE_TOKEN, firebaseToken);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        }
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
@@ -105,10 +107,8 @@ public class ChatNotificationService extends FirebaseMessagingService {
     }
 
     @RestrictTo(RestrictTo.Scope.TESTS)
-    public class ChatNotificationBinder extends Binder {
-        public ChatNotificationService getService() {
-            return ChatNotificationService.this;
-        }
+    public Intent getIntent() {
+        return intent;
     }
 }
 

@@ -35,7 +35,7 @@ import java.util.ArrayList;
  * @author Zijie Shen
  */
 public class ChatActivity extends AppCompatActivity implements ChatInterface.Listener ,TextView.OnEditorActionListener{
-
+    public static String TAG = "Chat Activity";
     private RecyclerView mRecyclerViewChat;
     private EditText mETxtMessage;
     private String message;
