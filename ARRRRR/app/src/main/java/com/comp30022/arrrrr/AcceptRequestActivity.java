@@ -45,12 +45,14 @@ public class AcceptRequestActivity extends AppCompatActivity {
         mUserGender = (TextView)mCardView.findViewById(R.id.request_user_gender);
         mUserAddress = (TextView)mCardView.findViewById(R.id.request_user_address);
 
+        // Display info carried by the intent.
         mUserAvatar.setImageDrawable(getResources().getDrawable(R.drawable.avatar));
         mUserName.setText(userName);
         mUserEmail.setText(userEmail);
         mUserGender.setText(userGender);
         mUserAddress.setText(userAddress);
 
+        // Update the database if accepting.
         mAcceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -58,13 +60,14 @@ public class AcceptRequestActivity extends AppCompatActivity {
             }
         });
 
+        // Discard the notification if rejecting.
         mRejectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Pop up the msg and go back to the main view.
                 Toast.makeText(getBaseContext(), "You've reject the request. ",
                         Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getBaseContext(), AcceptRequestActivity.class);
+                Intent intent = new Intent(getBaseContext(), MainViewActivity.class);
                 startActivity(intent);
             }
         });

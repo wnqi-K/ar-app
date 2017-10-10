@@ -4,7 +4,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Binder;
 import android.support.annotation.RestrictTo;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
@@ -14,7 +13,6 @@ import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -55,11 +53,9 @@ public class ChatNotificationService extends FirebaseMessagingService {
                         username,
                         uid,
                         fcmToken);
-
             }
         }
     }
-
 
     /*
     * This method will build a notification and send it to the user

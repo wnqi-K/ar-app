@@ -78,7 +78,7 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
             }
         });
 
-        // Locate the EditText in listview_main.xml
+        // Locate the EditText in list_view_main.xml
         mSearchView = (SearchView) findViewById(R.id.search_view);
         mSearchView.setOnQueryTextListener(this);
     }
@@ -95,13 +95,14 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
         return false;
     }
 
-/** 
-* The method is to retrieve all the necessary notification message from current user and the receiver. 
-*/
+    /**
+     * The method is to retrieve all the necessary notification message from current user
+     * and the receiver.
+     */
     private HashMap<String, String> getNotificationMessage(User onClickUser, User currentUser) {
         HashMap<String, String> info = new HashMap<>();
         info.put("email", currentUser.getEmail());
-        info.put("message", "Sends you a friend request. ");
+        info.put("message", "Sends you a friend request.");
         info.put("uid", currentUser.getUid());
         info.put("senderToken", currentUser.getFirebaseToken());
         info.put("receiverToken", onClickUser.getFirebaseToken());
