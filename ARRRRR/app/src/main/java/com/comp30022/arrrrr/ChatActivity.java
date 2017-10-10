@@ -100,17 +100,11 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-        // set up chat interface
-        String receiverEmail = null;
-        User usr = UserManagement.getUserUsingID(getIntent().
+        // set all the views
+        String receiverEmail = UserManagement.getReceiverEmail(getIntent().
                 getExtras().
-                getString(Constants.ARG_RECEIVER_UID));
-        if(usr != null){
-            receiverEmail =  usr.getEmail();
-        }
+                getString(Constants.ARG_RECEIVER_UID),this);
         setTitle(receiverEmail);
         setContentView(R.layout.activity_chat);
         mRecyclerViewChat = (RecyclerView) findViewById(R.id.recycler_view_chat);
@@ -127,13 +121,10 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
      * a chat room
      * */
     private void init(){
-        User usr = UserManagement.getUserUsingID(receiverUid);
-        if(usr != null){
-            receiver = usr.getEmail();
-            receiverFirebaseToken = usr.getFirebaseToken();
-        }
         receiverUid = getIntent().getExtras().getString(Constants.ARG_RECEIVER_UID);
-
+        receiver = UserManagement.getReceiverEmail(receiverUid,this);
+        receiverFirebaseToken = UserManagement.
+                getReceiverFirebaseToken(receiverUid,this);
         if(currentUser != null){
             sender = currentUser.getEmail();
             senderUid = currentUser.getUid();

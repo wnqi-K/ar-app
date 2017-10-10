@@ -14,6 +14,7 @@ import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -124,7 +125,7 @@ public class UserManagement {
         if (imageUrl64 == null) {
             // User does not have profile image, so return default profile image
             return BitmapFactory.decodeResource(context.getResources(),
-                                                             R.drawable.portrait_photo);
+                    R.drawable.portrait_photo);
         }
 
         // Return loaded profile image
@@ -146,7 +147,49 @@ public class UserManagement {
     }
 
     /**
-     *  find instance User using user id
+     * Using user id to find this user's Email
+     * */
+    public static String getReceiverEmail(String receiverUid,Context context) {
+        User usr = getUserUsingID(receiverUid);
+        String email = null;
+        if(usr == null){
+            Toast.makeText(context, Constants.GET_RECEIVER_ERROR, Toast.LENGTH_SHORT).show();
+        }else{
+            email = usr.getEmail();
+        }
+        return email;
+    }
+
+    /**
+     * Using user id to find this user's FirebaseToken
+     * */
+    public static String getReceiverFirebaseToken(String receiverUid,Context context) {
+        User usr = getUserUsingID(receiverUid);
+        String firebaseToken = null;
+        if(usr == null){
+            Toast.makeText(context, Constants.GET_TOKEN_ERROR, Toast.LENGTH_SHORT).show();
+        }else{
+            firebaseToken = usr.getFirebaseToken();
+        }
+        return firebaseToken;
+    }
+
+    /**
+     * Using user id to find this user's user name
+     * */
+    public static String getUserName(String receiverUid,Context context){
+        User usr = getUserUsingID(receiverUid);
+        String username = null;
+        if(usr == null){
+            Toast.makeText(context, Constants.GET_RECEIVER_ERROR, Toast.LENGTH_SHORT).show();
+        }else{
+            username = usr.getUsername();
+        }
+        return username;
+    }
+
+    /**
+     *  find object User using user id
      * */
     public static User getUserUsingID(String Uid){
         User usr = null;
