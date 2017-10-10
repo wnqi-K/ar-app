@@ -31,7 +31,13 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doNothing;
 
 /**
- * Created by Rondo on 10/6/2017.
+ * Test for {@link ChatNotificationService}
+ *
+ * Tests included:
+ * - Notification is successfully delivered.
+ * - Chat activity is opened as expected.
+ *
+ * @author zijie shen
  */
 
 @RunWith(AndroidJUnit4.class)
@@ -63,6 +69,11 @@ public class ChatNotificationTest {
         intent.putExtra(Constants.ARG_RECEIVER_UID,receiver.getUid());
         Mockito.when(mService.getIntent()).thenReturn(intent);
     }
+
+    /**
+     * test that notification has been receieved successfully and chat activity can be
+     * opened afterwards
+     * */
     @Test
     public void testWithChatNotificationService(){
         mService.sendNotification(sender.getEmail(),
