@@ -145,7 +145,6 @@ public class UserManagement {
         }
     }
 
-
     /**
      *  find instance User using user id
      * */

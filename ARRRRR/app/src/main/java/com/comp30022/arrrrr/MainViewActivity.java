@@ -58,7 +58,11 @@ public class MainViewActivity extends AppCompatActivity implements
         // refresh Firebase Token if user change devices
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
         String Uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        String currentToken =  UserManagement.getUserUsingID(Uid).getFirebaseToken();
+        String currentToken = null;
+        User usr = UserManagement.getUserUsingID(Uid);
+        if(usr != null){
+            currentToken =  usr.getFirebaseToken();
+        }
         if(!refreshedToken.equals(currentToken)){
             new FirebaseIDService().
                     sendRegistrationToServer(refreshedToken,getApplicationContext());

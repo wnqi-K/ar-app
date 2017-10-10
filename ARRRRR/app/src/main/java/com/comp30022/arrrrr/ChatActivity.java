@@ -20,6 +20,7 @@ import com.comp30022.arrrrr.adapters.ChatRecyclerAdapter;
 import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.Chat;
+import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.ChatInterface;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
@@ -101,10 +102,15 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // set all the views
-        String receiverEmail = UserManagement.getUserUsingID(getIntent().
+
+        // set up chat interface
+        String receiverEmail = null;
+        User usr = UserManagement.getUserUsingID(getIntent().
                 getExtras().
-                getString(Constants.ARG_RECEIVER_UID)).getEmail();
+                getString(Constants.ARG_RECEIVER_UID));
+        if(usr != null){
+            receiverEmail =  usr.getEmail();
+        }
         setTitle(receiverEmail);
         setContentView(R.layout.activity_chat);
         mRecyclerViewChat = (RecyclerView) findViewById(R.id.recycler_view_chat);
@@ -121,10 +127,13 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
      * a chat room
      * */
     private void init(){
+        User usr = UserManagement.getUserUsingID(receiverUid);
+        if(usr != null){
+            receiver = usr.getEmail();
+            receiverFirebaseToken = usr.getFirebaseToken();
+        }
         receiverUid = getIntent().getExtras().getString(Constants.ARG_RECEIVER_UID);
-        receiver = UserManagement.getUserUsingID(receiverUid).getEmail();
-        receiverFirebaseToken = UserManagement.getUserUsingID(receiverUid).getFirebaseToken();
-        
+
         if(currentUser != null){
             sender = currentUser.getEmail();
             senderUid = currentUser.getUid();
