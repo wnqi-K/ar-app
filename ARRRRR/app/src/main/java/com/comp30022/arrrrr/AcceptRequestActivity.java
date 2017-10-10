@@ -29,6 +29,7 @@ public class AcceptRequestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_accept_request);
 
+        // Get extra info from notification and display.
         Intent intent = getIntent();
         String userName = intent.getExtras().getString("SenderName");
         String userEmail = intent.getExtras().getString("SenderEmail");
