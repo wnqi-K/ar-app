@@ -147,49 +147,7 @@ public class UserManagement {
 
 
     /**
-     * Using user id to find this user's Email
-     * */
-    public static String getReceiverEmail(String receiverUid,Context context) {
-        User usr = getUserUsingID(receiverUid);
-        String email = null;
-        if(usr == null){
-            Toast.makeText(context, Constants.GET_RECEIVER_ERROR, Toast.LENGTH_SHORT).show();
-        }else{
-            email = usr.getEmail();
-        }
-        return email;
-    }
-
-    /**
-     * Using user id to find this user's FirebaseToken
-     * */
-    public static String getReceiverFirebaseToken(String receiverUid,Context context) {
-        User usr = getUserUsingID(receiverUid);
-        String firebaseToken = null;
-        if(usr == null){
-            Toast.makeText(context, Constants.GET_RECEIVER_ERROR, Toast.LENGTH_SHORT).show();
-        }else{
-            firebaseToken = usr.getFirebaseToken();
-        }
-        return firebaseToken;
-    }
-
-    /**
-     * Using user id to find this user's user name
-     * */
-    public static String getUserName(String receiverUid,Context context){
-        User usr = getUserUsingID(receiverUid);
-        String username = null;
-        if(usr == null){
-            Toast.makeText(context, Constants.GET_RECEIVER_ERROR, Toast.LENGTH_SHORT).show();
-        }else{
-            username = usr.getUsername();
-        }
-        return username;
-    }
-
-    /**
-     *  find object User using user id
+     *  find instance User using user id
      * */
     public static User getUserUsingID(String Uid){
         User usr = null;
@@ -202,20 +160,6 @@ public class UserManagement {
             }
         }
         return usr;
-    }
-
-    /**
-     * Using user id to find this user's firebasetoken
-     * */
-    public static String getFirebaseToken(String Uid, Context context) {
-        User usr = getUserUsingID(Uid);
-        String firebaseToken = null;
-        if(usr == null){
-            Toast.makeText(context, Constants.GET_TOKEN_ERROR, Toast.LENGTH_SHORT).show();
-        }else{
-            firebaseToken = usr.getFirebaseToken();
-        }
-        return firebaseToken;
     }
 
     /**

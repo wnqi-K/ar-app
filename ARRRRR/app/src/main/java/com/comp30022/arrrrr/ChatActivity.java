@@ -102,9 +102,9 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // set all the views
-        String receiverEmail = UserManagement.getReceiverEmail(getIntent().
+        String receiverEmail = UserManagement.getUserUsingID(getIntent().
                 getExtras().
-                getString(Constants.ARG_RECEIVER_UID),this);
+                getString(Constants.ARG_RECEIVER_UID)).getEmail();
         setTitle(receiverEmail);
         setContentView(R.layout.activity_chat);
         mRecyclerViewChat = (RecyclerView) findViewById(R.id.recycler_view_chat);
@@ -122,9 +122,9 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
      * */
     private void init(){
         receiverUid = getIntent().getExtras().getString(Constants.ARG_RECEIVER_UID);
-        receiver = UserManagement.getReceiverEmail(receiverUid,this);
-        receiverFirebaseToken = UserManagement.
-                getReceiverFirebaseToken(receiverUid,this);
+        receiver = UserManagement.getUserUsingID(receiverUid).getEmail();
+        receiverFirebaseToken = UserManagement.getUserUsingID(receiverUid).getFirebaseToken();
+        
         if(currentUser != null){
             sender = currentUser.getEmail();
             senderUid = currentUser.getUid();
