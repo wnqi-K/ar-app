@@ -113,7 +113,7 @@ public class MapUIManager implements
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         String uid = (String) marker.getTag();
         mBufferFriendUid = uid;
-        builder.setTitle(uid);
+        builder.setTitle(UserManagement.getInstance().getUserDisplayName(uid));
         builder.setIcon(new BitmapDrawable(mContext.getResources(), mFriendIcons.get(uid)));
         builder.setItems(options, new DialogInterface.OnClickListener() {
             @Override
@@ -161,7 +161,7 @@ public class MapUIManager implements
             String time = TimeUtil.getFriendlyTime(mUserGeoLocationInfos.get(uid).time);
 
             textViewClickHint.setText(R.string.friend_info_window_click_hint);
-            textViewUserName.setText(uid);
+            textViewUserName.setText(UserManagement.getInstance().getUserDisplayName(uid));
             textViewGeoInfo.setText(time);
         }
     }
@@ -197,8 +197,10 @@ public class MapUIManager implements
             addFriendMarker(key);
         } else if (type.equals(LocationSharingService.ON_KEY_EXITED)) {
             // Remove marker
-            mFriendMarkers.get(key).remove();
-            mFriendMarkers.remove(key);
+            if (mFriendMarkers.containsKey(key)) {
+                mFriendMarkers.get(key).remove();
+                mFriendMarkers.remove(key);
+            }
         } else if (type.equals(LocationSharingService.ON_KEY_MOVED)) {
             if (!geoLocations.containsKey(key)) {
                 // A new friend!
@@ -246,7 +248,7 @@ public class MapUIManager implements
      */
     @Override
     public void onSelfLocationChanged(Location location) {
-        requestFetchAddress(location);
+        FetchAddressIntentService.requestFetchAddress(mContext, location);
         showProgressBarLocating();
 
         LatLng currLatLng = locationToLatLng(location);
@@ -401,15 +403,6 @@ public class MapUIManager implements
     private void hideProgressBarLocating() {
         ProgressBar progressBar = (ProgressBar) mContext.findViewById(R.id.progress_bar_locating);
         progressBar.setVisibility(View.GONE);
-    }
-
-    /**
-     * Send an intent to {@link FetchAddressIntentService} to request fetching location to address
-     */
-    private void requestFetchAddress(Location location) {
-        Intent intent = new Intent(mContext, FetchAddressIntentService.class);
-        intent.putExtra(FetchAddressIntentService.PARAM_IN_LOCATION_DATA, location);
-        mContext.startService(intent);
     }
 
     /**

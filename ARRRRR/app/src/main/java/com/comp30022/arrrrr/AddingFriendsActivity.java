@@ -38,6 +38,7 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_adding_friends);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mCardView = (CardView) findViewById(R.id.select_user_card);
         mCardView.setVisibility(View.GONE);
@@ -60,7 +61,7 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
 
                 TextView userName = (TextView)mCardView.findViewById(R.id.user_name);
                 TextView userEmail = (TextView)mCardView.findViewById(R.id.user_email);
-                ImageView userAvatar = (ImageView) mCardView.findViewById(R.id.user_avatar);
+                ImageView userAvatar = (ImageView) mCardView.findViewById(R.id.friend_list_user_avatar);
                 Button addFriend = (Button)mCardView.findViewById(R.id.add_friend_button);
 
                 userName.setText(onClickUser.getUsername());
@@ -136,5 +137,14 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
                 .firebaseToken(firebaseToken)
                 .receiverFirebaseToken(receiverFirebaseToken)
                 .send();
+    }
+
+    /**
+     * Going back the the previous interface.
+     */
+    @Override
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
     }
 }

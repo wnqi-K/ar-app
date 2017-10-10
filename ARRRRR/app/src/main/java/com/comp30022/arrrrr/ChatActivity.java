@@ -26,6 +26,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;;
 
+
 import java.util.ArrayList;
 
 /**
@@ -98,6 +99,7 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // set all the views
         String receiverEmail = UserManagement.getReceiverEmail(getIntent().
@@ -239,5 +241,9 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-
+    @Override
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
+    }
 }

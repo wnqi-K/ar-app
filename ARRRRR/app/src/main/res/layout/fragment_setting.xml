@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
              xmlns:app="http://schemas.android.com/apk/res-auto"
              xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
@@ -81,7 +81,7 @@
             android:paddingTop="10dp">
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/text_view_location_share"
                 style="@style/SettingText"
                 android:layout_width="@dimen/margin_setting"
                 android:layout_height="wrap_content"
@@ -129,13 +129,81 @@
             android:layout_height="wrap_content"
             android:src="@drawable/listline" />
 
+        <!--Setting 3-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:weightSum="1">
+
+            <TextView
+                android:id="@+id/textView3"
+                style="@style/SettingText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/text_nearby_friends_filter_distance"
+                android:layout_weight="0.60" />
+
+            <Spinner
+                android:id="@+id/spinner_filter_distance"
+                android:layout_width="0dp"
+                android:layout_weight="0.40"
+                android:layout_height="wrap_content"
+                android:entries="@array/nearby_filter_options"
+            />
+
+        </LinearLayout>
+
+        <!--Seperate Line-->
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/listline" />
+
+        <!--Account privacy-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:weightSum="1">
+
+            <TextView
+                android:id="@+id/accountPrivacy"
+                style="@style/SettingText"
+                android:clickable="true"
+                android:layout_width="@dimen/margin_setting"
+                android:layout_height="wrap_content"
+                android:text="@string/account_privacy"/>
+
+            <TextView
+                android:id="@+id/textView"
+                style="@style/setting_profilephoto_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:text="   >" />
+
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="center|bottom"
             android:orientation="vertical"
-            android:paddingBottom="10dp">
+            android:paddingBottom="@dimen/standard_padding_bottom">
+
+            <TextView
+                android:id="@+id/text_view_last_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text=""
+                android:paddingBottom="5dp"/>
 
             <Button
                 android:id="@+id/button_clear_records"
@@ -158,4 +226,4 @@
 
     </LinearLayout>
 
-</LinearLayout>
+</ScrollView>

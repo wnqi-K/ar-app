@@ -4,14 +4,14 @@
             <shape android:shape="rectangle">
 
                 <!-- backgound color-->
-                <solid android:color="@color/black_background" />
+                <solid android:color="@color/grey_btn_background" />
 
                 <!-- round corner-->
-                <corners android:radius="5dip" />
+                <corners android:radius="6dip" />
 
                 <!-- border -->
                 <stroke android:width="2dp"
-                    android:color="@color/grey_btn_outline"/>
+                    android:color="@color/grey_btn_background"/>
             </shape>
 
         </item>

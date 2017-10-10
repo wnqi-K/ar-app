@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import com.comp30022.arrrrr.receivers.AddressResultReceiver;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
+import com.comp30022.arrrrr.utils.BroadcastReceiverManager;
 import com.comp30022.arrrrr.utils.LocationPermissionHelper;
 import com.comp30022.arrrrr.utils.LocationSettingsHelper;
 import com.comp30022.arrrrr.utils.MapUIManager;
@@ -64,7 +65,7 @@ public class MapContainerFragment extends Fragment implements
     /**
      * Contains all broadcast receivers
      */
-    private ArrayList<BroadcastReceiver> mBroadcastReceivers;
+    private BroadcastReceiverManager mBroadcastReceivers;
 
     /**
      * Context that this fragment is running under.
@@ -103,7 +104,7 @@ public class MapContainerFragment extends Fragment implements
         setHasOptionsMenu(true);
 
         mRequestingLocationUpdates = false;
-        mBroadcastReceivers = new ArrayList<>();
+        mBroadcastReceivers = new BroadcastReceiverManager(getActivity());
         // TODO: Update values using data stored in the Bundle.
     }
 
@@ -164,7 +165,7 @@ public class MapContainerFragment extends Fragment implements
         super.onPause();
         sIsMapOpen = false;
 
-        unregisterReceivers();
+        mBroadcastReceivers.unregisterAll();
         if (mMapUIManager != null) {
             // mMapUIManager may not have been initialized.
             mMapUIManager.saveCurrentMapView();
@@ -319,19 +320,6 @@ public class MapContainerFragment extends Fragment implements
             @NonNull AddressResultReceiver.AddressResultListener listener) {
         AddressResultReceiver receiver = AddressResultReceiver.register(getActivity(), listener);
         mBroadcastReceivers.add(receiver);
-    }
-
-    /**
-     * Unregister all receives. Should be called in onPause().
-     */
-    public void unregisterReceivers() {
-        for (BroadcastReceiver receiver: mBroadcastReceivers) {
-            try {
-                getActivity().unregisterReceiver(receiver);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public interface OnMapContainerFragmentInteractionListener {

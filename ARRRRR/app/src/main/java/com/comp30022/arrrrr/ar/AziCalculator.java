@@ -14,7 +14,7 @@ import java.util.List;
 
 public class AziCalculator {
 
-    private static double AZIMUTH_ACCURACY = 5;
+    private static double AZIMUTH_ACCURACY = 15;
 
     /**
      * this is a function returns a list
