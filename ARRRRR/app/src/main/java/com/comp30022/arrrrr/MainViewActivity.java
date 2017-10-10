@@ -14,7 +14,10 @@ import android.view.MenuItem;
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.database.RequestFirebaseUsers;
 import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.services.FirebaseIDService;
 import com.comp30022.arrrrr.services.PositioningService;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 
 /**
@@ -51,6 +54,15 @@ public class MainViewActivity extends AppCompatActivity implements
         // Get all users from database
         mUserManagement = UserManagement.getInstance();
         mRequestUsers = new RequestFirebaseUsers(mUserManagement);
+
+        // refresh Firebase Token if user change devices
+        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+        String Uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String currentToken =  UserManagement.getUserUsingID(Uid).getFirebaseToken();
+        if(!refreshedToken.equals(currentToken)){
+            new FirebaseIDService().
+                    sendRegistrationToServer(refreshedToken,getApplicationContext());
+        }
     }
 
     @Override

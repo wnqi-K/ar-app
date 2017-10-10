@@ -3,7 +3,12 @@ package com.comp30022.arrrrr.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-
+/**
+ * This class is used to store firebase token and
+ * update it
+ *
+ * @author Zijie Shen
+ * */
 public class SharedPrefUtil {
     /**
      * Name of the preference file

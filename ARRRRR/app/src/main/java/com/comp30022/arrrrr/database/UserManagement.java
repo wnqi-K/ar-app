@@ -7,9 +7,11 @@ import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -141,6 +143,23 @@ public class UserManagement {
             // Return null if decoding fails.
             return null;
         }
+    }
+
+
+    /**
+     *  find instance User using user id
+     * */
+    public static User getUserUsingID(String Uid){
+        User usr = null;
+        UserManagement friendManagement = UserManagement.getInstance();
+        ArrayList<User> allUsersList = (ArrayList<User>) friendManagement.getUserList();
+        for(User user:allUsersList){
+            if(user.getUid().equals(Uid)){
+                usr = user;
+                break;
+            }
+        }
+        return usr;
     }
 
     /**

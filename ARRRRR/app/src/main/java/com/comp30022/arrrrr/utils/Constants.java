@@ -24,6 +24,16 @@ public class Constants {
     public static final String MESSAGE_SENT = "Message sent";
     public static final String GET_RECEIVER_ERROR = "get receiver error";
 
+    public static final String KEY_TO = "to";
+    public static final String KEY_NOTIFICATION = "notification";
+    public static final String KEY_TITLE = "title";
+    public static final String KEY_TEXT = "text";
+    public static final String KEY_DATA = "data";
+    public static final String KEY_USERNAME = "username";
+    public static final String KEY_UID = "uid";
+    public static final String KEY_FCM_TOKEN = "fcm_token";
+    public static final String NON_EMPTY = "message can not be empty";
+    public static final String GET_TOKEN_ERROR = "Get Firebase Token ERROR!";
     public static final String REGISTER_FAILURE = " Registration Failure";
     public static final String REGISTER_SUCCESS = " Registration Success";
     public static final String ADD_TO_DATABASE_FAILURE = "Add To Firebase Failure";

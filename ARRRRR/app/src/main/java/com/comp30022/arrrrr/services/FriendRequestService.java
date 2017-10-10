@@ -9,12 +9,10 @@ import android.util.Log;
 
 import com.comp30022.arrrrr.MainActivity;
 import com.comp30022.arrrrr.MainViewActivity;
-import com.comp30022.arrrrr.PushNotificationEvent;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import org.greenrobot.eventbus.EventBus;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

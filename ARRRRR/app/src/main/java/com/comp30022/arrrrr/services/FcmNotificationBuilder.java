@@ -2,6 +2,8 @@ package com.comp30022.arrrrr.services;
 
 import android.util.Log;
 
+import com.comp30022.arrrrr.utils.Constants;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,6 +17,11 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+/**
+ * This class is responsible of managing Firebase Could messages which will allow
+ * users to send notifications
+ *
+ * */
 public class FcmNotificationBuilder {
     public static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String TAG = "FcmNotificationBuilder";
@@ -27,14 +34,7 @@ public class FcmNotificationBuilder {
     private static final String AUTH_KEY = "key=" + SERVER_API_KEY;
     private static final String FCM_URL = "https://fcm.googleapis.com/fcm/send";
     // json related keys
-    private static final String KEY_TO = "to";
-    private static final String KEY_NOTIFICATION = "notification";
-    private static final String KEY_TITLE = "title";
-    private static final String KEY_TEXT = "text";
-    private static final String KEY_DATA = "data";
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_UID = "uid";
-    private static final String KEY_FCM_TOKEN = "fcm_token";
+
 
     private String mTitle;
     private String mMessage;
@@ -81,6 +81,9 @@ public class FcmNotificationBuilder {
         return this;
     }
 
+    /**
+     * This class will send post request to the server
+     * */
     public void send() {
         RequestBody requestBody = null;
         try {
@@ -110,17 +113,31 @@ public class FcmNotificationBuilder {
         });
     }
 
+    /**
+     * This class will write a Post Request in the form of
+     * {
+     *     https://fcm.googleapis.com/fcm/send
+     *     Content-Type:application/json
+     *     Authorization:key=AIzaSyZ-1u...0GBYzPu7Udno5aA
+     *
+     *     {
+     *         "to": "aUniqueKey",
+     *         "data": {
+     *         "hello": "This is a Firebase Cloud Messaging Device Group Message!",
+     *     }
+     * }
+     * */
     private JSONObject getValidJsonBody() throws JSONException {
         JSONObject jsonObjectBody = new JSONObject();
-        jsonObjectBody.put(KEY_TO, mReceiverFirebaseToken);
+        jsonObjectBody.put(Constants.KEY_TO, mReceiverFirebaseToken);
 
         JSONObject jsonObjectData = new JSONObject();
-        jsonObjectData.put(KEY_TITLE, mTitle);
-        jsonObjectData.put(KEY_TEXT, mMessage);
-        jsonObjectData.put(KEY_USERNAME, mUsername);
-        jsonObjectData.put(KEY_UID, mUid);
-        jsonObjectData.put(KEY_FCM_TOKEN, mFirebaseToken);
-        jsonObjectBody.put(KEY_DATA, jsonObjectData);
+        jsonObjectData.put(Constants.KEY_TITLE, mTitle);
+        jsonObjectData.put(Constants.KEY_TEXT, mMessage);
+        jsonObjectData.put(Constants.KEY_USERNAME, mUsername);
+        jsonObjectData.put(Constants.KEY_UID, mUid);
+        jsonObjectData.put(Constants.KEY_FCM_TOKEN, mFirebaseToken);
+        jsonObjectBody.put(Constants.KEY_DATA, jsonObjectData);
 
         return jsonObjectBody;
     }
