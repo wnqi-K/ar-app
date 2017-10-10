@@ -9,6 +9,7 @@ import com.comp30022.arrrrr.services.FcmNotificationBuilder;
 import com.comp30022.arrrrr.utils.ChatInterface;
 import com.comp30022.arrrrr.utils.Constants;
 import com.comp30022.arrrrr.utils.PreferencesAccess;
+import com.comp30022.arrrrr.utils.SharedPrefUtil;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -95,7 +96,7 @@ public class ChatRoomManager {
             sendPushNotificationToReceiver(mChat.sender,
                     mChat.message,
                     mChat.senderUid,
-                    PreferencesAccess.getInstance(mContext).getString(Constants.ARG_FIREBASE_TOKEN),
+                    new SharedPrefUtil(mContext).getString(Constants.ARG_FIREBASE_TOKEN),
                     mReceiverFirebaseToken);
             mListener.onSendMessageSuccess();
         }
