@@ -44,6 +44,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private FirebaseAuth mAuth;
     private DatabaseReference mRef;
     private String gender = null;
+    private CharSequence toast_text;
+
 
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, RegisterActivity.class);
@@ -54,6 +56,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mETxtEmail = (EditText) findViewById(R.id.edit_text_email_id);
         mETxtPassword = (EditText) findViewById(R.id.edit_text_password);
@@ -93,14 +96,16 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         }
 
         if (gender == null) {
-            Toast.makeText(RegisterActivity.this, "gender required", Toast.LENGTH_SHORT).show();
+            toast_text = "gender required";
+            Toast.makeText(RegisterActivity.this, toast_text, Toast.LENGTH_SHORT).show();
         } else if (!LoginHelper.validateForm2(mETxtEmail,
                 mETxtPassword,
                 mETxtUsername,
                 mETxtPhonenum,
                 mETxtAddress)) {
             // if input is not valid
-            Toast.makeText(RegisterActivity.this, "Error occurs, please check your input", Toast.LENGTH_SHORT).show();
+            toast_text = "Error occurs, please check your input";
+            Toast.makeText(RegisterActivity.this, toast_text, Toast.LENGTH_SHORT).show();
         } else {
             performFirebaseRegistration(RegisterActivity.this, emailId, password);
         }
@@ -127,10 +132,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             // the auth state listener will be notified and logic to handle the
             // signed in user can be handled in the listener.
             if (!task.isSuccessful()) {
-                Toast.makeText(RegisterActivity.this, Constants.ARG_FAILURE, Toast.LENGTH_SHORT).show();
+                toast_text = Constants.REGISTER_FAILURE;
+                Toast.makeText(RegisterActivity.this, toast_text, Toast.LENGTH_SHORT).show();
                 //Toast.makeText(getActivity(),task.getException().getMessage(), Toast.LENGTH_SHORT).show();
 
             } else {
+                toast_text = Constants.REGISTER_SUCCESS;
                 addUserToDatabase(RegisterActivity.this,task.getResult().getUser(),gender);
             }
         }
@@ -162,16 +169,24 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         @Override
         public void onComplete(@NonNull Task<Void> task) {
             if (!task.isSuccessful()) {
+                toast_text = Constants.ADD_TO_DATABASE_FAILURE;
                 Toast.makeText(RegisterActivity.this,
-                        Constants.ARG_FAILURE, Toast.LENGTH_SHORT).show();
+                        toast_text, Toast.LENGTH_SHORT).show();
             } else {
+                toast_text = Constants.ADD_TO_DATABASE_SUCCESS;
                 Toast.makeText(RegisterActivity.this,
-                        Constants.ARG_SUCCESS, Toast.LENGTH_SHORT).show();
+                        toast_text, Toast.LENGTH_SHORT).show();
                 EmailLoginActivity.startActivity(RegisterActivity.this);
 
             }
         }
     };
+
+    @Override
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
+    }
 
     @RestrictTo(RestrictTo.Scope.TESTS)
     public OnCompleteListener getOnRegisterCompleteListener() {
@@ -186,5 +201,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     @RestrictTo(RestrictTo.Scope.TESTS)
     public void setAuth(FirebaseAuth auth) {
         this.mAuth = auth;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public CharSequence getToastText() {
+        return toast_text;
     }
 }

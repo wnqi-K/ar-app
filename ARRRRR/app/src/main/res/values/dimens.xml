@@ -37,6 +37,8 @@
     <dimen name="button_margin">10dp</dimen>
     <dimen name="title_bottom_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+    <dimen name="standard_padding_bottom">10dp</dimen>
 
+    <dimen name="text_large_size">22dp</dimen>
 
 </resources>

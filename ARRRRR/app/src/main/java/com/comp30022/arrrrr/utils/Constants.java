@@ -16,7 +16,6 @@ public class Constants {
     public static final String ARG_EMAIL= "email";
     public static final String ARG_IMAGE="imageUrl";
     public static final String ARG_SUCCESS = "success";
-    public static final String ARG_FAILURE = "failure";
     public static final String ACTION_PACKAGE = "com.comp30022.arrrrr.intent.action";
     public static final String ARG_MALE = "male";
     public static final String ARG_FEMALE = "female";
@@ -33,8 +32,12 @@ public class Constants {
     public static final String KEY_USERNAME = "username";
     public static final String KEY_UID = "uid";
     public static final String KEY_FCM_TOKEN = "fcm_token";
-
-
     public static final String NON_EMPTY = "message can not be empty";
     public static final String GET_TOKEN_ERROR = "Get Firebase Token ERROR!";
+    public static final String REGISTER_FAILURE = " Registration Failure";
+    public static final String REGISTER_SUCCESS = " Registration Success";
+    public static final String ADD_TO_DATABASE_FAILURE = "Add To Firebase Failure";
+
+
+    public static final CharSequence ADD_TO_DATABASE_SUCCESS = "Success";
 }

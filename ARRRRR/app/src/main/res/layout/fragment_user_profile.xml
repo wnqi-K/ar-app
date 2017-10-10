@@ -25,7 +25,7 @@
             android:onClick="SelectPhoto"
             android:padding="2dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/portrait_photo"
+            android:src="@drawable/profilephoto"
             android:background="@drawable/imagebtn_selector_border"
             android:layout_alignParentTop="true"
             android:layout_alignStart="@+id/header_cover_image"
@@ -100,13 +100,6 @@
                 android:text="Edit"
                 android:onClick="EditProfile"
                 android:background="@drawable/btn_border" />
-
-            <Button
-                style="@style/ShortButton"
-                android:text="Back"
-                android:onClick="Back"
-                android:background="@drawable/btn_border" />
-
 
         </LinearLayout>
     </RelativeLayout>

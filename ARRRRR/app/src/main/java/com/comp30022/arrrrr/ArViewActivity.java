@@ -124,6 +124,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         //request camera permission
         camPerm.requestPermission(ArViewActivity.this, ArViewActivity.this);
         myCurrentAzimuth.start();
+
         ServiceManager.startPositioningService(this);
     }
 

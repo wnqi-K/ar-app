@@ -11,11 +11,13 @@ import android.support.test.rule.ServiceTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.comp30022.arrrrr.database.UserManagement;
+import com.comp30022.arrrrr.models.GeoLocationInfo;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.services.LocationSharingService;
 import com.comp30022.arrrrr.utils.PreferencesAccess;
 import com.firebase.geofire.GeoLocation;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 
 import junit.framework.Assert;
 
@@ -34,9 +36,10 @@ import java.util.concurrent.TimeoutException;
  * Test suite for {@link LocationSharingService}
  *
  * Tests included:
- * - GeoQuery event handling (enter, move, exit)
+ * - GeoQuery event handling (enter, move, exit) (also including nearby notification switch)
  * - Event handling for register/unregister listener for single user's location update
  * - Event handling for self location updates (including location sharing switch)
+ * - GeoQuery filter distance(/radius)
  *
  * @author Dafu Ai
  */
@@ -77,6 +80,9 @@ public class LocationSharingTest {
         mService.setTestAuth(firebaseAuth);
     }
 
+    /**
+     * Test event handling of location listener registration for a single user
+     */
     @Test
     public void testRegisterLocationListenerForUser() throws InterruptedException {
         Intent intent = new Intent(mContext, LocationSharingService.class);
@@ -90,6 +96,9 @@ public class LocationSharingTest {
         Assert.assertTrue(mService.isUserLocationListenerRegistered(testUID));
     }
 
+    /**
+     * Test event handling of location listener removal for a single user
+     */
     @Test
     public void testRemoveLocationListenerForUser() throws InterruptedException {
         Intent intent = new Intent(mContext, LocationSharingService.class);
@@ -162,11 +171,16 @@ public class LocationSharingTest {
         }
     }
 
+    /**
+     * Test event handling of changing device's position.
+     */
     @Test
     public void testOnSelfLocationChanged() throws InterruptedException {
         Location location = new Location("test_provider");
         location.setLongitude(geoLocation.longitude);
         location.setLatitude(geoLocation.latitude);
+
+        /////////////// TEST WHEN SWITCH IS ON
 
         // Create a mocked SharedPreferences where location sharing is ENABLED
         SharedPreferences mockPref = Mockito.mock(SharedPreferences.class);
@@ -178,6 +192,8 @@ public class LocationSharingTest {
 
         mService.onSelfLocationChanged(location);
         assertFirebaseQueryExecuted();
+
+        /////////////// TEST WHEN SWITCH IS OFF
 
         // Set the mocked SharedPreferences where location sharing is NOT ENABLED
         Mockito.when(mockPref.getBoolean(
@@ -196,5 +212,63 @@ public class LocationSharingTest {
         Thread.sleep(100);
         Assert.assertFalse(mService.mFirebaseQueryExecuted);
         mService.mFirebaseQueryExecuted = false;
+    }
+
+    /**
+     * Test whether we have a working switch for nearby notification.
+     */
+    @Test
+    public void testNearbyNotificationSwitch() {
+        // Mock a DataSnapShot to inject to the onDataChange event
+        DataSnapshot snapshot = Mockito.mock(DataSnapshot.class);
+        Mockito.when(snapshot.getKey()).thenReturn(testUID);
+
+        // Make a geolocation info object into the DataSnapshot which is guaranteed to be valid
+        GeoLocationInfo geoLocationInfo = new GeoLocationInfo(System.currentTimeMillis());
+        Mockito.when(snapshot.getValue(GeoLocationInfo.class)).thenReturn(geoLocationInfo);
+
+        /////////////// TEST WHEN SWITCH IS ON
+
+        // Create a mocked SharedPreferences where notification is ENABLED
+        SharedPreferences mockPref = Mockito.mock(SharedPreferences.class);
+        Mockito.when(mockPref.getBoolean(
+                mContext.getString(R.string.PREF_KEY_ENABLE_NEARBY_NOTIFICATION),
+                false)).thenReturn(true);
+        mService.mTestPref = mockPref;
+
+        mService.getGeoInfoSingleValueListener().onDataChange(snapshot);
+        Assert.assertTrue(mService.mNearbyNotificationSent);
+        mService.mNearbyNotificationSent = false;
+
+        /////////////// TEST WHEN SWITCH IS OFF
+
+        // Set the mocked SharedPreferences where notification is NOT ENABLED
+        Mockito.when(mockPref.getBoolean(
+                mContext.getString(R.string.PREF_KEY_ENABLE_NEARBY_NOTIFICATION),
+                false)).thenReturn(false);
+        mService.mTestPref = mockPref;
+
+        mService.getGeoInfoSingleValueListener().onDataChange(snapshot);
+        Assert.assertFalse(mService.mNearbyNotificationSent);
+        mService.mNearbyNotificationSent = false;
+    }
+
+    /**
+     * Test whether query filter distance can be correctly set.
+     */
+    @Test
+    public void testQueryFilterDistance() {
+        long testRadius = (long)3;
+
+        SharedPreferences preferences = Mockito.mock(SharedPreferences.class);
+        Mockito.when(preferences.getLong(mContext.getString(R.string.PREF_KEY_FILTER_DISTANCE),
+                (long)(double)LocationSharingService.DEFAULT_GEO_QUERY_RADIUS)).thenReturn(testRadius);
+
+        mService.mTestPref = preferences;
+
+        Location location = Mockito.mock(Location.class);
+        mService.onSelfLocationChanged(location);
+
+        Assert.assertEquals(mService.getActualGeoQueryRadius(), (double)testRadius);
     }
 }

@@ -70,6 +70,7 @@
     <string name="text_share_my_location">Share my location</string>
     <string name="text_enable_nearby_friends_notification">Enable nearby friends notification</string>
     <string name="text_clear_my_location_records">Clear my location records</string>
+    <string name="text_clear_user_data">Delete user account</string>
     <string name="text_removing_location_records">Removing your location records...</string>
     <string name="text_remove_locatioin_records_success">Your location records has been successfully removed.</string>
     <string name="text_remove_locatioin_records_fail">Your location records could not be removed at this moment due to network issues, please try again later.</string>
@@ -77,6 +78,23 @@
     <string name="PREF_KEY_ENABLE_NEARBY_NOTIFICATION">SAVED_ENABLE_NEARBY_NOTIFICATION</string>
     <string name="text_location_sharing_disabled">You are now invisible with all your future location updates. If you wish to delete your historical records please click the button in this page.</string>
     <string name="clear_history">Clear History</string>
+    <string name="text_nearby_friends_filter_distance">Nearby friends filter distance</string>
+    <string name="text_your_last_location_was_at">Your last known location:\n</string>
+    <string name="text_unknown">unknown</string>
 
+    <string name="item_distance_2km">&lt;2km</string>
+    <string name="item_distance_10km">&lt;10km</string>
+    <string name="item_distance_100km">&lt;100km</string>
+    <string name="PREF_KEY_FILTER_DISTANCE">PREF_KEY_FILTER_DISTANCE</string>
+    <string name="PREF_KEY_FILTER_DISTANCE_INDEX">PREF_KEY_FILTER_DISTANCE_INDEX</string>
+    <string name="text_change_filter_distance_success">You have changed the search radius for nearby friends. New setting will apply on your next positioning update.</string>
+
+    <string name="account_privacy">Account Privacy</string>
+
+    <string-array name="nearby_filter_options">
+        <item>&lt;2km</item>
+        <item>&lt;10km</item>
+        <item>&lt;100km</item>
+    </string-array>
 
 </resources>

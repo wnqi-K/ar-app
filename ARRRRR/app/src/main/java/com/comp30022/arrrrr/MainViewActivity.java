@@ -74,6 +74,7 @@ public class MainViewActivity extends AppCompatActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             case R.id.adding_friends:
                 addingNewFriend();
