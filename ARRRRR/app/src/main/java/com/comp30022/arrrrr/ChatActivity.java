@@ -17,7 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.comp30022.arrrrr.adapters.ChatRecyclerAdapter;
-import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.Chat;
 import com.comp30022.arrrrr.models.User;
@@ -25,8 +24,7 @@ import com.comp30022.arrrrr.utils.ChatInterface;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;;
-
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 

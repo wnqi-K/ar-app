@@ -90,6 +90,7 @@
     <string name="text_change_filter_distance_success">You have changed the search radius for nearby friends. New setting will apply on your next positioning update.</string>
 
     <string name="account_privacy">Account Privacy</string>
+    <string name="friend_request_message">Sends you a friend request.</string>
 
     <string-array name="nearby_filter_options">
         <item>&lt;2km</item>
