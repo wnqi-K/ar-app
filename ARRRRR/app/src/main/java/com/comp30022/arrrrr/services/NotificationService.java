@@ -64,19 +64,20 @@ public class NotificationService extends FirebaseMessagingService {
     * */
     private void sendNotification(String title,
                                   String message,
-                                  String receiver,
-                                  String receiverUid,
+                                  String senderEmail,
+                                  String senderUid,
                                   String firebaseToken){
 
         // If detecting friend_request_message, assign addingFriendsActivity
         // intent to the notification.
         if(message.equals(getString(R.string.friend_request_message))){
             UserManagement userManagement = UserManagement.getInstance();
-            User currentUser = userManagement.getCurrentUser();
-            String currentUserName = currentUser.getUsername();
-            String currentUserEmail = currentUser.getEmail();
-            String currentUserGender = currentUser.getGender();
-            String currentUserAddress = currentUser.getAddress();
+            User sender = userManagement.getUserByUID(senderUid);
+
+            String currentUserName = sender.getUsername();
+            String currentUserEmail = sender.getEmail();
+            String currentUserGender = sender.getGender();
+            String currentUserAddress = sender.getAddress();
 
             PendingIntent pendingIntent = switchToAddFriInterface(currentUserName, currentUserEmail,
                     currentUserGender, currentUserAddress);
@@ -84,7 +85,7 @@ public class NotificationService extends FirebaseMessagingService {
 
             // Otherwise chat message, assign chatActivity intent to the notification.
         }else{
-            PendingIntent pendingIntent = switchToChatActivity(receiver, receiverUid, firebaseToken);
+            PendingIntent pendingIntent = switchToChatActivity(senderEmail, senderUid, firebaseToken);
             buildNotification(title, message, pendingIntent);
         }
     }
@@ -94,7 +95,7 @@ public class NotificationService extends FirebaseMessagingService {
      * */
     private void buildNotification(String title, String message, PendingIntent pendingIntent) {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
-        notificationBuilder.setSmallIcon(android.support.v7.appcompat.R.drawable.notification_template_icon_bg);
+        notificationBuilder.setSmallIcon(R.drawable.logo);
         notificationBuilder.setContentTitle(title);
         notificationBuilder.setContentText(message);
         notificationBuilder.setAutoCancel(true);

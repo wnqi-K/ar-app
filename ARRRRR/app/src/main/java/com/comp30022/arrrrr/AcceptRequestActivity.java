@@ -31,10 +31,10 @@ public class AcceptRequestActivity extends AppCompatActivity {
 
         // Get extra info from notification and display.
         Intent intent = getIntent();
-        String userName = intent.getExtras().getString("SenderName");
-        String userEmail = intent.getExtras().getString("SenderEmail");
-        String userGender = intent.getExtras().getString("SenderGender");
-        String userAddress = intent.getExtras().getString("SenderAddress");
+        String senderName = intent.getExtras().getString("SenderName");
+        String senderEmail = intent.getExtras().getString("SenderEmail");
+        String senderGender = intent.getExtras().getString("SenderGender");
+        String senderAddress = intent.getExtras().getString("SenderAddress");
 
         mCardView = (CardView) findViewById(R.id.requestUserInfo);
         mAcceptButton = (Button) findViewById(R.id.accept_button);
@@ -47,10 +47,10 @@ public class AcceptRequestActivity extends AppCompatActivity {
 
         // Display info carried by the intent.
         mUserAvatar.setImageDrawable(getResources().getDrawable(R.drawable.avatar));
-        mUserName.setText(userName);
-        mUserEmail.setText(userEmail);
-        mUserGender.setText(userGender);
-        mUserAddress.setText(userAddress);
+        mUserName.setText(senderName);
+        mUserEmail.setText(senderEmail);
+        mUserGender.setText(senderGender);
+        mUserAddress.setText(senderAddress);
 
         // Update the database if accepting.
         mAcceptButton.setOnClickListener(new View.OnClickListener() {
