@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.comp30022.arrrrr.utils.Constants;
-import com.comp30022.arrrrr.utils.SharedPrefUtil;
+import com.comp30022.arrrrr.utils.PreferencesAccess;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -37,7 +37,7 @@ public class FirebaseIDService extends FirebaseInstanceIdService {
      */
     public void sendRegistrationToServer(String token,Context context) {
 
-        SharedPrefUtil.getInstance(context).
+        PreferencesAccess.getInstance(context).
                 saveString(Constants.ARG_FIREBASE_TOKEN, token);
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {

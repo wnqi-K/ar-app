@@ -11,14 +11,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.comp30022.arrrrr.database.DatabaseManager;
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.database.RequestFirebaseUsers;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.services.FirebaseIDService;
 import com.comp30022.arrrrr.services.PositioningService;
-import com.comp30022.arrrrr.utils.Constants;
-import com.comp30022.arrrrr.utils.SharedPrefUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
 

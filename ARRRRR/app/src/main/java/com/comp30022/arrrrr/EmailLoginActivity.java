@@ -13,16 +13,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.comp30022.arrrrr.services.FirebaseIDService;
-import com.comp30022.arrrrr.utils.Constants;
 import com.comp30022.arrrrr.utils.LoginHelper;
-import com.comp30022.arrrrr.utils.SharedPrefUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 /**
  * Login via email account, lead to registration if no account exists.

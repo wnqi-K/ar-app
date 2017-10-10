@@ -1,26 +1,20 @@
 package com.comp30022.arrrrr;
 
 import android.content.Context;
-import android.renderscript.Sampler;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.comp30022.arrrrr.models.Chat;
 import com.comp30022.arrrrr.services.FcmNotificationBuilder;
 import com.comp30022.arrrrr.utils.ChatInterface;
 import com.comp30022.arrrrr.utils.Constants;
-import com.comp30022.arrrrr.utils.SharedPrefUtil;
-import com.google.firebase.auth.FirebaseAuth;
+import com.comp30022.arrrrr.utils.PreferencesAccess;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  * This class is responsible of managing the process of getting messages
@@ -101,7 +95,7 @@ public class ChatRoomManager {
             sendPushNotificationToReceiver(mChat.sender,
                     mChat.message,
                     mChat.senderUid,
-                    SharedPrefUtil.getInstance(mContext).getString(Constants.ARG_FIREBASE_TOKEN),
+                    PreferencesAccess.getInstance(mContext).getString(Constants.ARG_FIREBASE_TOKEN),
                     mReceiverFirebaseToken);
             mListener.onSendMessageSuccess();
         }

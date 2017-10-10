@@ -7,9 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,7 +18,7 @@ import android.widget.Toast;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
 import com.comp30022.arrrrr.utils.LoginHelper;
-import com.comp30022.arrrrr.utils.SharedPrefUtil;
+import com.comp30022.arrrrr.utils.PreferencesAccess;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -145,7 +143,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         String uid = firebaseUser.getUid();
         User user = User.createUserWithoutAdmin(uid,
                 firebaseUser.getEmail(),
-                SharedPrefUtil.getInstance(activity).getString(Constants.ARG_FIREBASE_TOKEN),
+                PreferencesAccess.getInstance(activity).getString(Constants.ARG_FIREBASE_TOKEN),
                 mETxtUsername.getText().toString(),
                 mETxtPhonenum.getText().toString(),
                 gender,
