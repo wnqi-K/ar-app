@@ -10,7 +10,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.comp30022.arrrrr.database.UserManagement;
+import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 /**
  * The interface to accept or deny friend request after clicking on the notification.
@@ -25,6 +31,8 @@ public class AcceptRequestActivity extends AppCompatActivity {
     private TextView mUserGender;
     private TextView mUserAddress;
     private ImageView mUserAvatar;
+    private FirebaseAuth mAuth;
+    private FirebaseDatabase mFirebaseDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +41,7 @@ public class AcceptRequestActivity extends AppCompatActivity {
 
         // Get extra info from notification and display.
         Intent intent = getIntent();
+        final String senderUid = intent.getExtras().getString(Constants.SENDER_UID);
         String senderName = intent.getExtras().getString(Constants.SENDER_NAME);
         String senderEmail = intent.getExtras().getString(Constants.SENDER_EMAIL);
         String senderGender = intent.getExtras().getString(Constants.SENDER_GENDER);
@@ -58,7 +67,7 @@ public class AcceptRequestActivity extends AppCompatActivity {
         mAcceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateDatabase();
+                updateDatabase(senderUid);
             }
         });
 
@@ -78,8 +87,20 @@ public class AcceptRequestActivity extends AppCompatActivity {
     /**
      * The method is to update the database, adding the request user to current user's friend list
      * and adding current user to request user's friend list.
+     * @param senderUid
      */
-    private void updateDatabase() {
-        //TODO
+    private void updateDatabase(String senderUid) {
+        mAuth = FirebaseAuth.getInstance();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference userReference = mFirebaseDatabase.getReference();
+        FirebaseUser user = mAuth.getCurrentUser();
+        String currentUserUid = user.getUid();
+        User currentUser = UserManagement.getInstance().getUserByUID(currentUserUid);
+        User sender = UserManagement.getInstance().getUserByUID(senderUid);
+        String senderEmail = sender.getEmail();
+        String currentUserEmail = currentUser.getEmail();
+
+        userReference.child(Constants.ARG_FRIENDS).child(currentUserUid).child(senderUid).setValue(senderEmail);
+        userReference.child(Constants.ARG_FRIENDS).child(senderUid).child(currentUserUid).setValue(currentUserEmail);
     }
 }

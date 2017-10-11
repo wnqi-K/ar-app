@@ -75,12 +75,13 @@ public class NotificationService extends FirebaseMessagingService {
             UserManagement userManagement = UserManagement.getInstance();
             User sender = userManagement.getUserByUID(senderUid);
 
+            String currentUserUid = sender.getUid();
             String currentUserName = sender.getUsername();
             String currentUserEmail = sender.getEmail();
             String currentUserGender = sender.getGender();
             String currentUserAddress = sender.getAddress();
 
-            PendingIntent pendingIntent = switchToAddFriInterface(currentUserName, currentUserEmail,
+            PendingIntent pendingIntent = switchToAddFriInterface(currentUserUid, currentUserName, currentUserEmail,
                     currentUserGender, currentUserAddress);
             buildNotification(title, message, pendingIntent);
 
@@ -126,9 +127,10 @@ public class NotificationService extends FirebaseMessagingService {
     /**
      * Set up an intent to go back to MainViewActivity.
      * */
-    private PendingIntent switchToAddFriInterface(String userName, String userEmail,
+    private PendingIntent switchToAddFriInterface(String userUid, String userName, String userEmail,
                                                   String userGender, String userAddress) {
         Intent intent = new Intent(this, AcceptRequestActivity.class);
+        intent.putExtra(Constants.SENDER_UID, userUid);
         intent.putExtra(Constants.SENDER_NAME, userName);
         intent.putExtra(Constants.SENDER_EMAIL, userEmail);
         intent.putExtra(Constants.SENDER_GENDER, userGender);
