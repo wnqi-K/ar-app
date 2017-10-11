@@ -37,7 +37,10 @@ public class Constants {
     public static final String REGISTER_FAILURE = " Registration Failure";
     public static final String REGISTER_SUCCESS = " Registration Success";
     public static final String ADD_TO_DATABASE_FAILURE = "Add To Firebase Failure";
-
+    public static final String SENDER_NAME = "SenderName";
+    public static final String SENDER_EMAIL = "SenderEmail";
+    public static final String SENDER_GENDER = "SenderGender";
+    public static final String SENDER_ADDRESS = "SenderAddress";
 
     public static final CharSequence ADD_TO_DATABASE_SUCCESS = "Success";
 }

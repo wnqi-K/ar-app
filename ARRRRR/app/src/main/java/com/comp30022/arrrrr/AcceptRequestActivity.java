@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.comp30022.arrrrr.utils.Constants;
+
 /**
  * The interface to accept or deny friend request after clicking on the notification.
  * Created by Wenqiang Kuang on 27/09/2017.
@@ -31,10 +33,10 @@ public class AcceptRequestActivity extends AppCompatActivity {
 
         // Get extra info from notification and display.
         Intent intent = getIntent();
-        String senderName = intent.getExtras().getString("SenderName");
-        String senderEmail = intent.getExtras().getString("SenderEmail");
-        String senderGender = intent.getExtras().getString("SenderGender");
-        String senderAddress = intent.getExtras().getString("SenderAddress");
+        String senderName = intent.getExtras().getString(Constants.SENDER_NAME);
+        String senderEmail = intent.getExtras().getString(Constants.SENDER_EMAIL);
+        String senderGender = intent.getExtras().getString(Constants.SENDER_GENDER);
+        String senderAddress = intent.getExtras().getString(Constants.SENDER_ADDRESS);
 
         mCardView = (CardView) findViewById(R.id.requestUserInfo);
         mAcceptButton = (Button) findViewById(R.id.accept_button);

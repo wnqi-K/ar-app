@@ -24,6 +24,7 @@ import java.util.Locale;
 /**
  * This class is responsible of receiving and building notifications.
  * Created by rondo on 9/19/17.
+ * Modified by Wenqiang Kuang on 28/09/2017
  */
 
 public class NotificationService extends FirebaseMessagingService {
@@ -128,10 +129,10 @@ public class NotificationService extends FirebaseMessagingService {
     private PendingIntent switchToAddFriInterface(String userName, String userEmail,
                                                   String userGender, String userAddress) {
         Intent intent = new Intent(this, AcceptRequestActivity.class);
-        intent.putExtra("SenderName", userName);
-        intent.putExtra("SenderEmail", userEmail);
-        intent.putExtra("SenderGender", userGender);
-        intent.putExtra("SenderAddress", userAddress);
+        intent.putExtra(Constants.SENDER_NAME, userName);
+        intent.putExtra(Constants.SENDER_EMAIL, userEmail);
+        intent.putExtra(Constants.SENDER_GENDER, userGender);
+        intent.putExtra(Constants.SENDER_ADDRESS, userAddress);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_ONE_SHOT);
