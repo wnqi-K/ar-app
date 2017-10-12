@@ -18,6 +18,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
+
 /**
  * The interface to accept or deny friend request after clicking on the notification.
  * Created by Wenqiang Kuang on 27/09/2017.
@@ -67,7 +69,13 @@ public class AcceptRequestActivity extends AppCompatActivity {
         mAcceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateDatabase(senderUid);
+                // Check if is friends first.
+                if(isAlreadyFriend(senderUid)){
+                    Toast.makeText(getBaseContext(), "You are Already friends.",
+                            Toast.LENGTH_LONG).show();
+                }else {
+                    updateDatabase(senderUid);
+                }
                 goBackToMainView();
             }
         });
@@ -82,6 +90,21 @@ public class AcceptRequestActivity extends AppCompatActivity {
                 goBackToMainView();
             }
         });
+    }
+
+    /**
+     * Check if the request is sent by friends.
+     */
+    private boolean isAlreadyFriend(String senderUid) {
+        Boolean isFriend = false;
+        ArrayList<User> friends = (ArrayList<User>) UserManagement.getInstance().getFriendList();
+        for(User user : friends){
+            if (user.getUid() == senderUid){
+                isFriend = true;
+                break;
+            }
+        }
+        return isFriend;
     }
 
     /**
