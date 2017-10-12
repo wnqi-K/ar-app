@@ -68,6 +68,7 @@ public class AcceptRequestActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 updateDatabase(senderUid);
+                goBackToMainView();
             }
         });
 
@@ -78,16 +79,22 @@ public class AcceptRequestActivity extends AppCompatActivity {
                 // Pop up the msg and go back to the main view.
                 Toast.makeText(getBaseContext(), "You've reject the request. ",
                         Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getBaseContext(), MainViewActivity.class);
-                startActivity(intent);
+                goBackToMainView();
             }
         });
     }
 
     /**
+     * Go back to the mainViewActivity, after choosing 'accept' or 'reject'.
+     */
+    private void goBackToMainView() {
+        Intent intent = new Intent(getBaseContext(), MainViewActivity.class);
+        startActivity(intent);
+    }
+
+    /**
      * The method is to update the database, adding the request user to current user's friend list
      * and adding current user to request user's friend list.
-     * @param senderUid
      */
     private void updateDatabase(String senderUid) {
         mAuth = FirebaseAuth.getInstance();
@@ -100,6 +107,7 @@ public class AcceptRequestActivity extends AppCompatActivity {
         String senderEmail = sender.getEmail();
         String currentUserEmail = currentUser.getEmail();
 
+        // Establish the friendship mutually. Update the friends database.
         userReference.child(Constants.ARG_FRIENDS).child(currentUserUid).child(senderUid).setValue(senderEmail);
         userReference.child(Constants.ARG_FRIENDS).child(senderUid).child(currentUserUid).setValue(currentUserEmail);
     }
