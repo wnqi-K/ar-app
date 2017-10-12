@@ -6,15 +6,12 @@ import android.graphics.BitmapFactory;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
-import com.google.firebase.auth.FirebaseAuth;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +23,6 @@ import java.util.List;
 
 public class UserManagement {
     private static UserManagement mInstance;
-    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
     private List<User> mUserList = new ArrayList<>();
     private List<User> mFriendList =  new ArrayList<>();
@@ -89,10 +85,6 @@ public class UserManagement {
         }
     }
 
-    public void getUsersUnsuccessfully(String message){
-        Log.d("Firebase", message);
-    }
-
     /**
      * Given a user uid, determines whether this user is a friend of the device user.
      */
@@ -112,8 +104,7 @@ public class UserManagement {
      * @return profile image in {@link Bitmap}
      */
     public Bitmap getUserProfileImage(String uid, Context context) {
-        String imageUrl64 = null;
-
+        String imageUrl64;
         User user = getUserByUID(uid);
 
         if (user == null) {
@@ -121,7 +112,6 @@ public class UserManagement {
         }
 
         imageUrl64 = user.getImageUrl();
-
         if (imageUrl64 == null) {
             // User does not have profile image, so return default profile image
             return BitmapFactory.decodeResource(context.getResources(),

@@ -63,11 +63,11 @@ public class NotificationService extends FirebaseMessagingService {
     /*
     * This method will build a notification and send it to the user
     * */
-    private void sendNotification(String title,
-                                  String message,
-                                  String senderEmail,
-                                  String senderUid,
-                                  String firebaseToken){
+    public void sendNotification(String title,
+                                 String message,
+                                 String senderEmail,
+                                 String senderUid,
+                                 String firebaseToken){
 
         // If detecting friend_request_message, assign addingFriendsActivity
         // intent to the notification.
