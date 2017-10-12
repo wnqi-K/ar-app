@@ -16,6 +16,7 @@ import com.comp30022.arrrrr.adapters.ListViewAdapter;
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.services.FcmNotificationBuilder;
+import com.comp30022.arrrrr.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -101,11 +102,11 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
      */
     private HashMap<String, String> getNotificationMessage(User onClickUser, User currentUser) {
         HashMap<String, String> info = new HashMap<>();
-        info.put("email", currentUser.getEmail());
-        info.put("message", "Sends you a friend request.");
-        info.put("uid", currentUser.getUid());
-        info.put("senderToken", currentUser.getFirebaseToken());
-        info.put("receiverToken", onClickUser.getFirebaseToken());
+        info.put(Constants.ARG_EMAIL, currentUser.getEmail());
+        info.put(Constants.MESSAGE, "Sends you a friend request.");
+        info.put(Constants.ARG_UID, currentUser.getUid());
+        info.put(Constants.SENDER_TOKEN, currentUser.getFirebaseToken());
+        info.put(Constants.RECEIVER_TOKEN, onClickUser.getFirebaseToken());
         return info;
     }
 
@@ -113,11 +114,11 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
     * The method is to notification message to receiver given all the info. 
     */
     private void sendRequest(HashMap<String, String> allInfo) {
-        String email = allInfo.get("email");
-        String message = allInfo.get("message");
-        String uid = allInfo.get("uid");
-        String senderToken = allInfo.get("senderToken");
-        String receiverToken = allInfo.get("receiverToken");
+        String email = allInfo.get(Constants.ARG_EMAIL);
+        String message = allInfo.get(Constants.MESSAGE);
+        String uid = allInfo.get(Constants.ARG_UID);
+        String senderToken = allInfo.get(Constants.SENDER_TOKEN);
+        String receiverToken = allInfo.get(Constants.RECEIVER_TOKEN);
 
         sendRequestToReceiver(email, message, uid, senderToken, receiverToken);
     }

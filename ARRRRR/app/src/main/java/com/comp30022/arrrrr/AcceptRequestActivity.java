@@ -10,6 +10,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.comp30022.arrrrr.database.UserManagement;
+import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.utils.Constants;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.ArrayList;
+
 /**
  * The interface to accept or deny friend request after clicking on the notification.
  * Created by Wenqiang Kuang on 27/09/2017.
@@ -23,6 +33,8 @@ public class AcceptRequestActivity extends AppCompatActivity {
     private TextView mUserGender;
     private TextView mUserAddress;
     private ImageView mUserAvatar;
+    private FirebaseAuth mAuth;
+    private FirebaseDatabase mFirebaseDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,10 +43,11 @@ public class AcceptRequestActivity extends AppCompatActivity {
 
         // Get extra info from notification and display.
         Intent intent = getIntent();
-        String userName = intent.getExtras().getString("SenderName");
-        String userEmail = intent.getExtras().getString("SenderEmail");
-        String userGender = intent.getExtras().getString("SenderGender");
-        String userAddress = intent.getExtras().getString("SenderAddress");
+        final String senderUid = intent.getExtras().getString(Constants.SENDER_UID);
+        String senderName = intent.getExtras().getString(Constants.SENDER_NAME);
+        String senderEmail = intent.getExtras().getString(Constants.SENDER_EMAIL);
+        String senderGender = intent.getExtras().getString(Constants.SENDER_GENDER);
+        String senderAddress = intent.getExtras().getString(Constants.SENDER_ADDRESS);
 
         mCardView = (CardView) findViewById(R.id.requestUserInfo);
         mAcceptButton = (Button) findViewById(R.id.accept_button);
@@ -47,16 +60,23 @@ public class AcceptRequestActivity extends AppCompatActivity {
 
         // Display info carried by the intent.
         mUserAvatar.setImageDrawable(getResources().getDrawable(R.drawable.avatar));
-        mUserName.setText(userName);
-        mUserEmail.setText(userEmail);
-        mUserGender.setText(userGender);
-        mUserAddress.setText(userAddress);
+        mUserName.setText(senderName);
+        mUserEmail.setText(senderEmail);
+        mUserGender.setText(senderGender);
+        mUserAddress.setText(senderAddress);
 
         // Update the database if accepting.
         mAcceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateDatabase();
+                // Check if is friends first.
+                if(isAlreadyFriend(senderUid)){
+                    Toast.makeText(getBaseContext(), "You are Already friends.",
+                            Toast.LENGTH_LONG).show();
+                }else {
+                    updateDatabase(senderUid);
+                }
+                goBackToMainView();
             }
         });
 
@@ -67,17 +87,51 @@ public class AcceptRequestActivity extends AppCompatActivity {
                 // Pop up the msg and go back to the main view.
                 Toast.makeText(getBaseContext(), "You've reject the request. ",
                         Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getBaseContext(), MainViewActivity.class);
-                startActivity(intent);
+                goBackToMainView();
             }
         });
+    }
+
+    /**
+     * Check if the request is sent by friends.
+     */
+    private boolean isAlreadyFriend(String senderUid) {
+        Boolean isFriend = false;
+        ArrayList<User> friends = (ArrayList<User>) UserManagement.getInstance().getFriendList();
+        for(User user : friends){
+            if (user.getUid() == senderUid){
+                isFriend = true;
+                break;
+            }
+        }
+        return isFriend;
+    }
+
+    /**
+     * Go back to the mainViewActivity, after choosing 'accept' or 'reject'.
+     */
+    private void goBackToMainView() {
+        Intent intent = new Intent(getBaseContext(), MainViewActivity.class);
+        startActivity(intent);
     }
 
     /**
      * The method is to update the database, adding the request user to current user's friend list
      * and adding current user to request user's friend list.
      */
-    private void updateDatabase() {
-        //TODO
+    private void updateDatabase(String senderUid) {
+        mAuth = FirebaseAuth.getInstance();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference userReference = mFirebaseDatabase.getReference();
+        FirebaseUser user = mAuth.getCurrentUser();
+        String currentUserUid = user.getUid();
+        User currentUser = UserManagement.getInstance().getUserByUID(currentUserUid);
+        User sender = UserManagement.getInstance().getUserByUID(senderUid);
+        String senderEmail = sender.getEmail();
+        String currentUserEmail = currentUser.getEmail();
+
+        // Establish the friendship mutually. Update the friends database.
+        userReference.child(Constants.ARG_FRIENDS).child(currentUserUid).child(senderUid).setValue(senderEmail);
+        userReference.child(Constants.ARG_FRIENDS).child(senderUid).child(currentUserUid).setValue(currentUserEmail);
     }
 }
