@@ -45,6 +45,7 @@ public class Constants {
     public static final String SENDER_UID = "senderUid";
     public static final String RECEIVER_TOKEN = "receiverToken";
     public static final String MESSAGE = "message";
+    public static final String REQUEST_MESSAGE = "Sends you a friend request.";
 
 
     public static final CharSequence ADD_TO_DATABASE_SUCCESS = "Success";

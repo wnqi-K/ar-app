@@ -25,6 +25,9 @@ import java.util.ArrayList;
  * Created by Wenqiang Kuang on 27/09/2017.
  */
 public class AcceptRequestActivity extends AppCompatActivity {
+    // For Testing.
+    public static String TAG = "AcceptRequestActivity";
+
     private CardView mCardView;
     private Button mAcceptButton;
     private Button mRejectButton;
