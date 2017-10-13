@@ -137,24 +137,10 @@ public class UserManagement {
     }
 
     /**
-     * Using user id to find this user's Email
-     * */
-    public static String getReceiverEmail(String receiverUid,Context context) {
-        User usr = getUserUsingID(receiverUid);
-        String email = null;
-        if(usr == null){
-            Toast.makeText(context, Constants.GET_RECEIVER_ERROR, Toast.LENGTH_SHORT).show();
-        }else{
-            email = usr.getEmail();
-        }
-        return email;
-    }
-
-    /**
      * Using user id to find this user's FirebaseToken
      * */
-    public static String getReceiverFirebaseToken(String receiverUid,Context context) {
-        User usr = getUserUsingID(receiverUid);
+    public String getReceiverFirebaseToken(String receiverUid,Context context) {
+        User usr = getUserByUID(receiverUid);
         String firebaseToken = null;
         if(usr == null){
             Toast.makeText(context, Constants.GET_TOKEN_ERROR, Toast.LENGTH_SHORT).show();
@@ -167,8 +153,8 @@ public class UserManagement {
     /**
      * Using user id to find this user's user name
      * */
-    public static String getUserName(String receiverUid,Context context){
-        User usr = getUserUsingID(receiverUid);
+    public String getUserName(String receiverUid,Context context){
+        User usr = getUserByUID(receiverUid);
         String username = null;
         if(usr == null){
             Toast.makeText(context, Constants.GET_RECEIVER_ERROR, Toast.LENGTH_SHORT).show();
@@ -178,21 +164,6 @@ public class UserManagement {
         return username;
     }
 
-    /**
-     *  find object User using user id
-     * */
-    public static User getUserUsingID(String Uid){
-        User usr = null;
-        UserManagement friendManagement = UserManagement.getInstance();
-        ArrayList<User> allUsersList = (ArrayList<User>) friendManagement.getUserList();
-        for(User user:allUsersList){
-            if(user.getUid().equals(Uid)){
-                usr = user;
-                break;
-            }
-        }
-        return usr;
-    }
 
     /**
      * Retrieve the User object given a user's uid

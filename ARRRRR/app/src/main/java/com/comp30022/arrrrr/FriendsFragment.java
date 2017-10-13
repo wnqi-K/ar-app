@@ -12,6 +12,9 @@ import android.view.ViewGroup;
 import com.comp30022.arrrrr.adapters.RecyclerFriendListAdapter;
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.services.FirebaseIDService;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 
@@ -35,6 +38,14 @@ public class FriendsFragment extends Fragment{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // refresh Firebase Token if user change devices
+        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+        String Uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String currentToken = UserManagement.getInstance().getReceiverFirebaseToken(Uid,getActivity());
+        if(!refreshedToken.equals(currentToken)){
+            new FirebaseIDService().
+                    sendRegistrationToServer(refreshedToken,getActivity());
+        }
     }
 
     @Override
