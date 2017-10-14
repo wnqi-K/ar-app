@@ -8,7 +8,11 @@ import android.util.Log;
 import android.widget.EditText;
 
 import com.comp30022.arrrrr.MainViewActivity;
+import com.comp30022.arrrrr.database.UserManagement;
+import com.comp30022.arrrrr.models.User;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,7 +39,11 @@ public class LoginHelper {
             valid = false;
         } else if (!isValidEmailAddress(email)){
             valid = false;
-        } else {
+            mEmailField.setError("Invalid email address.");
+        } else if (isRegisteredEmail(email)){
+            mEmailField.setError("This email address hase been registered.");
+            valid = false;
+        }else {
             mEmailField.setError(null);
         }
 
@@ -71,7 +79,10 @@ public class LoginHelper {
         } else if (!isValidUsername(username)){
             mUsernameField.setError("Invalid Username(maximum 8 digits without empty space)");
             valid = false;
-        } else {
+        }  else if (isRegisteredUsername(username)){
+            mUsernameField.setError("This username hase been used.");
+            valid = false;
+        }else {
             mUsernameField.setError(null);
         }
 
@@ -142,4 +153,31 @@ public class LoginHelper {
         }
         return result;
     }
+
+    /**
+     * check whether email has been registered or not
+     * */
+    private static boolean isRegisteredEmail(String email){
+        boolean isRegistered = false;
+        for(User usr: UserManagement.getInstance().getUserList()){
+            if(usr.getEmail().equals(email)){
+                isRegistered = true;
+            }
+        }
+        return isRegistered;
+    }
+
+    /**
+     * check whether username has been registered or not
+     * */
+    private static boolean isRegisteredUsername(String username){
+        boolean isRegistered = false;
+        for(User usr: UserManagement.getInstance().getUserList()){
+            if(usr.getUsername().equals(username)){
+                isRegistered = true;
+            }
+        }
+        return isRegistered;
+    }
+
 }
