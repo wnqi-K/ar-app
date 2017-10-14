@@ -33,19 +33,6 @@
             android:layout_marginTop="30dp"
             android:text="Email Login" />
 
-        <TextView
-            android:id="@+id/status"
-            style="@style/NormalText"
-            android:text="@string/signed_out" />
-
-        <TextView
-            android:layout_margin="0dp"
-            android:id="@+id/detail"
-            style="@style/NormalText"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.30"
-            tools:text="Firebase User ID: 123456789abc" />
-
     </LinearLayout>
 
 

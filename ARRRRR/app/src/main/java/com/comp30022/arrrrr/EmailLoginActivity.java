@@ -10,7 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.comp30022.arrrrr.utils.LoginHelper;
@@ -26,15 +25,12 @@ import com.google.firebase.auth.FirebaseUser;
  * Created by Wenqiang Kuang on 26/08/2017.
  */
 public class EmailLoginActivity extends AppCompatActivity implements View.OnClickListener{
-
     private static final String TAG = "EmailPassword";
+    private static final String PROCESS_DIALOG_MESSAGE = "Loading...";
 
-    private TextView mStatusTextView;
-    private TextView mDetailTextView;
     private EditText mEmailField;
     private EditText mPasswordField;
     private ProgressDialog mProgressDialog;
-
     private FirebaseAuth mAuth;
 
     @Override
@@ -42,16 +38,12 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_email_login);
 
-
-        mStatusTextView = (TextView)findViewById(R.id.status);
-        mDetailTextView = (TextView)findViewById(R.id.detail);
         mEmailField = (EditText)findViewById(R.id.field_email);
         mPasswordField = (EditText)findViewById(R.id.field_password);
 
         findViewById(R.id.email_sign_in_button).setOnClickListener(this);
         findViewById(R.id.email_create_account_button).setOnClickListener(this);
         findViewById(R.id.sign_out_button).setOnClickListener(this);
-        //findViewById(R.id.verify_email_button).setOnClickListener(this);
 
         mAuth = FirebaseAuth.getInstance();
     }
@@ -72,10 +64,8 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
 
         showProgressDialog();
 
-        // [START sign_in_with_email]
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, onSignInCompleteListener);
-        // [END sign_in_with_email]
     }
 
     private OnCompleteListener onSignInCompleteListener = new OnCompleteListener<AuthResult>() {
@@ -94,24 +84,9 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
                 updateUI(null);
             }
 
-            // [START_EXCLUDE]
-            if (!task.isSuccessful()) {
-                mStatusTextView.setText(R.string.auth_failed);
-            }
             hideProgressDialog();
-            // [END_EXCLUDE]
         }
     };
-
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    public void setAuth(FirebaseAuth auth) {
-        this.mAuth = auth;
-    }
-
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    public OnCompleteListener getOnSignInCompleteListener() {
-        return onSignInCompleteListener;
-    }
 
     @Override
     public void onClick(View v) {
@@ -121,38 +96,29 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         } else if (i == R.id.email_sign_in_button) {
             signIn(mEmailField.getText().toString(), mPasswordField.getText().toString());
         }
-
-        /*else if (i == R.id.verify_email_button) {
-            sendEmailVerification();
-        }*/
     }
-
 
     public void updateUI(FirebaseUser user) {
         hideProgressDialog();
         if (user != null) {
             Intent intent = new Intent(this, MainViewActivity.class);
             startActivity(intent);
-
-            //findViewById(R.id.verify_email_button).setEnabled(!user.isEmailVerified());
         } else {
-
-            mStatusTextView.setText(R.string.sign_out);
-            mDetailTextView.setText(null);
-
+            //mStatusTextView.setText(R.string.sign_out);
+            //mDetailTextView.setText(null);
             findViewById(R.id.email_password_fields).setVisibility(View.VISIBLE);
-
         }
     }
 
-
+    /**
+     * Display the process dialog while authenticating the account.
+     */
     public void showProgressDialog() {
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(this);
             mProgressDialog.setCancelable(false);
-            mProgressDialog.setMessage("Loading...");
+            mProgressDialog.setMessage(PROCESS_DIALOG_MESSAGE);
         }
-
         mProgressDialog.show();
     }
 
@@ -167,4 +133,13 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         context.startActivity(intent);
     }
 
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public void setAuth(FirebaseAuth auth) {
+        this.mAuth = auth;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public OnCompleteListener getOnSignInCompleteListener() {
+        return onSignInCompleteListener;
+    }
 }
