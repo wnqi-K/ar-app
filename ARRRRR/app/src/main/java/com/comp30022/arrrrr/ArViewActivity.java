@@ -55,9 +55,9 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     public static final String LATLNG_Key = "LATLNGARKEY";
     public static final String ALLOW_KEY = "ALLOWED";
 
-    private static final String RIGHT_TRACK_MSG = "On the Right Track.";
-    private static final String TURN_RIGHT_MSG = "Slowly Rotate to Right.";
-    private static final String TURN_LEFT_MSG = "Slowly Rotate to Left.";
+    private static final String CORRECT_MSG = "Correct Direction";
+    private static final String TURN_RIGHT_MSG = "Slowly Rotate to Right";
+    private static final String TURN_LEFT_MSG = "Slowly Rotate to Left";
 
     /**
      * Camera Class to get camera Preview
@@ -322,16 +322,17 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         double minAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(0);
         double maxAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(1);
 
-        //if within the accuracy, show ICON
-        if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal)== 0) {
+        //if within the range, show ICON
+        if (calculator.isBetween(mAzimuthTeoretical,minAngle, maxAngle, mAzimuthReal)== 0) {
             pointerIcon.setVisibility(View.VISIBLE);
-            updateMsg(RIGHT_TRACK_MSG);
+            updateMsg(CORRECT_MSG);
+
         } else {
             pointerIcon.setVisibility(View.INVISIBLE);
-            if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal) == 1){
+            if (calculator.isBetween(mAzimuthTeoretical, minAngle, maxAngle, mAzimuthReal) == 1){
                 updateMsg(TURN_LEFT_MSG);
             }
-            if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal)== -1){
+            if (calculator.isBetween(mAzimuthTeoretical, minAngle, maxAngle, mAzimuthReal)== -1){
                 updateMsg(TURN_RIGHT_MSG);
             }
         }
