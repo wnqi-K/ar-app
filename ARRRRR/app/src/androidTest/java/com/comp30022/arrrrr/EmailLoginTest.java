@@ -11,7 +11,6 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,7 +19,7 @@ import org.mockito.Mockito;
 
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test for {@link EmailLoginActivity}
@@ -38,7 +37,6 @@ import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
 public class EmailLoginTest {
-
     /**
      * You will need a ActivityTestRule for testing involving any activity.
      * See https://developer.android.com/reference/android/support/test/rule/ActivityTestRule.html

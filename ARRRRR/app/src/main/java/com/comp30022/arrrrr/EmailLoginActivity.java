@@ -165,7 +165,6 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, EmailLoginActivity.class);
         context.startActivity(intent);
-
     }
 
 }

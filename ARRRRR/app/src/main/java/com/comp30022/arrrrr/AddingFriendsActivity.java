@@ -149,4 +149,9 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
         finish();
         return true;
     }
+
+    // For Testing.
+    public ListView getListView(){
+        return this.mListView;
+    }
 }

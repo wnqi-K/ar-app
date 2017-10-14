@@ -3,19 +3,17 @@ package com.comp30022.arrrrr;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.test.runner.AndroidJUnit4;
 
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.User;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test for user profile information.
@@ -32,7 +30,6 @@ import static org.junit.Assert.*;
 public class UserProfileTest {
     @Mock
     private Context mMockContext;
-
     private UserManagement userManagement;
 
     @Before
@@ -53,7 +50,6 @@ public class UserProfileTest {
      */
     @Test
     public void testNoProfileImage() {
-
         String uid = "user_no_profile_image";
         Bitmap img = userManagement.getUserProfileImage(uid, mMockContext);
         assertEquals(img, BitmapFactory.decodeResource(mMockContext.getResources(),
