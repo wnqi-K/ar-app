@@ -449,7 +449,6 @@ public class SettingFragment extends Fragment implements
         int index = preferences.getInt(getString(R.string.PREF_KEY_FILTER_DISTANCE_INDEX), 0);
 
         mSpinnerFilterDistance.setSelection(index);
-
         mSwitchLocationSharing.setChecked(isLocationSharingEnabled);
         mSwitchNearbyNotification.setChecked(isNearbyNotificationEnabled);
     }
