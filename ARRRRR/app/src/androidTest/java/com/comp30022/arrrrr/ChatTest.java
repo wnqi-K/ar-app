@@ -2,16 +2,11 @@ package com.comp30022.arrrrr;
 
 import android.content.Intent;
 import android.support.test.rule.ActivityTestRule;
-import android.support.v7.widget.RecyclerView;
-import android.widget.EditText;
 
 import com.comp30022.arrrrr.adapters.ChatRecyclerAdapter;
 import com.comp30022.arrrrr.models.Chat;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.ValueEventListener;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -83,8 +78,4 @@ public class ChatTest {
         // verify message
         assertEquals(message,mChatActivity.getChat().message);
     }
-
-
-
-
 }

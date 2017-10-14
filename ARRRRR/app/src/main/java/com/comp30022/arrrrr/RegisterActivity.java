@@ -18,7 +18,6 @@ import android.widget.Toast;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
 import com.comp30022.arrrrr.utils.LoginHelper;
-import com.comp30022.arrrrr.utils.PreferencesAccess;
 import com.comp30022.arrrrr.utils.SharedPrefUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -178,7 +177,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 Toast.makeText(RegisterActivity.this,
                         toast_text, Toast.LENGTH_SHORT).show();
                 EmailLoginActivity.startActivity(RegisterActivity.this);
-
             }
         }
     };
