@@ -39,18 +39,33 @@ public class AziCalculator {
 
     /**
      * this is a function returns boolean value
-     * if azimuth angle within the range returns true
-     * else, false
+     * if azimuth angle within the range returns 1
+     * else,
+     * if smaller than min return -1
+     * if larger than max return 1
      * called by ArViewActivity in onAzimuthChanged(float azimuthChangedFrom, float azimuthChangedTo)
      * */
-    public boolean isBetween(double minAngle, double maxAngle, double azimuth) {
+    public int isBetween(double minAngle, double maxAngle, double azimuth) {
         if (minAngle > maxAngle) {
-            if (isBetween(0, maxAngle, azimuth) && isBetween(minAngle, 360, azimuth))
-                return true;
-        } else {
-            if (azimuth > minAngle && azimuth < maxAngle)
-                return true;
+            if (isBetween(0, maxAngle, azimuth)==0 && isBetween(minAngle, 360, azimuth)==0)
+                return 0;
+            else if (azimuth >= maxAngle){
+                return -1;
+            }
+            else{
+                return 1;
+            }
         }
-        return false;
+        else {
+            if (azimuth > minAngle && azimuth < maxAngle)
+                return 0;
+
+            else if (azimuth <= minAngle){
+                return -1;
+            }
+            else{
+                return 1;
+            }
+        }
     }
 }
