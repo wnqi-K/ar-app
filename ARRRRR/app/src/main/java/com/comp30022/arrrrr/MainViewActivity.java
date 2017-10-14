@@ -11,14 +11,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.database.RequestFirebaseUsers;
+import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.User;
-import com.comp30022.arrrrr.services.FirebaseIDService;
 import com.comp30022.arrrrr.services.PositioningService;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.iid.FirebaseInstanceId;
-
 
 /**
  * Main view of the application after user has logged in. This contains three

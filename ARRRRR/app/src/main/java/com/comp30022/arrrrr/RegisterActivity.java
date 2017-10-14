@@ -155,7 +155,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 mETxtPhonenum.getText().toString(),
                 gender,
                 mETxtAddress.getText().toString(),
-                null);
+                null, null);
         mRef.child(Constants.ARG_USERS)
                 .child(uid)
                 .setValue(user)

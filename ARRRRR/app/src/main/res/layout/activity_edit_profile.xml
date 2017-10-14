@@ -82,7 +82,7 @@
             <Button
                 style="@style/LongButton"
                 android:id="@+id/etGender"
-                android:background="@drawable/btn_border_whitebackground"
+                android:background="@drawable/btn_border_white_background"
                 android:onClick="clickGender"
                 android:text="Gender"
                 android:textColor="@color/grey_text_real"
@@ -94,7 +94,7 @@
             <Button
                 style="@style/LongButton"
                 android:id="@+id/etAddress"
-                android:background="@drawable/btn_border_whitebackground"
+                android:background="@drawable/btn_border_white_background"
                 android:onClick="clickAddress"
                 android:text="Address"
                 android:textColor="@color/grey_text_real"

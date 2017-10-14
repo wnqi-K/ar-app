@@ -12,12 +12,21 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.utils.Constants;
 import com.comp30022.arrrrr.utils.LoginHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * Login via email account, lead to registration if no account exists.
@@ -32,6 +41,7 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
     private EditText mPasswordField;
     private ProgressDialog mProgressDialog;
     private FirebaseAuth mAuth;
+    private String mStatus;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -63,30 +73,67 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         }
 
         showProgressDialog();
-
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, onSignInCompleteListener);
     }
 
+    private boolean checkLoginStatus() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference statusReference = firebaseDatabase.getReference().
+                child(Constants.ARG_USERS).child(user.getUid());
+        statusReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = (User) dataSnapshot.getValue();
+                assertNotNull(user);
+                Log.d("Fuc", user.getEmail());
+                Log.d("Fuc", user.getEmail() + user.getLoginStatus());
+                mStatus = user.getLoginStatus();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "Error to fetch login status. ");
+            }
+        });
+
+        assertNotNull(mStatus);
+        if(mStatus.equals("loggedOut")){
+            statusReference.setValue("loggedIn");
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
     private OnCompleteListener onSignInCompleteListener = new OnCompleteListener<AuthResult>() {
         @Override
-        public void onComplete(@NonNull Task<AuthResult> task) {
+        public void onComplete(@NonNull final Task<AuthResult> task) {
             if (task.isSuccessful()) {
-                // Sign in success, update UI with the signed-in user's information
-                Log.d(TAG, "signInWithEmail:success");
-                FirebaseUser user = mAuth.getCurrentUser();
-                updateUI(user);
+                if (checkLoginStatus()){
+                    // Sign in success, update UI with the signed-in user's information
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    updateUI(user);
+                }else{
+                    duplicateLogin();
+                }
             } else {
-                // If sign in fails, display a message to the user.
+                // Does not pass the authentication, display a message to the user.
                 Log.w(TAG, "signInWithEmail:failure", task.getException());
                 Toast.makeText(EmailLoginActivity.this, "Authentication failed.",
                         Toast.LENGTH_SHORT).show();
                 updateUI(null);
             }
-
             hideProgressDialog();
         }
     };
+
+
+    private void duplicateLogin() {
+        Toast.makeText(this,"This account has been logged in.", Toast.LENGTH_LONG).show();
+    }
 
     @Override
     public void onClick(View v) {
@@ -104,8 +151,6 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
             Intent intent = new Intent(this, MainViewActivity.class);
             startActivity(intent);
         } else {
-            //mStatusTextView.setText(R.string.sign_out);
-            //mDetailTextView.setText(null);
             findViewById(R.id.email_password_fields).setVisibility(View.VISIBLE);
         }
     }

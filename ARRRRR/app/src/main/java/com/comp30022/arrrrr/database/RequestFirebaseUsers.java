@@ -23,9 +23,9 @@ import java.util.ArrayList;
  */
 
 public class RequestFirebaseUsers {
-
     private UserManagement mFriendManagement;
     private static FirebaseDatabase mDatabase;
+    //private static boolean READ_USER_FLAG = true;
 
     public static FirebaseDatabase getDatabase() {
         if (mDatabase == null) {
@@ -37,6 +37,7 @@ public class RequestFirebaseUsers {
     public RequestFirebaseUsers(UserManagement friendManagement){
         mFriendManagement = friendManagement;
         mDatabase = getDatabase();
+
         loadAdminFriends();
         updateFriendList();
         readAllUsers();
@@ -101,7 +102,6 @@ public class RequestFirebaseUsers {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 ArrayList<String> friendsID = new ArrayList<>();
                 for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                    //Friend friend = snapshot.getValue(Friend.class);
                     String uid = snapshot.getKey();
                     friendsID.add(uid);
                     Log.d("fatal", "called once. " + uid);
@@ -153,11 +153,12 @@ public class RequestFirebaseUsers {
         Query query = userListReference.child("users");
         query.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(DataSnapshot dataSnapshot){
                 ArrayList<User> allUsers = new ArrayList<>();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     User user = snapshot.getValue(User.class);
-                    if (!TextUtils.equals(user.getUid(), FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                    if ((FirebaseAuth.getInstance().getCurrentUser())!= null && !TextUtils.equals(user.getUid(), FirebaseAuth.getInstance().
+                            getCurrentUser().getUid())) {
                         allUsers.add(user);
                     }else{
                         mFriendManagement.setCurrentUser(user);
