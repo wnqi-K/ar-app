@@ -49,10 +49,15 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final String TAG = "ArViewActivity";
+
     public static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
     public static final String UID_Key = "UIDARKEY";
     public static final String LATLNG_Key = "LATLNGARKEY";
     public static final String ALLOW_KEY = "ALLOWED";
+
+    private static final String RIGHT_TRACK_MSG = "On the Right Track.";
+    private static final String TURN_RIGHT_MSG = "Slowly Rotate to Right.";
+    private static final String TURN_LEFT_MSG = "Slowly Rotate to Left.";
 
     /**
      * Camera Class to get camera Preview
@@ -70,16 +75,16 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     private boolean isCameraviewOn = false;
 
     /**
-     * poi track the POI for ar, determining whether to show ar image
+     * poi track the POI for ar, location of friend
      **/
     private AugmentedPOI mPoi;
 
     /**
      * amzimuth factors
      * */
-    private double mAzimuthReal = 0;
-    private double mAzimuthTeoretical = 0;
-    private MyCurrentAzimuth myCurrentAzimuth;
+    private double mAzimuthReal = 0; //my real azimuth
+    private double mAzimuthTeoretical = 0; //friend's azimuth
+    private MyCurrentAzimuth myCurrentAzimuth; // my azimuth listener
 
     /**
      * location factors
@@ -88,8 +93,12 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     private double mMyLongitude = 0;
     private SelfPositionReceiver myCurrentPosition;
 
+    /**
+     * rendering view object
+     * */
     public TextView descriptionTextView;
     public ImageView pointerIcon;
+    public TextView msgTextView;
 
     /**
      * cohesive in amzimuth calculation
@@ -123,8 +132,9 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         super.onResume();
         //request camera permission
         camPerm.requestPermission(ArViewActivity.this, ArViewActivity.this);
+        //start sensor listeners
         myCurrentAzimuth.start();
-
+        //start location listener
         ServiceManager.startPositioningService(this);
     }
 
@@ -141,7 +151,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         unregisterReceivers();
     }
 
-    /***
+    /**
      * start Activity and get the POI
      */
 
@@ -189,6 +199,13 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         descriptionTextView.setText(mPoi.getPoiName() + " azimuthTeoretical "
                 + mAzimuthTeoretical + " azimuthReal " + mAzimuthReal + " latitude "
                 + mMyLatitude + " longitude " + mMyLongitude);
+    }
+
+    /**
+     * update the ar instruction text
+     * */
+    private void updateMsg(String msg) {
+        msgTextView.setText(msg);
     }
 
     /**
@@ -255,12 +272,12 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * */
     private void setupLayout() {
         descriptionTextView = (TextView) findViewById(R.id.cameraTextView);
+        msgTextView = (TextView)findViewById(R.id.msg);
 
         getWindow().setFormat(PixelFormat.UNKNOWN);
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.cameraview);
         mSurfaceHolder = surfaceView.getHolder();
         mSurfaceHolder.addCallback(this);
-        //mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
     }
 
     /**
@@ -283,6 +300,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         mMyLatitude = location.getLatitude();
         mMyLongitude = location.getLongitude();
         mAzimuthTeoretical = calculateTeoreticalAzimuth();
+
 
         Toast.makeText(this,"latitude: "+location.getLatitude()+
                 " longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
@@ -307,8 +325,10 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         //if within the accuracy, show ICON
         if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal)) {
             pointerIcon.setVisibility(View.VISIBLE);
+            updateMsg(RIGHT_TRACK_MSG);
         } else {
             pointerIcon.setVisibility(View.INVISIBLE);
+            updateMsg(TURN_LEFT_MSG);
         }
 
         updateDescription();
