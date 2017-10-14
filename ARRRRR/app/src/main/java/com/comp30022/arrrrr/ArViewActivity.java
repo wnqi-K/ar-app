@@ -323,12 +323,17 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         double maxAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(1);
 
         //if within the accuracy, show ICON
-        if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal)) {
+        if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal)== 0) {
             pointerIcon.setVisibility(View.VISIBLE);
             updateMsg(RIGHT_TRACK_MSG);
         } else {
             pointerIcon.setVisibility(View.INVISIBLE);
-            updateMsg(TURN_LEFT_MSG);
+            if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal) == 1){
+                updateMsg(TURN_LEFT_MSG);
+            }
+            if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal)== -1){
+                updateMsg(TURN_RIGHT_MSG);
+            }
         }
 
         updateDescription();
