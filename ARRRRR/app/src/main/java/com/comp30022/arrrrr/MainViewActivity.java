@@ -15,6 +15,7 @@ import com.comp30022.arrrrr.database.RequestFirebaseUsers;
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.services.PositioningService;
+import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * Main view of the application after user has logged in. This contains three
@@ -48,9 +49,10 @@ public class MainViewActivity extends AppCompatActivity implements
         switchToFragmentHome();
 
         // Get all users from database
-        mUserManagement = UserManagement.getInstance();
-        mRequestUsers = new RequestFirebaseUsers(mUserManagement);
-
+        if(FirebaseAuth.getInstance()!=null){
+            mUserManagement = UserManagement.getInstance();
+            mRequestUsers = new RequestFirebaseUsers(mUserManagement);
+        }
     }
 
     @Override

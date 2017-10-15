@@ -38,9 +38,11 @@ public class RequestFirebaseUsers {
         mFriendManagement = friendManagement;
         mDatabase = getDatabase();
 
-        loadAdminFriends();
-        updateFriendList();
-        readAllUsers();
+        if(FirebaseAuth.getInstance().getCurrentUser()!=null){
+            loadAdminFriends();
+            updateFriendList();
+            readAllUsers();
+        }
     }
 
     /**
@@ -55,7 +57,7 @@ public class RequestFirebaseUsers {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 User newUser = dataSnapshot.getValue(User.class);
-                if (!TextUtils.equals(newUser.getUid(), FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                if ((FirebaseAuth.getInstance().getCurrentUser().getUid()!=null)&&(!TextUtils.equals(newUser.getUid(), FirebaseAuth.getInstance().getCurrentUser().getUid()))) {
                     if ((newUser.getAdmin() != null)&&(TextUtils.equals(newUser.getAdmin(), "True"))) {
                         mFriendManagement.addingAdminUsers(newUser);
                     }
