@@ -26,15 +26,15 @@ import java.util.HashMap;
  * Created by Wenqiang Kuang on 16/09/2017.
  */
 public class AddingFriendsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
- 
+
     private ListView mListView;
     private CardView mCardView;
     private ListViewAdapter mViewAdapter;
     private SearchView mSearchView;
     private UserManagement mUserManagement = UserManagement.getInstance();
-    private ArrayList<User> allUsers = (ArrayList<User>)mUserManagement.getUserList();
+    private ArrayList<User> allUsers = (ArrayList<User>) mUserManagement.getUserList();
     private HashMap<String, String> allInfo = null;
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,17 +53,17 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                User onClickUser = (User)parent.getAdapter().getItem(position);
+                User onClickUser = (User) parent.getAdapter().getItem(position);
                 User currentUser = mUserManagement.getCurrentUser();
                 allInfo = getNotificationMessage(onClickUser, currentUser);
 
                 mListView.setVisibility(View.GONE);
                 mCardView.setVisibility(View.VISIBLE);
 
-                TextView userName = (TextView)mCardView.findViewById(R.id.user_name);
-                TextView userEmail = (TextView)mCardView.findViewById(R.id.user_email);
+                TextView userName = (TextView) mCardView.findViewById(R.id.user_name);
+                TextView userEmail = (TextView) mCardView.findViewById(R.id.user_email);
                 ImageView userAvatar = (ImageView) mCardView.findViewById(R.id.friend_list_user_avatar);
-                Button addFriend = (Button)mCardView.findViewById(R.id.add_friend_button);
+                Button addFriend = (Button) mCardView.findViewById(R.id.add_friend_button);
 
                 userName.setText(onClickUser.getUsername());
                 userEmail.setText(onClickUser.getEmail());
@@ -92,7 +92,7 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
     @Override
     public boolean onQueryTextChange(String newText) {
         String text = newText;
-        mViewAdapter.filter(text);
+        mViewAdapter.getFilter().filter(text);
         return false;
     }
 
@@ -110,9 +110,9 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
         return info;
     }
 
-    /** 
-    * The method is to notification message to receiver given all the info. 
-    */
+    /**
+     * The method is to notification message to receiver given all the info.
+     */
     private void sendRequest(HashMap<String, String> allInfo) {
         String email = allInfo.get(Constants.ARG_EMAIL);
         String message = allInfo.get(Constants.MESSAGE);
@@ -123,14 +123,14 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
         sendRequestToReceiver(email, message, uid, senderToken, receiverToken);
     }
 
-    /** 
-    * The method is to build notification and send. 
-    */
+    /**
+     * The method is to build notification and send.
+     */
     private void sendRequestToReceiver(String email,
-                                                String message,
-                                                String uid,
-                                                String firebaseToken,
-                                                String receiverFirebaseToken) {
+                                       String message,
+                                       String uid,
+                                       String firebaseToken,
+                                       String receiverFirebaseToken) {
         FcmNotificationBuilder.initialize()
                 .title(email)
                 .message(message)
@@ -145,13 +145,13 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
      * Going back the the previous interface.
      */
     @Override
-    public boolean onSupportNavigateUp(){
+    public boolean onSupportNavigateUp() {
         finish();
         return true;
     }
 
     // For Testing.
-    public ListView getListView(){
+    public ListView getListView() {
         return this.mListView;
     }
 }

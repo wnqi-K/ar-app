@@ -1,3 +1,18 @@
+/**
+ * Copyright 2016 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.comp30022.arrrrr;
 
 import android.app.ProgressDialog;
@@ -28,26 +43,20 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 /**
  * Demonstrate Firebase Authentication using a Google ID Token.
- *
- * Created by Wenqiang Kuang on 1/09/2017.
  */
-
 public class GoogleLoginActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener {
 
-    private ProgressDialog mProgressDialog;
-
     private static final String TAG = "GoogleActivity";
     private static final int RC_SIGN_IN = 9001;
 
-    // [START declare_auth]
     private FirebaseAuth mAuth;
-    // [END declare_auth]
 
     private GoogleApiClient mGoogleApiClient;
     private TextView mStatusTextView;
     private TextView mDetailTextView;
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,11 +193,13 @@ public class GoogleLoginActivity extends AppCompatActivity implements
     private void updateUI(FirebaseUser user) {
         hideProgressDialog();
         if (user != null) {
-            mStatusTextView.setText(getString(R.string.google_status_fmt, user.getEmail()));
-            mDetailTextView.setText("Firebase Uid: " + user.getUid());
+            /*mStatusTextView.setText(getString(R.string.google_status_fmt, user.getEmail()));
+            mDetailTextView.setText(user.getUid());
 
             findViewById(R.id.sign_in_button).setVisibility(View.GONE);
-            findViewById(R.id.sign_out_and_disconnect).setVisibility(View.VISIBLE);
+            findViewById(R.id.sign_out_and_disconnect).setVisibility(View.VISIBLE);*/
+            Intent intent = new Intent(this, MainViewActivity.class);
+            startActivity(intent);
         } else {
             mStatusTextView.setText(R.string.signed_out);
             mDetailTextView.setText(null);
