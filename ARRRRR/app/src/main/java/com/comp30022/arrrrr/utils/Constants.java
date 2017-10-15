@@ -20,6 +20,8 @@ public class Constants {
     public static final String ARG_MALE = "male";
     public static final String ARG_FEMALE = "female";
     public static final String ARG_STATUS = "login_status";
+    public static final String ARG_FRESH = "fresh";
+    public static final String ARG_LOCK = "lock";
 
     public static final String EMPTY_STRING = "";
     public static final String MESSAGE_SENT = "Message sent";

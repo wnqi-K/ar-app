@@ -26,6 +26,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.UUID;
+
 /**
  * Login via email account, lead to registration if no account exists.
  *
@@ -43,6 +45,8 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
     private EditText mPasswordField;
     private ProgressDialog mProgressDialog;
     private FirebaseAuth mAuth;
+    private String mFreshBuffer;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -119,6 +123,63 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         }
     };
 
+    private ValueEventListener mLoginStatusValueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            String freshIdentifier = (String) dataSnapshot.child(Constants.ARG_FRESH).getValue();
+
+            if (freshIdentifier.equals(mFreshBuffer)) {
+                // Only trust this data if it is fresh
+                Boolean loggedIn = dataSnapshot.child(Constants.ARG_LOCK).getValue(Boolean.class);
+                if(loggedIn == null || !loggedIn){
+                    Log.d(TAG, "No duplicate login status found. Permit to login.");
+                    getLoginStatusRef().child(Constants.ARG_LOCK).setValue(true)
+                            .addOnCompleteListener(mOnLoginProtectionCompleteListener);
+                    Log.d(TAG, "Now updating login security lock.");
+                }else{
+                    Log.d(TAG, "Another user has already logged in. Login failed.");
+                    handleDuplicateLogin();
+                }
+            } else {
+                // If data not fresh, ask for value again
+                getLoginStatusRef().addListenerForSingleValueEvent(mLoginStatusValueEventListener);
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            Log.d(TAG, "Login status check: failed to fetch data. ");
+
+            // This is important! Still sign out user if check fails for other reaseons.
+            mAuth.signOut();
+            updateUIByLoginFailure(LOGIN_FAILED_OTHER);
+        }
+    };
+
+    /**
+     * Get common database reference to login status value field.
+     */
+    private DatabaseReference getLoginStatusRef() {
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseUser user = mAuth.getCurrentUser();
+        return firebaseDatabase.getReference().
+                child(Constants.ARG_USERS).child(user.getUid()).child(Constants.ARG_STATUS);
+
+    }
+
+    private OnCompleteListener mOnKeepFreshCompleteListener = new OnCompleteListener() {
+        @Override
+        public void onComplete(@NonNull Task task) {
+
+            if (task.isSuccessful()) {
+                getLoginStatusRef().addListenerForSingleValueEvent(mLoginStatusValueEventListener);
+            } else {
+                Log.w(TAG, "Failed to use fresh lock data, login failed.");
+                updateUIByLoginFailure(LOGIN_FAILED_OTHER);
+            }
+        }
+    };
+
     /**
      * This method is to check whether or not current Auth user has logged in.
      * if the status attribute is not null, meaning duplicated login. Go back to the Login interface
@@ -131,29 +192,12 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         final DatabaseReference statusReference = firebaseDatabase.getReference().
                 child(Constants.ARG_USERS).child(user.getUid()).child(Constants.ARG_STATUS);
 
-        statusReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Boolean loggedIn = dataSnapshot.getValue(Boolean.class);
-                if(loggedIn == null || !loggedIn){
-                    Log.d(TAG, "No duplicate login status found. Permit to login.");
-                    statusReference.setValue(true).addOnCompleteListener(mOnLoginProtectionCompleteListener);
-                    Log.d(TAG, "Now updating login security lock.");
-                }else{
-                    Log.d(TAG, "Another user has already logged in. Login failed.");
-                    handleDuplicateLogin();
-                }
-            }
+        mFreshBuffer = UUID.randomUUID().toString();
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "Login status check: failed to fetch data. ");
-
-                // This is important! Still sign out user if check fails for other reaseons.
-                mAuth.signOut();
-                updateUIByLoginFailure(LOGIN_FAILED_OTHER);
-            }
-        });
+        statusReference.keepSynced(true);
+        statusReference.child(Constants.ARG_FRESH)
+                .setValue(mFreshBuffer)
+                .addOnCompleteListener(mOnKeepFreshCompleteListener);
     }
 
     /**
