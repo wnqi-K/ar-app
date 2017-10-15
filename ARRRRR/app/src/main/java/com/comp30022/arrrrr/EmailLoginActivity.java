@@ -33,12 +33,14 @@ import com.google.firebase.database.ValueEventListener;
 public class EmailLoginActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String TAG = "EmailPassword";
     private static final String PROCESS_DIALOG_MESSAGE = "Loading...";
+    public static final String AUTHENTICATION_FAILED = "Authentication failed.";
+    public static final String LOGGED_IN = "loggedIn";
+    public static final String DUPLICATE_LOGIN_MESSAGE = "This account has been logged in.";
 
     private EditText mEmailField;
     private EditText mPasswordField;
     private ProgressDialog mProgressDialog;
     private FirebaseAuth mAuth;
-    private Boolean mStatus;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -85,7 +87,7 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
             else {
                 // Does not pass the authentication, display a message to the user.
                 Log.w(TAG, "signInWithEmail:failure", task.getException());
-                Toast.makeText(EmailLoginActivity.this, "Authentication failed.",
+                Toast.makeText(EmailLoginActivity.this, AUTHENTICATION_FAILED,
                         Toast.LENGTH_SHORT).show();
                 updateUI(null);
             }
@@ -94,24 +96,25 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
 
     };
 
+    /**
+     * This method is to check whether or not current Auth user has logged in.
+     * if the status attribute is not null, meaning duplicated login. Go back to the Login interface
+     * (Main Activity).
+     */
     private void checkLoginStatus(){
-        Log.d(TAG, "Are you here? checking 1");
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
         final DatabaseReference statusReference = firebaseDatabase.getReference().
                 child(Constants.ARG_USERS).child(user.getUid()).child(Constants.ARG_STATUS);
-        Log.d(TAG, "Are you here? checking 2");
 
         statusReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String status = dataSnapshot.getValue(String.class);
                 if(status == null){
-                    //mStatus = true;
-                    statusReference.setValue("loggedIn");
+                    statusReference.setValue(LOGGED_IN);
                     Log.d(TAG, "CAN LOGIN");
                 }else{
-                    //mStatus = false;
                     Log.d(TAG, "CANNOT LOGIN");
                     duplicateLogin();
                 }
@@ -119,9 +122,38 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                Log.d(TAG, "Fail to fetch data. ");
             }
         });
+    }
+
+    /**
+     * This method is Update the interface, if authentication passes, go to the mainView.
+     */
+    public void updateUI(FirebaseUser user) {
+        hideProgressDialog();
+        if (user != null) {
+            checkLoginStatus();
+            if(mAuth != null){
+                Log.d(TAG, "Still enter");
+                Intent intent = new Intent(this, MainViewActivity.class);
+                startActivity(intent);
+            }
+        } else {
+            findViewById(R.id.email_password_fields).setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Force the duplicated user to logout. Go back to the MainActivity and show notification.
+     */
+    private void duplicateLogin() {
+        mAuth.signOut();
+        Log.d(TAG, "EnterDuplicate");
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        Toast.makeText(this, DUPLICATE_LOGIN_MESSAGE, Toast.LENGTH_LONG).show();
+        Log.d(TAG, "GoBackActivity");
     }
 
     @Override
@@ -132,31 +164,6 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         } else if (i == R.id.email_sign_in_button) {
             signIn(mEmailField.getText().toString(), mPasswordField.getText().toString());
         }
-    }
-
-    public void updateUI(FirebaseUser user) {
-        hideProgressDialog();
-        if (user != null) {
-            //Toast.makeText(this,user.getUid(),Toast.LENGTH_LONG).show();
-
-            checkLoginStatus();
-            /*if(mStatus != null && mStatus == false){
-                Log.d(TAG, "enter duplicateLogin");
-                duplicateLogin();
-                Toast.makeText(this,"This account has been logged in.", Toast.LENGTH_LONG).show();
-            }*/
-
-            Intent intent = new Intent(this, MainViewActivity.class);
-            startActivity(intent);
-        } else {
-            findViewById(R.id.email_password_fields).setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void duplicateLogin() {
-        mAuth.signOut();
-        Intent intent = new Intent(this, EmailLoginActivity.class);
-        startActivity(intent);
     }
 
     /**
