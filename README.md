@@ -2,8 +2,33 @@
 An Android app made for COMP30022 IT Project by group Yunkai.
 
 This repository contains all source files of our application.
+There is no repository dedicated for the server as we are using Firebase Android API.
 
-There is no repository dedicated for the server, since we are using Firebase.
+## Project Configurations
+
+### Database: Firebase Console 
+
+https://console.firebase.google.com
+
+Project ID: ar-app-4f4a7
+
+To access the Firebase console, you will need a user account. 
+
+Every group member's university email has been granted owner-level permission.
+
+**If you are the project assesser wish to gain access to our Firebase console, please use the following test account (permitted to view only):**
+
+acc: arrrrr.test@gmail.com
+
+pwd: arrrrr.test123
+
+### Android Studio
+
+1. When you have loaded this project in Android Studio, you will need to do a **project sync** for the IDE to work properly. Android Studio will prompt you to do this.
+
+2. To build and run our app, we require your Android emulator (or your Android phone) to satisfy the minimum requirement below:
+  - Android 4.2 (i.e. API level 17)
+  - Google play store supported and **updated (if it is outdated Firebase authentication cannot work properly)**
 
 ## Note to group members
 

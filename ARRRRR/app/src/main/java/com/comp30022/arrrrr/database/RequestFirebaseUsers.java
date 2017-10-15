@@ -4,6 +4,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 public class RequestFirebaseUsers {
     private UserManagement mFriendManagement;
     private static FirebaseDatabase mDatabase;
-    //private static boolean READ_USER_FLAG = true;
 
     public static FirebaseDatabase getDatabase() {
         if (mDatabase == null) {
@@ -39,7 +39,7 @@ public class RequestFirebaseUsers {
         mDatabase = getDatabase();
 
         if(FirebaseAuth.getInstance().getCurrentUser()!=null){
-            loadAdminFriends();
+            //loadAdminFriends();
             updateFriendList();
             readAllUsers();
         }
@@ -97,8 +97,7 @@ public class RequestFirebaseUsers {
         DatabaseReference userListReference = mDatabase.getReference();
 
         //Listen for changes in current user's friend info updates.
-        Query query = userListReference.child("friends").child(currentUserID);
-        Log.d("Fatal", "on updating friend list. " + "current user id is " + currentUserID);
+        Query query = userListReference.child(Constants.ARG_FRIENDS).child(currentUserID);
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -106,7 +105,6 @@ public class RequestFirebaseUsers {
                 for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
                     String uid = snapshot.getKey();
                     friendsID.add(uid);
-                    Log.d("fatal", "called once. " + uid);
                 }
                 convertToFriendList(friendsID);
             }
@@ -129,7 +127,7 @@ public class RequestFirebaseUsers {
         final ArrayList<User> friendList = new ArrayList<>();
 
         for(String friendID : friendsIdList){
-            Query query = userListReference.child("users").child(friendID);
+            Query query = userListReference.child(Constants.ARG_USERS).child(friendID);
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -152,7 +150,7 @@ public class RequestFirebaseUsers {
      */
     private void readAllUsers(){
         DatabaseReference userListReference = mDatabase.getReference();
-        Query query = userListReference.child("users");
+        Query query = userListReference.child(Constants.ARG_USERS);
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot){
