@@ -4,6 +4,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -23,7 +24,6 @@ import java.util.ArrayList;
  */
 
 public class RequestFirebaseUsers {
-
     private UserManagement mFriendManagement;
     private static FirebaseDatabase mDatabase;
 
@@ -37,9 +37,12 @@ public class RequestFirebaseUsers {
     public RequestFirebaseUsers(UserManagement friendManagement){
         mFriendManagement = friendManagement;
         mDatabase = getDatabase();
-        loadAdminFriends();
-        updateFriendList();
-        readAllUsers();
+
+        if(FirebaseAuth.getInstance().getCurrentUser()!=null){
+            //loadAdminFriends();
+            updateFriendList();
+            readAllUsers();
+        }
     }
 
     /**
@@ -54,7 +57,7 @@ public class RequestFirebaseUsers {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 User newUser = dataSnapshot.getValue(User.class);
-                if (!TextUtils.equals(newUser.getUid(), FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                if ((FirebaseAuth.getInstance().getCurrentUser().getUid()!=null)&&(!TextUtils.equals(newUser.getUid(), FirebaseAuth.getInstance().getCurrentUser().getUid()))) {
                     if ((newUser.getAdmin() != null)&&(TextUtils.equals(newUser.getAdmin(), "True"))) {
                         mFriendManagement.addingAdminUsers(newUser);
                     }
@@ -94,17 +97,14 @@ public class RequestFirebaseUsers {
         DatabaseReference userListReference = mDatabase.getReference();
 
         //Listen for changes in current user's friend info updates.
-        Query query = userListReference.child("friends").child(currentUserID);
-        Log.d("Fatal", "on updating friend list. " + "current user id is " + currentUserID);
+        Query query = userListReference.child(Constants.ARG_FRIENDS).child(currentUserID);
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 ArrayList<String> friendsID = new ArrayList<>();
                 for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                    //Friend friend = snapshot.getValue(Friend.class);
                     String uid = snapshot.getKey();
                     friendsID.add(uid);
-                    Log.d("fatal", "called once. " + uid);
                 }
                 convertToFriendList(friendsID);
             }
@@ -127,7 +127,7 @@ public class RequestFirebaseUsers {
         final ArrayList<User> friendList = new ArrayList<>();
 
         for(String friendID : friendsIdList){
-            Query query = userListReference.child("users").child(friendID);
+            Query query = userListReference.child(Constants.ARG_USERS).child(friendID);
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -150,14 +150,15 @@ public class RequestFirebaseUsers {
      */
     private void readAllUsers(){
         DatabaseReference userListReference = mDatabase.getReference();
-        Query query = userListReference.child("users");
+        Query query = userListReference.child(Constants.ARG_USERS);
         query.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(DataSnapshot dataSnapshot){
                 ArrayList<User> allUsers = new ArrayList<>();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     User user = snapshot.getValue(User.class);
-                    if (!TextUtils.equals(user.getUid(), FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                    if ((FirebaseAuth.getInstance().getCurrentUser())!= null && !TextUtils.equals(user.getUid(), FirebaseAuth.getInstance().
+                            getCurrentUser().getUid())) {
                         allUsers.add(user);
                     }else{
                         mFriendManagement.setCurrentUser(user);

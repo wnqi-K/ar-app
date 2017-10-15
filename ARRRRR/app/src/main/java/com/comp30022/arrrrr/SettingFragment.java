@@ -49,7 +49,7 @@ import java.util.HashMap;
 public class SettingFragment extends Fragment implements
         SimpleRequestResultReceiver.SimpleRequestResultListener,
         SingleUserLocationReceiver.SingleUserLocationListener,
-        AddressResultReceiver.AddressResultListener{
+        AddressResultReceiver.AddressResultListener {
 
     public static String TAG = SettingFragment.class.getSimpleName();
 
@@ -60,10 +60,9 @@ public class SettingFragment extends Fragment implements
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private DatabaseReference myRef;
-    private  String userID;
-    //private User uInfo = new User();
+    private String mUserID;
 
-    private ImageButton userprofileButton;
+    private ImageButton mUserProfileButton;
     private ImageView mPhoto;
     private Button mButtonClearRecords;
     private Switch mSwitchLocationSharing;
@@ -99,7 +98,7 @@ public class SettingFragment extends Fragment implements
         currentUser = mAuth.getCurrentUser();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         myRef = mFirebaseDatabase.getReference();
-        userID = currentUser.getUid();
+        mUserID = currentUser.getUid();
 
         mBroadcastReceivers = new BroadcastReceiverManager(getActivity());
 
@@ -131,44 +130,50 @@ public class SettingFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view =  inflater.inflate(R.layout.fragment_setting, container, false);
+        View view = inflater.inflate(R.layout.fragment_setting, container, false);
 
         TextView mStatusView = (TextView) view.findViewById(R.id.login_status_view);
 
-        TextView accountPrivacy = (TextView)view.findViewById(R.id.accountPrivacy);
+        TextView accountPrivacy = (TextView) view.findViewById(R.id.accountPrivacy);
 
         mStatusView.setText(currentUser.getEmail());
 
-        Button logoutButton = (Button)view.findViewById(R.id.logoutButton);
+        Button logoutButton = (Button) view.findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+                DatabaseReference userReference = firebaseDatabase.getReference();
+                FirebaseUser user = mAuth.getCurrentUser();
+
+                userReference.child(Constants.ARG_USERS).child(user.getUid())
+                        .child(Constants.ARG_STATUS).removeValue();
+
                 mAuth.signOut();
 
                 Intent intent = new Intent(getActivity(), MainActivity.class);
                 startActivity(intent);
-                //getActivity().finish();
             }
         });
 
         //Go user profile
-        userprofileButton = (ImageButton)view.findViewById(R.id.profileButton);
-        userprofileButton.setOnClickListener(new View.OnClickListener(){
+        mUserProfileButton = (ImageButton) view.findViewById(R.id.profileButton);
+        mUserProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v){
-                Intent intent = new Intent(getActivity(),UserProfileActivity.class);
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), UserProfileActivity.class);
                 startActivity(intent);
             }
         });
 
         //Go user account privacy
-        accountPrivacy.setOnTouchListener(new View.OnTouchListener(){
+        accountPrivacy.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_UP){
+                if (event.getAction() == MotionEvent.ACTION_UP) {
 
                     // Do what you want
-                    Intent intent = new Intent(getActivity(),AccountPrivacyActivity.class);
+                    Intent intent = new Intent(getActivity(), AccountPrivacyActivity.class);
                     startActivity(intent);
 
                     return true;
@@ -177,38 +182,38 @@ public class SettingFragment extends Fragment implements
             }
         });
 
-        mButtonClearRecords = (Button)view.findViewById(R.id.button_clear_records);
+        mButtonClearRecords = (Button) view.findViewById(R.id.button_clear_records);
         mButtonClearRecords.setOnClickListener(mOnClearRecordsClickListener);
 
-        mSwitchLocationSharing = (Switch)view.findViewById(R.id.switch_location_sharing);
+        mSwitchLocationSharing = (Switch) view.findViewById(R.id.switch_location_sharing);
         mSwitchLocationSharing.setOnCheckedChangeListener(onLocSharingCheckedChangeListener);
 
-        mSwitchNearbyNotification = (Switch)view.findViewById(R.id.switch_nearby_friend_notification);
+        mSwitchNearbyNotification = (Switch) view.findViewById(R.id.switch_nearby_friend_notification);
         mSwitchNearbyNotification.setOnCheckedChangeListener(onNearbyNotifyCheckedChangeListener);
 
-        mSpinnerFilterDistance = (Spinner)view.findViewById(R.id.spinner_filter_distance);
+        mSpinnerFilterDistance = (Spinner) view.findViewById(R.id.spinner_filter_distance);
         mSpinnerFilterDistance.setOnItemSelectedListener(onFilterDistanceItemSelectedListener);
         mSpinnerFilterDistanceFlag = true;
 
-        mTextViewLastLocation = (TextView)view.findViewById(R.id.text_view_last_location);
+        mTextViewLastLocation = (TextView) view.findViewById(R.id.text_view_last_location);
 
         //Set profile head portrait photo
-        mPhoto = (ImageView)view.findViewById(R.id.profilePhoto);
+        mPhoto = (ImageView) view.findViewById(R.id.profilePhoto);
         myRef.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
-                for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                    if(ds.child(userID).hasChild(Constants.ARG_IMAGE)){
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    if (ds.child(mUserID).hasChild(Constants.ARG_IMAGE)) {
 
-                        try{
+                        try {
                             // Use UserManagement to get profile image
-                            //String url = ds.child(userID).child(Constants.ARG_IMAGE).getValue(String.class);
-                            Bitmap imageBitmap = UserManagement.getInstance().getUserProfileImage(userID, getActivity());
+                            //String url = ds.child(mUserID).child(Constants.ARG_IMAGE).getValue(String.class);
+                            Bitmap imageBitmap = UserManagement.getInstance().getUserProfileImage(mUserID, getActivity());
                             mPhoto.setImageBitmap(imageBitmap);
-                        }catch(Exception e){
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
@@ -253,7 +258,7 @@ public class SettingFragment extends Fragment implements
             // Save to preference
             SharedPreferences preferences = PreferencesAccess.getSettingsPreferences(getActivity());
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putLong(getString(R.string.PREF_KEY_FILTER_DISTANCE), (long)radius);
+            editor.putLong(getString(R.string.PREF_KEY_FILTER_DISTANCE), (long) radius);
             editor.putInt(getString(R.string.PREF_KEY_FILTER_DISTANCE_INDEX), i);
             editor.apply();
 
@@ -389,8 +394,8 @@ public class SettingFragment extends Fragment implements
         if (requestType.equals(LocationSharingService.REQUEST_CLEAR_LOCATION_RECORDS)) {
             if (success) {
                 Toast.makeText(getActivity(),
-                                R.string.text_remove_locatioin_records_success,
-                                Toast.LENGTH_SHORT).show();
+                        R.string.text_remove_locatioin_records_success,
+                        Toast.LENGTH_SHORT).show();
 
             } else {
                 Toast.makeText(getActivity(),
@@ -428,7 +433,6 @@ public class SettingFragment extends Fragment implements
     }
 
     public interface OnSettingFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onSettingFragmentInteraction(Uri uri);
     }
 
@@ -444,7 +448,7 @@ public class SettingFragment extends Fragment implements
                 getString(R.string.PREF_KEY_ENABLE_NEARBY_NOTIFICATION), true);
 
         long distance = preferences.getLong(getString(R.string.PREF_KEY_FILTER_DISTANCE),
-                (long)(double)LocationSharingService.DEFAULT_GEO_QUERY_RADIUS);
+                (long) (double) LocationSharingService.DEFAULT_GEO_QUERY_RADIUS);
 
         int index = preferences.getInt(getString(R.string.PREF_KEY_FILTER_DISTANCE_INDEX), 0);
 

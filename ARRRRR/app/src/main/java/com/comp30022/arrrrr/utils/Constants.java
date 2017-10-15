@@ -19,6 +19,7 @@ public class Constants {
     public static final String ACTION_PACKAGE = "com.comp30022.arrrrr.intent.action";
     public static final String ARG_MALE = "male";
     public static final String ARG_FEMALE = "female";
+    public static final String ARG_STATUS = "status";
 
     public static final String EMPTY_STRING = "";
     public static final String MESSAGE_SENT = "Message sent";
@@ -46,7 +47,6 @@ public class Constants {
     public static final String RECEIVER_TOKEN = "receiverToken";
     public static final String MESSAGE = "message";
     public static final String REQUEST_MESSAGE = "Sends you a friend request.";
-
 
     public static final CharSequence ADD_TO_DATABASE_SUCCESS = "Success";
 }

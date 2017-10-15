@@ -2,10 +2,10 @@ package com.comp30022.arrrrr.models;
 
 import java.io.Serializable;
 
-/*
+/**
 * This is a model of user class ,which contains all the information
 * of a user, along with getters and setters for part of attributes in
-* this calss
+* this class.
 * */
 public class User implements Serializable {
     private String uid;
@@ -17,11 +17,13 @@ public class User implements Serializable {
     private String address;
     private String admin;
     private String imageUrl;
+    private String loginStatus;
 
     public User(){}
 
     public User(String uid, String email, String firebaseToken,String username,
-                String phoneNum,String gender,String address,String admin, String imageUrl){
+                String phoneNum,String gender,String address,String admin, String imageUrl,
+                String loginStatus){
         this.uid = uid;
         this.email = email;
         this.firebaseToken = firebaseToken;
@@ -31,13 +33,7 @@ public class User implements Serializable {
         this.address = address;
         this.admin = admin;
         this.imageUrl = imageUrl;
-    }
-
-    public static User createUserWithUidEmailFirebaseToken(String uid,
-                                                           String email,
-                                                           String firebaseToken,
-                                                           String imageUrl){
-        return new User(uid,email,firebaseToken,null,null,null,null,null, imageUrl);
+        this.loginStatus = loginStatus;
     }
 
     public static User createUserWithoutAdmin(String uid,
@@ -47,8 +43,10 @@ public class User implements Serializable {
                                               String phoneNum,
                                               String gender,
                                               String address,
-                                              String imageUrl){
-        return new User(uid,email,firebaseToken,username,phoneNum,gender,address,null, imageUrl);
+                                              String imageUrl,
+                                              String loginStatus){
+        return new User(uid,email,firebaseToken,username,phoneNum,gender,address,
+                null,imageUrl,loginStatus);
     }
 
 
@@ -83,5 +81,9 @@ public class User implements Serializable {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getLoginStatus() {
+        return loginStatus;
     }
 }
