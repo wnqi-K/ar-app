@@ -64,7 +64,9 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
+        if (currentUser != null && mAuth != null) {
+            updateUIByLoginSuccess();
+        }
     }
 
     /**
@@ -78,16 +80,15 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
 
         showProgressDialog();
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(onSignInCompleteListener)
-                .addOnFailureListener(onSignInFailureListener);
+                .addOnCompleteListener(mOnValidationCompleteListener);
     }
 
     /**
-     * Handles when a sign in action has completed.
+     * Handles when a sign in (credential validation) action has completed.
      * BUT the entire login process has not finished yet.
      * We need to check for duplicate login!
      */
-    private OnCompleteListener onSignInCompleteListener = new OnCompleteListener<AuthResult>() {
+    private OnCompleteListener mOnValidationCompleteListener = new OnCompleteListener<AuthResult>() {
         @Override
         public void onComplete(@NonNull final Task<AuthResult> task) {
             if (task.isSuccessful()) {
@@ -97,22 +98,24 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
             else {
                 // Does not pass the authentication, display a message to the user.
                 Log.w(TAG, "signInWithEmail: Failure", task.getException());
-                Toast.makeText(EmailLoginActivity.this, AUTHENTICATION_FAILED,
-                        Toast.LENGTH_SHORT).show();
-                updateUI(null);
+                updateUIByLoginFailure(AUTHENTICATION_FAILED);
             }
         }
     };
 
     /**
-     * Handles when an sign in action fails.
+     * Handles when we complete login status check (including adding login status lock)
      */
-    private OnFailureListener onSignInFailureListener = new OnFailureListener() {
+    private OnCompleteListener mOnLoginProtectionCompleteListener = new OnCompleteListener() {
         @Override
-        public void onFailure(@NonNull Exception e) {
-            Log.w(TAG, "signInWithEmail: Failure", e.getCause());
-            //Toast.makeText(EmailLoginActivity.this, LOGIN_FAILED_OTHER, Toast.LENGTH_SHORT).show();
-            updateUI(null);
+        public void onComplete(@NonNull Task task) {
+            if (task.isSuccessful()) {
+                Log.v(TAG, "Login status locked has been applied. Login success");
+                updateUIByLoginSuccess();
+            } else {
+                Log.w(TAG, "Failed to update login status lock, forced logging out...");
+                updateUIByLoginFailure(LOGIN_FAILED_OTHER);
+            }
         }
     };
 
@@ -133,9 +136,9 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Boolean loggedIn = dataSnapshot.getValue(Boolean.class);
                 if(loggedIn == null || !loggedIn){
-                    statusReference.setValue(true);
                     Log.d(TAG, "No duplicate login status found. Permit to login.");
-                    updateUI(mAuth.getCurrentUser());
+                    statusReference.setValue(true).addOnCompleteListener(mOnLoginProtectionCompleteListener);
+                    Log.d(TAG, "Now updating login security lock.");
                 }else{
                     Log.d(TAG, "Another user has already logged in. Login failed.");
                     handleDuplicateLogin();
@@ -148,25 +151,27 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
 
                 // This is important! Still sign out user if check fails for other reaseons.
                 mAuth.signOut();
-                updateUI(null);
+                updateUIByLoginFailure(LOGIN_FAILED_OTHER);
             }
         });
     }
 
     /**
-     * This method is Update the interface, if authentication passes, go to the mainView.
+     * Update UI after entire login process is complete.
      */
-    public void updateUI(FirebaseUser user) {
+    public void updateUIByLoginSuccess() {
         hideProgressDialog();
-        if (user != null) {
-            if(mAuth != null){
-                Log.d(TAG, "Still enter");
-                Intent intent = new Intent(this, MainViewActivity.class);
-                startActivity(intent);
-            }
-        } else {
-            findViewById(R.id.email_password_fields).setVisibility(View.VISIBLE);
-        }
+        Intent intent = new Intent(this, MainViewActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * Update UI when login process fails.
+     */
+    public void updateUIByLoginFailure(String toastMessage) {
+        hideProgressDialog();
+        Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show();
+        findViewById(R.id.email_password_fields).setVisibility(View.VISIBLE);
     }
 
     /**
@@ -174,8 +179,7 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
      */
     private void handleDuplicateLogin() {
         mAuth.signOut();
-        updateUI(null);
-        Toast.makeText(this, DUPLICATE_LOGIN_MESSAGE, Toast.LENGTH_LONG).show();
+        updateUIByLoginFailure(DUPLICATE_LOGIN_MESSAGE);
     }
 
     @Override
@@ -218,6 +222,6 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
 
     @RestrictTo(RestrictTo.Scope.TESTS)
     public OnCompleteListener getOnSignInCompleteListener() {
-        return onSignInCompleteListener;
+        return mOnValidationCompleteListener;
     }
 }

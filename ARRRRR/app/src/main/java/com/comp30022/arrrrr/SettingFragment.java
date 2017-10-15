@@ -147,7 +147,7 @@ public class SettingFragment extends Fragment implements
                 FirebaseUser user = mAuth.getCurrentUser();
 
                 userReference.child(Constants.ARG_USERS).child(user.getUid())
-                        .child(Constants.ARG_STATUS).removeValue();
+                        .child(Constants.ARG_STATUS).setValue(false);
 
                 mAuth.signOut();
 
