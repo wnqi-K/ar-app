@@ -2,8 +2,10 @@
 An Android app made for COMP30022 IT Project by group Yunkai.
 
 This repository contains all source files of our application.
+There is no repository dedicated for the server as we are using Firebase Android API.
 
-There is no repository dedicated for the server, since we are using Firebase.
+## Project Configurations
+
 
 ## Note to group members
 
