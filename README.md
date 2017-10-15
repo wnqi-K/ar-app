@@ -14,9 +14,9 @@ Project ID: ar-app-4f4a7
 
 To access the Firebase console, you will need a user account. 
 
-Every group member's university email has been granted access (user level: owner).
+Every group member's university email has been granted owner-level permission.
 
-**If you are the project assesser wish to gain access to our Firebase console, please use the following test account (user level: view):**
+**If you are the project assesser wish to gain access to our Firebase console, please use the following test account (permitted to view only):**
 
 acc: arrrrr.test@gmail.com
 
