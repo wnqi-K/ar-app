@@ -12,13 +12,21 @@ https://console.firebase.google.com
 
 To access the Firebase console, you will need a user account. 
 
-Every group member's university email has been granted access.
+Every group member's university email has been granted access (user level: owner).
 
-**If you are the project assesser wish to gain access to our Firebase console, please use the following test account (permitted to view):**
+**If you are the project assesser wish to gain access to our Firebase console, please use the following test account (user level: view):**
 
 acc: arrrrr.test@gmail.com
 
 pwd: arrrrr.test123
+
+### Android Studio
+
+1. When you have loaded this project in Android Studio, you will need to do a **project sync** for the IDE to work properly. Android Studio will prompt you to do this.
+
+2. To build and run our app, we require your emulator (or your Android phone) to satisfy the following minimum requirement:
+  - Android 4.2 (i.e. API level 17)
+  - Google play store supported and **updated (if it is outdated Firebase authentication cannot work properly)**
 
 ## Note to group members
 
