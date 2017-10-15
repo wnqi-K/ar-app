@@ -64,12 +64,12 @@ public class AziCalculator {
                 return 0;
         }
 
-        //should turn left to see the icon
+        //should turn right to see the icon
         if (azimuth >= maxAngle && azimuth <= half ){
-            return 1;
+            return -1;
         }
 
-        //else, should turn right to see the icon
-        return -1;
+        //else, should turn left to see the icon
+        return 1;
     }
 }

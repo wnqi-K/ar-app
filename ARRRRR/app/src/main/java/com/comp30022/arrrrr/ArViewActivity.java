@@ -25,6 +25,7 @@ import android.content.Intent;
 import java.io.IOException;
 
 import com.comp30022.arrrrr.utils.ServiceManager;
+import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.model.LatLng;
 
 
@@ -44,8 +45,10 @@ import com.google.android.gms.maps.model.LatLng;
  *            iv. compare both azimuths based on accuracy and show AR icon
  **/
 
+//SelfPositionReceiver.SelfLocationListener,
+
 public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.Callback,
-        SelfPositionReceiver.SelfLocationListener, OnAzimuthChangedListener,
+        OnLocationChangedListener, OnAzimuthChangedListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final String TAG = "ArViewActivity";
@@ -92,6 +95,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     private double mMyLatitude = 0;
     private double mMyLongitude = 0;
     private SelfPositionReceiver myCurrentPosition;
+    private MyCurrentLocation myCurrentLocation;
 
     /**
      * rendering view object
@@ -132,16 +136,19 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         super.onResume();
         //request camera permission
         camPerm.requestPermission(ArViewActivity.this, ArViewActivity.this);
-        //start sensor listeners
+        //start sensor listener
         myCurrentAzimuth.start();
         //start location listener
-        ServiceManager.startPositioningService(this);
+        myCurrentLocation.start();
+        //ServiceManager.startPositioningService(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterReceivers();
+        myCurrentAzimuth.stop();
+        myCurrentLocation.stop();
+        //unregisterReceivers();
     }
 
 
@@ -257,10 +264,14 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     private void setupListeners() {
 
         //set up location receiver
-        IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        myCurrentPosition = new SelfPositionReceiver(ArViewActivity.this);
-        registerReceiver(myCurrentPosition, filter);
+//        IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
+//        filter.addCategory(Intent.CATEGORY_DEFAULT);
+//        myCurrentPosition = new SelfPositionReceiver(ArViewActivity.this);
+//        registerReceiver(myCurrentPosition, filter);
+
+        myCurrentLocation = new MyCurrentLocation(this,this,this);
+        myCurrentLocation.buildGoogleApiClient(this);
+        myCurrentLocation.start();
 
         //set up sensor receiver
         myCurrentAzimuth = new MyCurrentAzimuth(this, this);
@@ -294,16 +305,25 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * This function upgrades user's real-time location
      * and meanwhile updates description
      * */
-    @Override
-    public void onSelfLocationChanged(Location location) {
+//    @Override
+//    public void onSelfLocationChanged(Location location) {
+//
+//        mMyLatitude = location.getLatitude();
+//        mMyLongitude = location.getLongitude();
+//        mAzimuthTeoretical = calculateTeoreticalAzimuth();
+//
+//
+//        Toast.makeText(this,"latitude: "+location.getLatitude()+
+//                " longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
+//        updateDescription();
+//    }
 
+    @Override
+    public void onLocationChanged(Location location) {
         mMyLatitude = location.getLatitude();
         mMyLongitude = location.getLongitude();
         mAzimuthTeoretical = calculateTeoreticalAzimuth();
-
-
-        Toast.makeText(this,"latitude: "+location.getLatitude()+
-                " longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this,"latitude: "+location.getLatitude()+" longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
         updateDescription();
     }
 
@@ -416,5 +436,4 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
             // permissions this app might request
         }
     }
-
 }
