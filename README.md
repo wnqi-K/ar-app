@@ -6,6 +6,19 @@ There is no repository dedicated for the server as we are using Firebase Android
 
 ## Project Configurations
 
+### Database: Firebase Console 
+
+https://console.firebase.google.com 
+
+To access the Firebase console, you will need a user account. 
+
+Every group member's university email has been granted access.
+
+**If you are the project assesser wish to gain access to our Firebase console, please use the following test account (permitted to view):**
+
+acc: arrrrr.test@gmail.com
+
+pwd: arrrrr.test123
 
 ## Note to group members
 
