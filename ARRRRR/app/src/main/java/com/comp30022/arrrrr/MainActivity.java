@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 /**
  * The logIn page for the app, providing three login option, email account
  * google and facebook account.
@@ -13,6 +16,7 @@ import android.view.View;
  */
 
 public class MainActivity extends AppCompatActivity{
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +25,18 @@ public class MainActivity extends AppCompatActivity{
 
         //hide Action bar in Login Activity
         getSupportActionBar().hide();
+        mAuth = FirebaseAuth.getInstance();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null && mAuth != null) {
+            updateUIWithoutChecking();
+        }
     }
 
     public void emailLogin(View view) {
@@ -36,4 +52,12 @@ public class MainActivity extends AppCompatActivity{
 //        Intent intent = new Intent(this, EmailLoginActivity.class);
 //        startActivity(intent);
 //    }
+
+    /**
+     * This method is Update the interface directly using current mAuth.
+     */
+    private void updateUIWithoutChecking() {
+        Intent intent = new Intent(this, MainViewActivity.class);
+        startActivity(intent);
+    }
 }

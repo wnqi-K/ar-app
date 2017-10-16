@@ -60,9 +60,11 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
+        /*// Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
+        if (currentUser != null && mAuth != null) {
+            updateUIWithoutChecking();
+        }*/
     }
 
     private void signIn(String email, String password) {
