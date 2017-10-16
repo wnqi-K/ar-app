@@ -334,10 +334,7 @@ public class MapUIManager implements
             mSelfMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .title("My position")
                     .position(latLng)
-                    .icon(MapUIManager.bitmapDescriptorFromVector(
-                            mContext,
-                            R.drawable.ic_radio_button_checked_dodgeblue_24dp,
-                            1))
+                    .visible(false)
                     .anchor(0.5f, 0.5f));
         } else {
             mSelfMarker.setPosition(latLng);
