@@ -17,6 +17,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -60,7 +61,6 @@ public class MapUIManager implements
         SelfPositionReceiver.SelfLocationListener,
         GoogleMap.OnMarkerClickListener,
         AddressResultReceiver.AddressResultListener,
-        GoogleMap.OnMyLocationButtonClickListener,
         GoogleMap.OnCameraMoveListener,
         GoogleMap.OnInfoWindowClickListener {
 
@@ -77,7 +77,6 @@ public class MapUIManager implements
     private final double DEFAULT_INI_LAT = -37.8141;
     private final double DEFAULT_INT_LONG = 144.9633;
 
-
     private GoogleMap mGoogleMap;
     private Marker mSelfMarker;
     private HashMap<String, Marker> mFriendMarkers;
@@ -90,6 +89,7 @@ public class MapUIManager implements
     private String mBufferFriendUid;
     private Location mCurrentLocation;
     private String mCurrentAddress;
+    private Button mMyLocationButton;
 
     public MapUIManager(Fragment fragment, AppCompatActivity context, GoogleMap googleMap) {
         mContext = context;
@@ -236,19 +236,15 @@ public class MapUIManager implements
         mGoogleMap.setInfoWindowAdapter(new FriendInfoWindowAdapter());
         mGoogleMap.setOnInfoWindowClickListener(this);
         mGoogleMap.setOnCameraMoveListener(this);
-        mGoogleMap.setOnMyLocationButtonClickListener(this);
+
+        // Initialize my location button
+        mMyLocationButton = (Button) mContext.findViewById(R.id.button_my_location);
+        mMyLocationButton.setOnClickListener(mMyLocationOnClickListener);
+        mMyLocationButton.setAlpha(0.8f);
 
         showProgressBarLocating("Locating...");
         restorePrevMapView();
         requestToGetCurrData();
-
-        // Relocate my location button
-        View locationButton = ((View) mContext.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
-        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
-        // position on right bottom
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-        rlp.setMargins(0, 220, 180, 0);
     }
 
     /**
@@ -265,24 +261,23 @@ public class MapUIManager implements
         showProgressBarLocating("Fetching address...");
     }
 
-    @Override
-    public boolean onMyLocationButtonClick() {
-        if (isMyPosInitialized()) {
-            animateCameraToPosition(mSelfMarker.getPosition());
+    private View.OnClickListener mMyLocationOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (isMyPosInitialized()) {
+                animateCameraToPosition(mSelfMarker.getPosition());
+            }
         }
-        return true;
-    }
+    };
 
     @Override
     public void onCameraMove() {
         if (isMyPosInitialized()) {
             if (mGoogleMap.getCameraPosition().target != mSelfMarker.getPosition() ||
                     mGoogleMap.getCameraPosition().zoom != DEFAULT_CAMERA_ZOOM_LEVEL) {
-                //noinspection MissingPermission
-                mGoogleMap.setMyLocationEnabled(true);
+                mMyLocationButton.setVisibility(View.VISIBLE);
             } else {
-                //noinspection MissingPermission
-                mGoogleMap.setMyLocationEnabled(false);
+                mMyLocationButton.setVisibility(View.INVISIBLE);
             }
         }
     }
@@ -334,7 +329,10 @@ public class MapUIManager implements
             mSelfMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .title("My position")
                     .position(latLng)
-                    .visible(false)
+                    .icon(MapUIManager.bitmapDescriptorFromVector(
+                            mContext,
+                            R.drawable.ic_radio_button_checked_dodgeblue_24dp,
+                            1))
                     .anchor(0.5f, 0.5f));
         } else {
             mSelfMarker.setPosition(latLng);
