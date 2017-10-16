@@ -100,8 +100,9 @@ public class PositioningService extends Service {
             if (mRequestingLocationUpdates == null || !mRequestingLocationUpdates) {
 
                 mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+                mFusedLocationClient.flushLocations();
                 mLocationRequest = LocationRequestManager.getRequest();
-
+                
                 createLocationCallback();
                 startLocationUpdates();
                 Log.v(TAG, "Location updates has started.");
@@ -167,9 +168,23 @@ public class PositioningService extends Service {
         // Assume we already checked permission before starting the service.
         //noinspection MissingPermission
         mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                mLocationCallback, Looper.myLooper());
+                mLocationCallback, Looper.myLooper())
+                .addOnCompleteListener(mOnRequestCompleteListener);
     }
 
+    private OnCompleteListener mOnRequestCompleteListener = new OnCompleteListener() {
+        @Override
+        public void onComplete(@NonNull Task task) {
+            if (task.isSuccessful()) {
+                Log.v(TAG, "onComplete: Request location updates succeed.");
+            } else {
+                // Try again
+                startLocationUpdates();
+                Log.v(TAG, "onComplete: Request location updates FAILED.");
+            }
+        }
+    };
+    
     /**
      * Removes location updates from the FusedLocationApi.
      */

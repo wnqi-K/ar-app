@@ -12,35 +12,51 @@
             android:name="com.google.android.gms.maps.MapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@color/color_bg_light"
-            android:padding="15dp"
-            android:alpha=".80">
-            <ProgressBar
-                android:id="@+id/progress_bar_locating"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/Base.Widget.AppCompat.ProgressBar"
-                android:visibility="gone"
-                android:paddingEnd="10dp"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <TextView
+                android:orientation="horizontal"
+                android:background="@color/color_bg_light"
+                android:padding="15dp"
+                android:alpha=".80">
+                <ProgressBar
+                    android:id="@+id/progress_bar_locating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Base.Widget.AppCompat.ProgressBar"
+                    android:visibility="gone"
+                    android:paddingEnd="10dp"/>
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_current_location"
-                    android:alpha=".70"/>
-                <TextView
-                    android:id="@+id/text_view_address"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp" />
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_current_location"
+                        android:alpha=".70"/>
+                    <TextView
+                        android:id="@+id/text_view_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="end|bottom"
+                android:padding="15dp">
+                <Button
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:id="@+id/button_my_location"
+                    android:visibility="invisible"
+                    android:background="@mipmap/ic_my_location_button"/>
             </LinearLayout>
         </LinearLayout>
 </FrameLayout>
