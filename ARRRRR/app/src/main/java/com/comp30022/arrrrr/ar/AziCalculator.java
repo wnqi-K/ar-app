@@ -45,31 +45,33 @@ public class AziCalculator {
      * if larger than max return 1
      * called by ArViewActivity in onAzimuthChanged(float azimuthChangedFrom, float azimuthChangedTo)
      * */
-    public int isBetween(double standard, double minAngle, double maxAngle, double azimuth) {
+    public boolean isBetween(double minAngle, double maxAngle, double azimuth) {
 
-        //user's azimuth minus 180 degree
-        double half = standard + 180;
-        if (half > 360){
-            half -= 360;
-        }
-
-        //with the range
         if (minAngle > maxAngle) {
-            if (isBetween(standard, 0, maxAngle, azimuth)==0 || isBetween(standard, minAngle, 360, azimuth)==0)
-                return 0;
-        }
-
-        else {
+            if (isBetween(0, maxAngle, azimuth) && isBetween(minAngle, 360, azimuth))
+                return true;
+        } else {
             if (azimuth > minAngle && azimuth < maxAngle)
-                return 0;
+                return true;
+        }
+        return false;
+    }
+
+    public boolean turnRight(double target, double azimuth){
+        double half = 0;
+        if(target>180){
+            half = target - 180;
+        }
+        else{
+            half = target + 180;
         }
 
-        //should turn right to see the icon
-        if (azimuth >= maxAngle && azimuth <= half ){
-            return -1;
+        if (target > half && (azimuth <= half || azimuth >= target)){
+            return true;
         }
-
-        //else, should turn left to see the icon
-        return 1;
+        if (target <= half && (azimuth <= half && azimuth >= target)){
+            return true;
+        }
+        return false;
     }
 }

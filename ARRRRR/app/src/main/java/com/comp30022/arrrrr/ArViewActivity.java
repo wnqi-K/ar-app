@@ -155,6 +155,8 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     @Override
     protected void onPause() {
         super.onPause();
+        myCurrentAzimuth.stop();
+        myCurrentLocation.stop();
         unregisterReceivers();
     }
 
@@ -323,7 +325,9 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         mMyLatitude = location.getLatitude();
         mMyLongitude = location.getLongitude();
         mAzimuthTeoretical = calculateTeoreticalAzimuth();
+        //show new LatLng
         Toast.makeText(this,"latitude: "+location.getLatitude()+" longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
+        //update location in textView
         updateDescription();
     }
 
@@ -343,16 +347,16 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         double maxAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(1);
 
         //if within the range, show ICON
-        if (calculator.isBetween(mAzimuthTeoretical,minAngle, maxAngle, mAzimuthReal)== 0) {
+        if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal)) {
             pointerIcon.setVisibility(View.VISIBLE);
             updateMsg(CORRECT_MSG);
 
         } else {
             pointerIcon.setVisibility(View.INVISIBLE);
-            if (calculator.isBetween(mAzimuthTeoretical, minAngle, maxAngle, mAzimuthReal) == 1){
+            if (calculator.turnRight(mAzimuthTeoretical,mAzimuthReal)){
                 updateMsg(TURN_LEFT_MSG);
             }
-            if (calculator.isBetween(mAzimuthTeoretical, minAngle, maxAngle, mAzimuthReal)== -1){
+            else{
                 updateMsg(TURN_RIGHT_MSG);
             }
         }
