@@ -25,6 +25,7 @@ import android.content.Intent;
 import java.io.IOException;
 
 import com.comp30022.arrrrr.utils.ServiceManager;
+import com.firebase.geofire.util.GeoUtils;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -101,8 +102,11 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * rendering view object
      * */
     public TextView descriptionTextView;
-    public ImageView pointerIcon;
     public TextView msgTextView;
+    public TextView disTextView;
+    public ImageView pointerIcon;
+    public ImageView rightIcon;
+    public ImageView leftIcon;
 
     /**
      * cohesive in amzimuth calculation
@@ -157,7 +161,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         super.onPause();
         myCurrentAzimuth.stop();
         myCurrentLocation.stop();
-        unregisterReceivers();
+        //unregisterReceivers();
     }
 
     /**
@@ -209,6 +213,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
                 + mAzimuthTeoretical + " azimuthReal " + mAzimuthReal + " latitude "
                 + mMyLatitude + " longitude " + mMyLongitude);
     }
+
 
     /**
      * update the ar instruction text
@@ -329,6 +334,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         Toast.makeText(this,"latitude: "+location.getLatitude()+" longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
         //update location in textView
         updateDescription();
+        updateDistance();
     }
 
     /**
@@ -342,6 +348,8 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         mAzimuthTeoretical = calculateTeoreticalAzimuth();
 
         pointerIcon = (ImageView) findViewById(R.id.icon);
+        rightIcon = (ImageView) findViewById(R.id.right);
+        leftIcon = (ImageView) findViewById(R.id.left);
 
         double minAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(0);
         double maxAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(1);
@@ -349,14 +357,22 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         //if within the range, show ICON
         if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal)) {
             pointerIcon.setVisibility(View.VISIBLE);
+            rightIcon.setVisibility(View.INVISIBLE);
+            leftIcon.setVisibility(View.INVISIBLE);
             updateMsg(CORRECT_MSG);
 
         } else {
             pointerIcon.setVisibility(View.INVISIBLE);
             if (calculator.turnRight(mAzimuthTeoretical,mAzimuthReal)){
+                rightIcon.setVisibility(View.INVISIBLE);
+
+                leftIcon.setVisibility(View.VISIBLE);
                 updateMsg(TURN_LEFT_MSG);
             }
             else{
+                leftIcon.setVisibility(View.INVISIBLE);
+
+                rightIcon.setVisibility(View.VISIBLE);
                 updateMsg(TURN_RIGHT_MSG);
             }
         }
