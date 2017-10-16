@@ -19,7 +19,6 @@ import android.widget.Toast;
 import com.comp30022.arrrrr.adapters.ChatRecyclerAdapter;
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.Chat;
-import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.ChatInterface;
 import com.comp30022.arrrrr.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
@@ -98,6 +97,7 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // set all the views
         String receiverEmail = UserManagement.getInstance().getUserDisplayName(getIntent().
@@ -148,6 +148,8 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
             case R.id.clear_history:
                 clearHistory(senderUid,receiverUid);
                 break;
+            case android.R.id.home:
+                finish();
         }
         return true;
     }
@@ -237,11 +239,5 @@ public class ChatActivity extends AppCompatActivity implements ChatInterface.Lis
     @Override
     public void onGetMessagesFailure(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public boolean onSupportNavigateUp(){
-        finish();
-        return true;
     }
 }

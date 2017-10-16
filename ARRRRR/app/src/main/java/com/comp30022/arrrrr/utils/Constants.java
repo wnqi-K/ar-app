@@ -48,5 +48,10 @@ public class Constants {
     public static final String MESSAGE = "message";
     public static final String REQUEST_MESSAGE = "Sends you a friend request.";
 
+    public static final String NAME_PREFIX = "Name:   ";
+    public static final String EMAIL_PREFIX = "Email:   ";
+    public static final String GENDER_PREFIX = "Gender:   ";
+    public static final String ADDRESS_PREFIX = "Address:   ";
+
     public static final CharSequence ADD_TO_DATABASE_SUCCESS = "Success";
 }

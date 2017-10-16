@@ -1,6 +1,8 @@
 package com.comp30022.arrrrr;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -25,6 +27,8 @@ import java.util.ArrayList;
  * Created by Wenqiang Kuang on 27/09/2017.
  */
 public class AcceptRequestActivity extends AppCompatActivity {
+    public static final String ALREADY_FRIEND_MESSAGE = "You are Already friends.";
+    public static final String REJECT_MESSAGE = "You've reject the request. ";
     // For Testing.
     public static String TAG = "AcceptRequestActivity";
 
@@ -56,27 +60,33 @@ public class AcceptRequestActivity extends AppCompatActivity {
         mAcceptButton = (Button) findViewById(R.id.accept_button);
         mRejectButton = (Button) findViewById(R.id.reject_button);
         mUserAvatar = (ImageView) mCardView.findViewById(R.id.request_user_avatar);
-        mUserName = (TextView)mCardView.findViewById(R.id.request_user_name);
-        mUserEmail = (TextView)mCardView.findViewById(R.id.request_user_email);
-        mUserGender = (TextView)mCardView.findViewById(R.id.request_user_gender);
-        mUserAddress = (TextView)mCardView.findViewById(R.id.request_user_address);
+        mUserName = (TextView) mCardView.findViewById(R.id.request_user_name);
+        mUserEmail = (TextView) mCardView.findViewById(R.id.request_user_email);
+        mUserGender = (TextView) mCardView.findViewById(R.id.request_user_gender);
+        mUserAddress = (TextView) mCardView.findViewById(R.id.request_user_address);
 
         // Display info carried by the intent.
-        mUserAvatar.setImageDrawable(getResources().getDrawable(R.drawable.avatar));
-        mUserName.setText(senderName);
-        mUserEmail.setText(senderEmail);
-        mUserGender.setText(senderGender);
-        mUserAddress.setText(senderAddress);
+        Bitmap avatar;
+        try {
+            avatar = UserManagement.getInstance().getUserProfileImage(senderUid, getBaseContext());
+        } catch (Exception e) {
+            avatar = BitmapFactory.decodeResource(getResources(), R.drawable.portrait_photo);
+        }
+        mUserAvatar.setImageBitmap(avatar);
+        mUserName.setText(Constants.NAME_PREFIX + senderName);
+        mUserEmail.setText(Constants.EMAIL_PREFIX + senderEmail);
+        mUserGender.setText(Constants.GENDER_PREFIX + senderGender);
+        mUserAddress.setText(Constants.ADDRESS_PREFIX + senderAddress);
 
         // Update the database if accepting.
         mAcceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Check if is friends first.
-                if(isAlreadyFriend(senderUid)){
-                    Toast.makeText(getBaseContext(), "You are Already friends.",
+                if (isAlreadyFriend(senderUid)) {
+                    Toast.makeText(getBaseContext(), ALREADY_FRIEND_MESSAGE,
                             Toast.LENGTH_LONG).show();
-                }else {
+                } else {
                     updateDatabase(senderUid);
                 }
                 goBackToMainView();
@@ -88,7 +98,7 @@ public class AcceptRequestActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Pop up the msg and go back to the main view.
-                Toast.makeText(getBaseContext(), "You've reject the request. ",
+                Toast.makeText(getBaseContext(), REJECT_MESSAGE,
                         Toast.LENGTH_SHORT).show();
                 goBackToMainView();
             }
@@ -101,8 +111,8 @@ public class AcceptRequestActivity extends AppCompatActivity {
     private boolean isAlreadyFriend(String senderUid) {
         Boolean isFriend = false;
         ArrayList<User> friends = (ArrayList<User>) UserManagement.getInstance().getFriendList();
-        for(User user : friends){
-            if (user.getUid() == senderUid){
+        for (User user : friends) {
+            if (user.getUid() == senderUid) {
                 isFriend = true;
                 break;
             }

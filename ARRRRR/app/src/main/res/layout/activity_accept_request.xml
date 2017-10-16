@@ -8,80 +8,81 @@
     <android.support.v7.widget.CardView
         android:id="@+id/requestUserInfo"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:layout_height="match_parent"
+            android:background="@color/black_background"
             >
 
             <ImageView
+                android:id="@+id/request_user_avatar"
                 android:layout_width="150dp"
                 android:layout_height="150dp"
-                android:id="@+id/request_user_avatar"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginRight="16dp"
-                />
+                android:layout_centerHorizontal="true"
+                android:scaleType="centerCrop"
+                android:layout_marginBottom="15dp"/>
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/request_user_name"
-                android:layout_toRightOf="@+id/request_user_avatar"
-                android:layout_alignParentTop="true"
-                android:textSize="30sp"
-                />
+                android:layout_below="@+id/request_user_avatar"
+                android:orientation="vertical"
+                >
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/request_user_email"
-                android:layout_toRightOf="@+id/request_user_avatar"
-                android:layout_below="@+id/request_user_name"
-                android:textSize="20sp"
-                />
+                <TextView
+                    android:id="@+id/request_user_name"
+                    android:layout_width="@dimen/padding_user_profile"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/user_profile_rounded_bg"
+                    android:padding="10dp"
+                    />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/request_user_gender"
-                android:layout_toRightOf="@+id/request_user_avatar"
-                android:layout_below="@+id/request_user_email"
-                android:textSize="20sp"
-                />
+                <TextView
+                    android:id="@+id/request_user_email"
+                    android:layout_width="@dimen/padding_user_profile"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/user_profile_rounded_bg"
+                    android:padding="10dp"
+                    />
+
+                <TextView
+                    android:id="@+id/request_user_gender"
+                    android:layout_width="@dimen/padding_user_profile"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/user_profile_rounded_bg"
+                    android:padding="10dp"/>
 
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/request_user_address"
-                android:layout_toRightOf="@+id/request_user_avatar"
-                android:layout_below="@+id/request_user_gender"
-                android:textSize="20sp"
-                />
+                <TextView
+                    android:id="@+id/request_user_address"
+                    android:layout_width="@dimen/padding_user_profile"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/user_profile_rounded_bg"
+                    android:padding="10dp"/>
+
+                <Button
+                    android:id="@+id/accept_button"
+                    style="@style/ShortButton"
+                    android:background="#f96c6c"
+                    android:text="Accept"/>
+
+                <Button
+                    android:id="@+id/reject_button"
+                    style="@style/ShortButton"
+                    android:background="@drawable/btn_border"
+                    android:text="Reject"/>
+            </LinearLayout>
         </RelativeLayout>
     </android.support.v7.widget.CardView>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent" android:layout_height="wrap_content"
-        android:layout_below="@+id/requestUserInfo">
-
-        <Button
-            android:id="@+id/accept_button"
-            android:layout_width="0.0dip" android:layout_height="fill_parent"
-            android:text="Accept"
-            android:layout_weight="1.0"
-            android:background="#f45959"/>
-
-        <Button
-            android:id="@+id/reject_button"
-            android:layout_width="0.0dip" android:layout_height="fill_parent"
-            android:text="Reject"
-            android:layout_weight="1.0"
-            android:background="#8790e6"/>
-
-    </LinearLayout>
 </RelativeLayout>

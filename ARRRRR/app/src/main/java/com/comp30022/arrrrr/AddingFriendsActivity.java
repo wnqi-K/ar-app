@@ -1,5 +1,8 @@
 package com.comp30022.arrrrr;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -27,6 +30,7 @@ import java.util.HashMap;
  */
 public class AddingFriendsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
+    public static final String PROMPT_MESSAGE = "Friend request has been sent, please wait for confirmation.";
     private ListView mListView;
     private CardView mCardView;
     private ListViewAdapter mViewAdapter;
@@ -62,18 +66,32 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
 
                 TextView userName = (TextView) mCardView.findViewById(R.id.user_name);
                 TextView userEmail = (TextView) mCardView.findViewById(R.id.user_email);
+                TextView userGender = (TextView) mCardView.findViewById(R.id.user_gender);
+                TextView userAddress = (TextView) mCardView.findViewById(R.id.user_address);
+
                 ImageView userAvatar = (ImageView) mCardView.findViewById(R.id.friend_list_user_avatar);
                 Button addFriend = (Button) mCardView.findViewById(R.id.add_friend_button);
 
-                userName.setText(onClickUser.getUsername());
-                userEmail.setText(onClickUser.getEmail());
-                userAvatar.setImageDrawable(getResources().getDrawable(R.drawable.avatar));
+                userName.setText(Constants.NAME_PREFIX + onClickUser.getUsername());
+                userEmail.setText(Constants.EMAIL_PREFIX + onClickUser.getEmail());
+                userGender.setText(Constants.GENDER_PREFIX + onClickUser.getGender());
+                userAddress.setText(Constants.ADDRESS_PREFIX + onClickUser.getAddress());
+
+                String userID = onClickUser.getUid();
+                Bitmap avatar;
+                try {
+                    avatar = UserManagement.getInstance().getUserProfileImage(userID, getBaseContext());
+                } catch (Exception e) {
+                    avatar = BitmapFactory.decodeResource(getResources(), R.drawable.portrait_photo);
+                }
+
+                userAvatar.setImageBitmap(avatar);
                 addFriend.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         sendRequest(allInfo);
-                        Toast.makeText(getBaseContext(), "Friend request has been sent, " +
-                                "please wait for confirmation. ", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(), PROMPT_MESSAGE, Toast.LENGTH_SHORT).show();
+                        goBackToMainView();
                     }
                 });
             }
@@ -94,6 +112,14 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
         String text = newText;
         mViewAdapter.getFilter().filter(text);
         return false;
+    }
+
+    /**
+     * After sending request, go back to the main view.
+     */
+    private void goBackToMainView() {
+        Intent intent = new Intent(this, MainViewActivity.class);
+        startActivity(intent);
     }
 
     /**

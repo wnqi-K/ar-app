@@ -41,7 +41,9 @@ public class UserProfileActivity extends AppCompatActivity {
     private ImageButton UserImage;
 
 
-    /**-------------------------------------**/
+    /**
+     * -------------------------------------
+     **/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,55 +76,55 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private void showData(DataSnapshot dataSnapshot) {
 
-        UserId = (TextView)findViewById(R.id.search_result_email);
-        UserName = (TextView)findViewById(R.id.user_profile_name);
-        UserEmail = (TextView)findViewById(R.id.email);
-        UserPhone = (TextView)findViewById(R.id.number);
-        UserGender = (TextView)findViewById(R.id.gender);
-        UserAddress = (TextView)findViewById(R.id.address);
-        UserImage = (ImageButton)findViewById(R.id.user_profile_photo);
+        UserId = (TextView) findViewById(R.id.search_result_email);
+        UserName = (TextView) findViewById(R.id.user_profile_name);
+        UserEmail = (TextView) findViewById(R.id.email);
+        UserPhone = (TextView) findViewById(R.id.number);
+        UserGender = (TextView) findViewById(R.id.gender);
+        UserAddress = (TextView) findViewById(R.id.address);
+        UserImage = (ImageButton) findViewById(R.id.user_profile_photo);
 
-        for(DataSnapshot ds : dataSnapshot.getChildren()) {
+        for (DataSnapshot ds : dataSnapshot.getChildren()) {
             if (ds.child(userID).hasChild(Constants.ARG_USER_NAME)) {
                 uInfo.setUsername(ds.child(userID).getValue(User.class).getUsername()); //set the name
-                UserId.setText("Name:  "+ uInfo.getUsername());
+                UserId.setText("Name:  " + uInfo.getUsername());
                 UserName.setText(uInfo.getUsername());
-            }else {
+            } else {
                 UserId.setText("Name: ");
                 UserName.setText("User");
             }
 
             if (ds.child(userID).hasChild(Constants.ARG_PHONE_NUM)) {
                 uInfo.setPhoneNum(ds.child(userID).getValue(User.class).getPhoneNum()); //set the phone_num
-                UserPhone.setText("Phone Number: "+uInfo.getPhoneNum());
-            }else
+                UserPhone.setText("Phone Number: " + uInfo.getPhoneNum());
+            } else
                 UserPhone.setText("Phone Number:");
 
             if (ds.child(userID).hasChild(Constants.ARG_GENDER)) {
                 uInfo.setGender(ds.child(userID).getValue(User.class).getGender()); //set the gender
-                UserGender.setText("Gender: "+uInfo.getGender());
-            }else
+                UserGender.setText("Gender: " + uInfo.getGender());
+            } else
                 UserGender.setText("Gender:");
 
             if (ds.child(userID).hasChild(Constants.ARG_EMAIL)) {
-                UserEmail.setText("Email: "+currentUser.getEmail());
-            }else
+                UserEmail.setText("Email: " + currentUser.getEmail());
+            } else
                 UserEmail.setText("Email:");
 
             if (ds.child(userID).hasChild(Constants.ARG_ADDRESS)) {
                 uInfo.setAddress(ds.child(userID).getValue(User.class).getAddress()); //set the gender
-                UserAddress.setText("Address: "+uInfo.getAddress());
-            }else
+                UserAddress.setText("Address: " + uInfo.getAddress());
+            } else
                 UserAddress.setText("Address:");
 
-            if(ds.child(userID).hasChild(Constants.ARG_IMAGE)){
+            if (ds.child(userID).hasChild(Constants.ARG_IMAGE)) {
 
-                try{
+                try {
                     // Use UserManagement to get profile image
                     //String url = ds.child(userID).child(Constants.ARG_IMAGE).getValue(String.class);
                     Bitmap imageBitmap = UserManagement.getInstance().getUserProfileImage(userID, this);
                     UserImage.setImageBitmap(imageBitmap);
-                }catch(Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -130,22 +132,26 @@ public class UserProfileActivity extends AppCompatActivity {
         }
     }
 
-    public void EditProfile(View v){
+    public void EditProfile(View v) {
         Intent intent = new Intent(this, EditProfileActivity.class);
         startActivity(intent);
         intent.putExtra(EXTRA_NAME, uInfo.getUsername());
         overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
     }
 
-    public void SelectPhoto(View v){
+    public void SelectPhoto(View v) {
         Intent intent = new Intent(this, SelectPhotoActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
     }
 
     @Override
-    public boolean onSupportNavigateUp(){
+    public boolean onSupportNavigateUp() {
         finish();
+        /*FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(SettingFragment.newInstance(), null);
+        fragmentTransaction.commit();*/
         return true;
     }
 }
