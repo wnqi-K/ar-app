@@ -78,6 +78,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
         switch (viewId) {
             case R.id.button_register:
+                showProgressDialog();
                 onRegister(view);
                 break;
         }
@@ -96,6 +97,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         }
 
         if (gender == null) {
+            hideProgressDialog();
             toast_text = "gender required";
             Toast.makeText(RegisterActivity.this, toast_text, Toast.LENGTH_SHORT).show();
         } else if (!LoginHelper.validateForm2(mETxtEmail,
@@ -104,6 +106,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 mETxtPhonenum,
                 mETxtAddress)) {
             // if input is not valid
+            hideProgressDialog();
             toast_text = "Error occurs, please check your input";
             Toast.makeText(RegisterActivity.this, toast_text, Toast.LENGTH_SHORT).show();
         } else {
@@ -132,6 +135,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             // the auth state listener will be notified and logic to handle the
             // signed in user can be handled in the listener.
             if (!task.isSuccessful()) {
+                hideProgressDialog();
                 toast_text = Constants.REGISTER_FAILURE;
                 Toast.makeText(RegisterActivity.this, toast_text, Toast.LENGTH_SHORT).show();
                 //Toast.makeText(getActivity(),task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -169,10 +173,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         @Override
         public void onComplete(@NonNull Task<Void> task) {
             if (!task.isSuccessful()) {
+                hideProgressDialog();
                 toast_text = Constants.ADD_TO_DATABASE_FAILURE;
                 Toast.makeText(RegisterActivity.this,
                         toast_text, Toast.LENGTH_SHORT).show();
             } else {
+                hideProgressDialog();
                 toast_text = Constants.ADD_TO_DATABASE_SUCCESS;
                 Toast.makeText(RegisterActivity.this,
                         toast_text, Toast.LENGTH_SHORT).show();
@@ -180,6 +186,24 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             }
         }
     };
+
+    /*show that process is in progress*/
+    public void showProgressDialog() {
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setCancelable(false);
+            mProgressDialog.setMessage("Loading...");
+        }
+
+        mProgressDialog.show();
+    }
+
+    /*show that process has finished*/
+    public void hideProgressDialog() {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+        }
+    }
 
     @Override
     public boolean onSupportNavigateUp(){
