@@ -1,6 +1,8 @@
 package com.comp30022.arrrrr;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -64,12 +66,26 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
 
                 TextView userName = (TextView) mCardView.findViewById(R.id.user_name);
                 TextView userEmail = (TextView) mCardView.findViewById(R.id.user_email);
+                TextView userGender = (TextView) mCardView.findViewById(R.id.user_gender);
+                TextView userAddress = (TextView) mCardView.findViewById(R.id.user_address);
+
                 ImageView userAvatar = (ImageView) mCardView.findViewById(R.id.friend_list_user_avatar);
                 Button addFriend = (Button) mCardView.findViewById(R.id.add_friend_button);
 
-                userName.setText(onClickUser.getUsername());
-                userEmail.setText(onClickUser.getEmail());
-                userAvatar.setImageDrawable(getResources().getDrawable(R.drawable.avatar));
+                userName.setText("Name:   " + onClickUser.getUsername());
+                userEmail.setText("Email:   " + onClickUser.getEmail());
+                userGender.setText("Gender:   " + onClickUser.getGender());
+                userAddress.setText("Address:   " + onClickUser.getAddress());
+
+                String userID = onClickUser.getUid();
+                Bitmap avatar;
+                try {
+                    avatar = UserManagement.getInstance().getUserProfileImage(userID, getBaseContext());
+                } catch (Exception e) {
+                    avatar = BitmapFactory.decodeResource(getResources(), R.drawable.portrait_photo);
+                }
+
+                userAvatar.setImageBitmap(avatar);
                 addFriend.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

@@ -22,13 +22,13 @@ import java.util.ArrayList;
  * Created by Wenqiang Kuang on 9/10/2017.
  */
 
-public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFriendListAdapter.FriendViewHolder>{
+public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFriendListAdapter.FriendViewHolder> {
     private static final int AVATAR_SIZE = 200;
     private static ClickListener clickListener;
     private ArrayList<User> mAllFriends;
     private Context mContext;
 
-    public static class FriendViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public static class FriendViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public CardView mCardView;
         public TextView mFriendName;
@@ -38,10 +38,10 @@ public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFrie
         public FriendViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
-            mCardView = (CardView)itemView.findViewById(R.id.friend_list_user_card);
-            mFriendName = (TextView)itemView.findViewById(R.id.friend_list_username);
-            mFriendEmail = (TextView)itemView.findViewById(R.id.friend_list_user_email);
-            mFriendAvatar = (ImageView)itemView.findViewById(R.id.friend_list_user_avatar);
+            mCardView = (CardView) itemView.findViewById(R.id.friend_list_user_card);
+            mFriendName = (TextView) itemView.findViewById(R.id.friend_list_username);
+            mFriendEmail = (TextView) itemView.findViewById(R.id.friend_list_user_email);
+            mFriendAvatar = (ImageView) itemView.findViewById(R.id.friend_list_user_avatar);
         }
 
         @Override
@@ -50,7 +50,7 @@ public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFrie
         }
     }
 
-    public RecyclerFriendListAdapter(ArrayList<User> friendList, Context context){
+    public RecyclerFriendListAdapter(ArrayList<User> friendList, Context context) {
         this.mAllFriends = friendList;
         this.mContext = context;
     }
@@ -69,13 +69,13 @@ public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFrie
         holder.mFriendName.setText(user.getUsername());
         holder.mFriendEmail.setText(user.getEmail());
 
+        Bitmap avatar;
         try {
-            Bitmap imageBitmap = UserManagement.getInstance().getUserProfileImage(userID, mContext);
-            holder.mFriendAvatar.setImageBitmap(Bitmap.createScaledBitmap(imageBitmap, AVATAR_SIZE, AVATAR_SIZE, false));
+            avatar = UserManagement.getInstance().getUserProfileImage(userID, mContext);
         } catch (Exception e) {
-            Bitmap avatar = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.portrait_photo);
-            holder.mFriendAvatar.setImageBitmap(Bitmap.createScaledBitmap(avatar, AVATAR_SIZE, AVATAR_SIZE, false));
+            avatar = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.portrait_photo);
         }
+        holder.mFriendAvatar.setImageBitmap(Bitmap.createScaledBitmap(avatar, AVATAR_SIZE, AVATAR_SIZE, false));
     }
 
     @Override
