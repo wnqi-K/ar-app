@@ -35,4 +35,14 @@ public class ServiceManager {
         context.startService(intent);
         Log.v(TAG, "Starting location sharing service.");
     }
+
+    public static void stopPositioningService(Context context) {
+        context.stopService(new Intent(context, PositioningService.class));
+        Log.v(TAG, "Stopping positioning service.");
+    }
+
+    public static void stopLocationSharingService(Context context) {
+        context.stopService(new Intent(context, LocationSharingService.class));
+        Log.v(TAG, "Stopping location sharing service.");
+    }
 }

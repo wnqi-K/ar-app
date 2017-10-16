@@ -35,6 +35,8 @@ import com.comp30022.arrrrr.utils.BroadcastReceiverManager;
 import com.comp30022.arrrrr.utils.Constants;
 import com.comp30022.arrrrr.utils.GeoUtil;
 import com.comp30022.arrrrr.utils.PreferencesAccess;
+import com.comp30022.arrrrr.utils.ServiceManager;
+import com.comp30022.arrrrr.utils.TimeUtil;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -150,6 +152,8 @@ public class SettingFragment extends Fragment implements
                         .child(Constants.ARG_STATUS).removeValue();
 
                 mAuth.signOut();
+                ServiceManager.stopLocationSharingService(getActivity());
+                ServiceManager.stopPositioningService(getActivity());
 
                 Intent intent = new Intent(getActivity(), MainActivity.class);
                 startActivity(intent);
@@ -290,11 +294,8 @@ public class SettingFragment extends Fragment implements
      * Handles when we have received last user's location
      */
     @Override
-    public void onReceivingSingleUserLocation(String uid,
-                                              LatLng latLng,
-                                              String distance,
-                                              String time) {
-        mTimeBuffer = time;
+    public void onReceivingSingleUserLocation(String uid, LatLng latLng, long time) {
+        mTimeBuffer = TimeUtil.getFriendlyTime(time);
         FetchAddressIntentService.requestFetchAddress(getActivity(),
                 GeoUtil.latLngToLocation(latLng));
     }

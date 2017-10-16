@@ -19,7 +19,9 @@ import com.comp30022.arrrrr.MainViewActivity;
 import com.comp30022.arrrrr.MapContainerFragment;
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.database.UserManagement;
+import com.comp30022.arrrrr.models.FriendLocation;
 import com.comp30022.arrrrr.models.GeoLocationInfo;
+import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
 import com.comp30022.arrrrr.receivers.SimpleRequestResultReceiver;
@@ -166,6 +168,11 @@ public class LocationSharingService extends Service implements
      */
     public ValueEventListener mSingleGeoLocationListener;
 
+    /**
+     * Receiver for single user location broadcast.
+     */
+    public SingleUserLocationReceiver mSingleUserLocationReceiver;
+
     @RestrictTo(RestrictTo.Scope.TESTS)
     public FirebaseAuth mTestAuth;
 
@@ -280,6 +287,8 @@ public class LocationSharingService extends Service implements
             }
         }
 
+        registerLocationListenerForAllFriends();
+
         return START_STICKY;
     }
 
@@ -352,6 +361,7 @@ public class LocationSharingService extends Service implements
         }
 
         mSelfLocation = location;
+        UserManagement.getInstance().setCurrUserLocation(location);
 
         // Check settings first!
         SharedPreferences preferences = getSettingsPreferences();
@@ -489,7 +499,7 @@ public class LocationSharingService extends Service implements
 
     /**
      * Get human-readable distance between the user and a friend's locations.
-     * @param uid friend's uid
+     * @param uid friends's uid
      */
     private String getFriendDistanceReadable(String uid) {
         // Return empty string if self location is unknown.
@@ -511,21 +521,21 @@ public class LocationSharingService extends Service implements
     }
 
     /**
-     * Get human-readable time of friend's last location update.
+     * Get ms time of friend's last location update.
      * @param uid friend's uid
      */
-    private String getFriendLastLocationTime(String uid) {
+    private long getFriendLastLocationTime(String uid) {
         GeoLocationInfo geoLocationInfo = mGeoInfos.get(uid);
         GeoLocationInfo geoLocationInfoBuffer = mInfoBuffer.get(uid);
         // Return empty string if friend's location is unknown.
         if (geoLocationInfo == null && geoLocationInfoBuffer == null) {
-            return "";
+            return 0;
         }
 
         if (geoLocationInfoBuffer == null) {
-            return TimeUtil.getFriendlyTime(geoLocationInfo.time);
+            return geoLocationInfo.time;
         } else {
-            return TimeUtil.getFriendlyTime(geoLocationInfoBuffer.time);
+            return geoLocationInfoBuffer.time;
         }
     }
 
@@ -539,7 +549,7 @@ public class LocationSharingService extends Service implements
         }
 
         String distance = getFriendDistanceReadable(uid);
-        String time = getFriendLastLocationTime(uid);
+        String time = TimeUtil.getFriendlyTime(getFriendLastLocationTime(uid)) ;
 
         Intent intent = new Intent(this, MainViewActivity.class);
 
@@ -550,7 +560,8 @@ public class LocationSharingService extends Service implements
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                 .setContentTitle(getResources().getString(R.string.app_name))
-                .setContentText("Your friend " + uid + " is " + distance + " away " + time)
+                .setContentText("Your friend " + UserManagement.getInstance().getUserDisplayName(uid)
+                        + " is " + distance + " away " + time)
                 .setSmallIcon(R.drawable.logo)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
@@ -588,8 +599,41 @@ public class LocationSharingService extends Service implements
         mQueryResultSent = true;
     }
 
+    /**
+     * Handles the event when we have received a friend's location.
+     */
+    public SingleUserLocationReceiver.SingleUserLocationListener mSingleUserLocationListener
+            = new SingleUserLocationReceiver.SingleUserLocationListener() {
+        @Override
+        public void onReceivingSingleUserLocation(String uid, LatLng latLng, long time) {
+            // Add data to UserManagement database
+            FriendLocation friendLocation = new FriendLocation(latLng, time);
+            UserManagement.getInstance().addFriendLocation(uid, friendLocation);
+            Log.v(TAG, "Received friend's location: ("
+                    + UserManagement.getInstance().getUserDisplayName(uid)
+                    + ") "
+                    + friendLocation.toString());
+        }
+    };
+
+    /**
+     * Register location update listener for all friends
+     */
+    public void registerLocationListenerForAllFriends() {
+        // Register receivers for all friends
+        List<User> friends = UserManagement.getInstance().getFriendList();
+        for (User user: friends) {
+            registerLocationListenerForUser(user.getUid());
+        }
+    }
+
     public void registerReceivers() {
         registerPositioningReceiver();
+
+        // Register receivers for friends' location updates
+        mSingleUserLocationReceiver = SingleUserLocationReceiver
+                .register(this, mSingleUserLocationListener);
+
     }
 
     public void registerPositioningReceiver() {
@@ -601,6 +645,7 @@ public class LocationSharingService extends Service implements
      */
     public void unregisterReceivers() {
         unregisterReceiver(mSelfPositionReceiver);
+        unregisterReceiver(mSingleUserLocationReceiver);
     }
 
     /**
@@ -667,6 +712,9 @@ public class LocationSharingService extends Service implements
      * @param uid user id
      */
     public void registerLocationListenerForUser(String uid) {
+        if (mUserLocationListeners.containsKey(uid)) {
+            return;
+        }
         DatabaseReference ref = mRootRef.child(getUserRefPath(RefType.GEO_INFO, uid));
 
         // Parent listener
@@ -695,7 +743,7 @@ public class LocationSharingService extends Service implements
         // Save reference object
         mUserLocationRefs.put(uid, ref);
         mUserLocationListeners.put(uid, geoInfoListener);
-        Log.v(TAG, "Now listening user location update for uid = " + String.valueOf(uid));
+        Log.v(TAG, "Now listening user (friend) location update for uid = " + String.valueOf(uid));
     }
 
     /**
@@ -718,8 +766,7 @@ public class LocationSharingService extends Service implements
         broadcastIntent.putExtra(PARAM_OUT_UID, uid);
         // Pass LatLng since it is parcelable.
         broadcastIntent.putExtra(PARAM_OUT_LATLNG, GeoUtil.geoToLatLng(geoLocation));
-        broadcastIntent.putExtra(PARAM_OUT_DISTANCE, getFriendDistanceReadable(uid));
-        broadcastIntent.putExtra(PARAM_OUT_TIME, getFriendLastLocationTime(uid));
+        broadcastIntent.putExtra(PARAM_OUT_TIME, info.time);
 
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(broadcastIntent);

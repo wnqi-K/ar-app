@@ -3,12 +3,14 @@ package com.comp30022.arrrrr.database;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.widget.Toast;
 
 import com.comp30022.arrrrr.R;
+import com.comp30022.arrrrr.models.FriendLocation;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.utils.Constants;
 
@@ -18,7 +20,8 @@ import java.util.List;
 
 /**
  * This class is responsible for adding and deleting friends for the current user.
- * Created by Wenqiang Kuang on 17/09/2017.
+ *
+ * @author Wenqiang Kuang, Dafu Ai, Zijie Shen
  */
 
 public class UserManagement {
@@ -29,6 +32,8 @@ public class UserManagement {
     private List<User> mAdminList = new ArrayList<>();
     private User mCurrentUser;
     private HashMap<String, Bitmap> mProfileImages = new HashMap<>();
+    private HashMap<String, FriendLocation> mFriendLocations = new HashMap<>();
+    private Location mCurrUserLocation = null;
 
     // getters and setters.
     public List<User> getFriendList() {
@@ -67,6 +72,33 @@ public class UserManagement {
         }
         return mInstance;
     }
+
+    /**
+     * Add a friend's location info to the list
+     * @param uid friend's uid
+     * @param friendLocation location info
+     */
+    public void addFriendLocation(String uid, FriendLocation friendLocation) {
+        mFriendLocations.put(uid, friendLocation);
+    }
+
+    /**
+     * Retrieve the location by a friend's uid.
+     * @param uid friend's uid
+     * @return friend's location info
+     */
+    public FriendLocation getFriendLocation(String uid) {
+        return mFriendLocations.get(uid);
+    }
+
+    public Location getCurrUserLocation() {
+        return mCurrUserLocation;
+    }
+
+    public void setCurrUserLocation(Location currUserLocation) {
+        this.mCurrUserLocation = currUserLocation;
+    }
+
 
     // adding new admin user from firebase database.
     public void addingAdminUsers(User user){
