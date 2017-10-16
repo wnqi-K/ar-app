@@ -25,6 +25,8 @@ import android.content.Intent;
 import java.io.IOException;
 
 import com.comp30022.arrrrr.utils.ServiceManager;
+import com.firebase.geofire.util.GeoUtils;
+import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.model.LatLng;
 
 
@@ -44,15 +46,22 @@ import com.google.android.gms.maps.model.LatLng;
  *            iv. compare both azimuths based on accuracy and show AR icon
  **/
 
+//SelfPositionReceiver.SelfLocationListener,
+
 public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.Callback,
-        SelfPositionReceiver.SelfLocationListener, OnAzimuthChangedListener,
+        OnLocationChangedListener, OnAzimuthChangedListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final String TAG = "ArViewActivity";
+
     public static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
     public static final String UID_Key = "UIDARKEY";
     public static final String LATLNG_Key = "LATLNGARKEY";
     public static final String ALLOW_KEY = "ALLOWED";
+
+    private static final String CORRECT_MSG = "Correct Direction";
+    private static final String TURN_RIGHT_MSG = "Slowly Rotate to Right";
+    private static final String TURN_LEFT_MSG = "Slowly Rotate to Left";
 
     /**
      * Camera Class to get camera Preview
@@ -70,16 +79,16 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     private boolean isCameraviewOn = false;
 
     /**
-     * poi track the POI for ar, determining whether to show ar image
+     * poi track the POI for ar, location of friend
      **/
     private AugmentedPOI mPoi;
 
     /**
      * amzimuth factors
      * */
-    private double mAzimuthReal = 0;
-    private double mAzimuthTeoretical = 0;
-    private MyCurrentAzimuth myCurrentAzimuth;
+    private double mAzimuthReal = 0; //my real azimuth
+    private double mAzimuthTeoretical = 0; //friend's azimuth
+    private MyCurrentAzimuth myCurrentAzimuth; // my azimuth listener
 
     /**
      * location factors
@@ -87,9 +96,17 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     private double mMyLatitude = 0;
     private double mMyLongitude = 0;
     private SelfPositionReceiver myCurrentPosition;
+    private MyCurrentLocation myCurrentLocation;
 
+    /**
+     * rendering view object
+     * */
     public TextView descriptionTextView;
+    public TextView msgTextView;
+    public TextView disTextView;
     public ImageView pointerIcon;
+    public ImageView rightIcon;
+    public ImageView leftIcon;
 
     /**
      * cohesive in amzimuth calculation
@@ -123,25 +140,31 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         super.onResume();
         //request camera permission
         camPerm.requestPermission(ArViewActivity.this, ArViewActivity.this);
+        //start sensor listener
         myCurrentAzimuth.start();
-
-        ServiceManager.startPositioningService(this);
+        //start location listener
+        myCurrentLocation.start();
+        //ServiceManager.startPositioningService(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterReceivers();
+        myCurrentAzimuth.stop();
+        myCurrentLocation.stop();
+        //unregisterReceivers();
     }
 
 
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceivers();
+        myCurrentAzimuth.stop();
+        myCurrentLocation.stop();
+        //unregisterReceivers();
     }
 
-    /***
+    /**
      * start Activity and get the POI
      */
 
@@ -189,6 +212,18 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         descriptionTextView.setText(mPoi.getPoiName() + " azimuthTeoretical "
                 + mAzimuthTeoretical + " azimuthReal " + mAzimuthReal + " latitude "
                 + mMyLatitude + " longitude " + mMyLongitude);
+    }
+
+    private void updateDistanceText(){
+        int dis= (int)GeoUtils.distance(mMyLatitude, mMyLongitude, mPoi.getPoiLatitude(),mPoi.getPoiLongitude());
+        disTextView.setText(dis+"m");
+    }
+
+    /**
+     * update the ar instruction text
+     * */
+    private void updateMsg(String msg) {
+        msgTextView.setText(msg);
     }
 
     /**
@@ -240,10 +275,14 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     private void setupListeners() {
 
         //set up location receiver
-        IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        myCurrentPosition = new SelfPositionReceiver(ArViewActivity.this);
-        registerReceiver(myCurrentPosition, filter);
+//        IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
+//        filter.addCategory(Intent.CATEGORY_DEFAULT);
+//        myCurrentPosition = new SelfPositionReceiver(ArViewActivity.this);
+//        registerReceiver(myCurrentPosition, filter);
+
+        myCurrentLocation = new MyCurrentLocation(this,this,this);
+        myCurrentLocation.buildGoogleApiClient(this);
+        myCurrentLocation.start();
 
         //set up sensor receiver
         myCurrentAzimuth = new MyCurrentAzimuth(this, this);
@@ -255,12 +294,13 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * */
     private void setupLayout() {
         descriptionTextView = (TextView) findViewById(R.id.cameraTextView);
+        msgTextView = (TextView)findViewById(R.id.msg);
+        disTextView = (TextView)findViewById(R.id.distance);
 
         getWindow().setFormat(PixelFormat.UNKNOWN);
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.cameraview);
         mSurfaceHolder = surfaceView.getHolder();
         mSurfaceHolder.addCallback(this);
-        //mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
     }
 
     /**
@@ -277,16 +317,29 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      * This function upgrades user's real-time location
      * and meanwhile updates description
      * */
-    @Override
-    public void onSelfLocationChanged(Location location) {
+//    @Override
+//    public void onSelfLocationChanged(Location location) {
+//
+//        mMyLatitude = location.getLatitude();
+//        mMyLongitude = location.getLongitude();
+//        mAzimuthTeoretical = calculateTeoreticalAzimuth();
+//
+//
+//        Toast.makeText(this,"latitude: "+location.getLatitude()+
+//                " longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
+//        updateDescription();
+//    }
 
+    @Override
+    public void onLocationChanged(Location location) {
         mMyLatitude = location.getLatitude();
         mMyLongitude = location.getLongitude();
         mAzimuthTeoretical = calculateTeoreticalAzimuth();
-
-        Toast.makeText(this,"latitude: "+location.getLatitude()+
-                " longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
+        //show new LatLng
+        Toast.makeText(this,"latitude: "+location.getLatitude()+" longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
+        //update location in textView
         updateDescription();
+        updateDistanceText();
     }
 
     /**
@@ -300,15 +353,33 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         mAzimuthTeoretical = calculateTeoreticalAzimuth();
 
         pointerIcon = (ImageView) findViewById(R.id.icon);
+        rightIcon = (ImageView) findViewById(R.id.right);
+        leftIcon = (ImageView) findViewById(R.id.left);
 
         double minAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(0);
         double maxAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(1);
 
-        //if within the accuracy, show ICON
+        //if within the range, show ICON
         if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal)) {
             pointerIcon.setVisibility(View.VISIBLE);
+            rightIcon.setVisibility(View.INVISIBLE);
+            leftIcon.setVisibility(View.INVISIBLE);
+            updateMsg(CORRECT_MSG);
+
         } else {
             pointerIcon.setVisibility(View.INVISIBLE);
+            if (calculator.turnRight(mAzimuthTeoretical,mAzimuthReal)){
+                rightIcon.setVisibility(View.INVISIBLE);
+
+                leftIcon.setVisibility(View.VISIBLE);
+                updateMsg(TURN_LEFT_MSG);
+            }
+            else{
+                leftIcon.setVisibility(View.INVISIBLE);
+
+                rightIcon.setVisibility(View.VISIBLE);
+                updateMsg(TURN_RIGHT_MSG);
+            }
         }
 
         updateDescription();
@@ -390,5 +461,4 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
             // permissions this app might request
         }
     }
-
 }

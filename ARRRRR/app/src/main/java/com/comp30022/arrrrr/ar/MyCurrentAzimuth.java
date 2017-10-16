@@ -8,6 +8,7 @@ import android.hardware.SensorManager;
 
 /**
  * Created by krzysztofjackowski on 24/09/15.
+ * modified by Xiaoyu Guo
  */
 public class MyCurrentAzimuth implements SensorEventListener {
 
@@ -16,6 +17,8 @@ public class MyCurrentAzimuth implements SensorEventListener {
     private int azimuthFrom = 0;
     private int azimuthTo = 0;
     private OnAzimuthChangedListener mAzimuthListener;
+
+
     Context mContext;
 
     public MyCurrentAzimuth(OnAzimuthChangedListener azimuthListener, Context context) {
@@ -25,6 +28,8 @@ public class MyCurrentAzimuth implements SensorEventListener {
 
     public void start(){
         sensorManager = (SensorManager) mContext.getSystemService(mContext.SENSOR_SERVICE);
+
+        //register rotation sensor
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         sensorManager.registerListener(this, sensor,
                 SensorManager.SENSOR_DELAY_UI);
@@ -34,9 +39,9 @@ public class MyCurrentAzimuth implements SensorEventListener {
         sensorManager.unregisterListener(this);
     }
 
-    public void setOnShakeListener(OnAzimuthChangedListener listener) {
-        mAzimuthListener = listener;
-    }
+//    public void setOnShakeListener(OnAzimuthChangedListener listener) {
+//        mAzimuthListener = listener;
+//    }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
