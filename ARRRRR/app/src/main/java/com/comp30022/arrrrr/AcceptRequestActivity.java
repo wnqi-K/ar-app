@@ -60,10 +60,10 @@ public class AcceptRequestActivity extends AppCompatActivity {
         mAcceptButton = (Button) findViewById(R.id.accept_button);
         mRejectButton = (Button) findViewById(R.id.reject_button);
         mUserAvatar = (ImageView) mCardView.findViewById(R.id.request_user_avatar);
-        mUserName = (TextView)mCardView.findViewById(R.id.request_user_name);
-        mUserEmail = (TextView)mCardView.findViewById(R.id.request_user_email);
-        mUserGender = (TextView)mCardView.findViewById(R.id.request_user_gender);
-        mUserAddress = (TextView)mCardView.findViewById(R.id.request_user_address);
+        mUserName = (TextView) mCardView.findViewById(R.id.request_user_name);
+        mUserEmail = (TextView) mCardView.findViewById(R.id.request_user_email);
+        mUserGender = (TextView) mCardView.findViewById(R.id.request_user_gender);
+        mUserAddress = (TextView) mCardView.findViewById(R.id.request_user_address);
 
         // Display info carried by the intent.
         Bitmap avatar;
@@ -73,20 +73,20 @@ public class AcceptRequestActivity extends AppCompatActivity {
             avatar = BitmapFactory.decodeResource(getResources(), R.drawable.portrait_photo);
         }
         mUserAvatar.setImageBitmap(avatar);
-        mUserName.setText("Name:   " + senderName);
-        mUserEmail.setText("Email:   " + senderEmail);
-        mUserGender.setText("Gender:   " + senderGender);
-        mUserAddress.setText("Address:   " + senderAddress);
+        mUserName.setText(Constants.NAME_PREFIX + senderName);
+        mUserEmail.setText(Constants.EMAIL_PREFIX + senderEmail);
+        mUserGender.setText(Constants.GENDER_PREFIX + senderGender);
+        mUserAddress.setText(Constants.ADDRESS_PREFIX + senderAddress);
 
         // Update the database if accepting.
         mAcceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Check if is friends first.
-                if(isAlreadyFriend(senderUid)){
+                if (isAlreadyFriend(senderUid)) {
                     Toast.makeText(getBaseContext(), ALREADY_FRIEND_MESSAGE,
                             Toast.LENGTH_LONG).show();
-                }else {
+                } else {
                     updateDatabase(senderUid);
                 }
                 goBackToMainView();
@@ -111,8 +111,8 @@ public class AcceptRequestActivity extends AppCompatActivity {
     private boolean isAlreadyFriend(String senderUid) {
         Boolean isFriend = false;
         ArrayList<User> friends = (ArrayList<User>) UserManagement.getInstance().getFriendList();
-        for(User user : friends){
-            if (user.getUid() == senderUid){
+        for (User user : friends) {
+            if (user.getUid() == senderUid) {
                 isFriend = true;
                 break;
             }

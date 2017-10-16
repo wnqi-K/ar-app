@@ -20,14 +20,14 @@ import com.google.firebase.auth.FirebaseAuth;
 /**
  * Main view of the application after user has logged in. This contains three
  * fragments, friends map and settings.
- *
+ * <p>
  * Created by Wenqiang Kuang on 1/09/2017.
  */
 
 public class MainViewActivity extends AppCompatActivity implements
         MapContainerFragment.OnMapContainerFragmentInteractionListener,
         SettingFragment.OnSettingFragmentInteractionListener,
-        FriendsFragment.OnListFragmentInteractionListener{
+        FriendsFragment.OnListFragmentInteractionListener {
 
     private RequestFirebaseUsers mRequestUsers;
     private UserManagement mUserManagement;
@@ -35,6 +35,7 @@ public class MainViewActivity extends AppCompatActivity implements
     public UserManagement getUserManagement() {
         return mUserManagement;
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +50,7 @@ public class MainViewActivity extends AppCompatActivity implements
         switchToFragmentHome();
 
         // Get all users from database
-        if(FirebaseAuth.getInstance()!=null){
+        if (FirebaseAuth.getInstance() != null) {
             mUserManagement = UserManagement.getInstance();
             mRequestUsers = new RequestFirebaseUsers(mUserManagement);
         }

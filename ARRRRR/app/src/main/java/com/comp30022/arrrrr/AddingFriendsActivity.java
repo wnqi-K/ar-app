@@ -72,10 +72,10 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
                 ImageView userAvatar = (ImageView) mCardView.findViewById(R.id.friend_list_user_avatar);
                 Button addFriend = (Button) mCardView.findViewById(R.id.add_friend_button);
 
-                userName.setText("Name:   " + onClickUser.getUsername());
-                userEmail.setText("Email:   " + onClickUser.getEmail());
-                userGender.setText("Gender:   " + onClickUser.getGender());
-                userAddress.setText("Address:   " + onClickUser.getAddress());
+                userName.setText(Constants.NAME_PREFIX + onClickUser.getUsername());
+                userEmail.setText(Constants.EMAIL_PREFIX + onClickUser.getEmail());
+                userGender.setText(Constants.GENDER_PREFIX + onClickUser.getGender());
+                userAddress.setText(Constants.ADDRESS_PREFIX + onClickUser.getAddress());
 
                 String userID = onClickUser.getUid();
                 Bitmap avatar;
