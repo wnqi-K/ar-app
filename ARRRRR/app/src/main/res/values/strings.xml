@@ -57,7 +57,7 @@
     <string name="enter_email_account">Please enter the email account.</string>
     <string name="friend_info_window_click_hint">(Tap this window to ...)</string>
     <string name="add_friend">Add</string>
-    <string name="text_fetching_address">Unknown</string>
+    <string name="text_fetching_address">Address unidentified</string>
     <string name="label_current_location">Current Location</string>
     <string name="search_history">Search History</string>
     <string name="Username">Username</string>
@@ -91,6 +91,8 @@
 
     <string name="account_privacy">Account Privacy</string>
     <string name="friend_request_message">Sends you a friend request.</string>
+    <string name="SAVED_LOCATION_TIME">SAVE_LOCATION_TIME</string>
+    <string name="SAVED_SELF_ADDRESS">SAVED_SELF_ADDRESS</string>
 
     <string-array name="nearby_filter_options">
         <item>&lt;2km</item>

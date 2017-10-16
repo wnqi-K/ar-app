@@ -44,6 +44,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.w3c.dom.Text;
+
+import java.sql.Time;
 import java.util.HashMap;
 
 /**
@@ -85,6 +88,8 @@ public class MapUIManager implements
     private Fragment mFragment;
     private HashMap<String, Bitmap> mFriendIcons;
     private String mBufferFriendUid;
+    private Location mCurrentLocation;
+    private String mCurrentAddress;
 
     public MapUIManager(Fragment fragment, AppCompatActivity context, GoogleMap googleMap) {
         mContext = context;
@@ -92,6 +97,7 @@ public class MapUIManager implements
         mFragment = fragment;
         mFriendMarkers = new HashMap<>();
         mFriendIcons = new HashMap<>();
+        mCurrentAddress = "";
     }
 
     @Override
@@ -170,6 +176,7 @@ public class MapUIManager implements
     public void onAddressFetchSuccess(Address address, Location location) {
         TextView textViewAddress = (TextView) mContext.findViewById(R.id.text_view_address);
         textViewAddress.setText(address.getAddressLine(0));
+        mCurrentAddress = address.getAddressLine(0);
         hideProgressBarLocating();
     }
 
@@ -230,6 +237,8 @@ public class MapUIManager implements
         mGoogleMap.setOnInfoWindowClickListener(this);
         mGoogleMap.setOnCameraMoveListener(this);
         mGoogleMap.setOnMyLocationButtonClickListener(this);
+
+        showProgressBarLocating("Locating...");
         restorePrevMapView();
         requestToGetCurrData();
 
@@ -248,36 +257,12 @@ public class MapUIManager implements
      */
     @Override
     public void onSelfLocationChanged(Location location) {
-        FetchAddressIntentService.requestFetchAddress(mContext, location);
-        showProgressBarLocating();
-
+        mCurrentLocation = location;
         LatLng currLatLng = locationToLatLng(location);
+        updateSelfMarker(currLatLng);
 
-        if (mSelfCircle == null) {
-            mSelfCircle = mGoogleMap.addCircle(new CircleOptions()
-                    .center(currLatLng)
-                    .radius(CIRCLE_RADIUS)
-                    .strokeColor(CIRCLE_STROKE_COLOR)
-                    .fillColor(CIRCLE_FILL_COLOR)
-                    .strokeWidth(CIRCLE_STROKE_WIDTH));
-        } else {
-            mSelfCircle.setCenter(currLatLng);
-        }
-
-        if (mSelfMarker == null) {
-            mSelfMarker = mGoogleMap.addMarker(new MarkerOptions()
-                    .title("My position")
-                    .position(currLatLng)
-                    .icon(MapUIManager.bitmapDescriptorFromVector(
-                            mContext,
-                            R.drawable.ic_radio_button_checked_dodgeblue_24dp,
-                            1))
-                    .anchor(0.5f, 0.5f));
-        } else {
-            mSelfMarker.setPosition(currLatLng);
-        }
-
-        animateCameraToPosition(currLatLng);
+        FetchAddressIntentService.requestFetchAddress(mContext, location);
+        showProgressBarLocating("Fetching address...");
     }
 
     @Override
@@ -318,6 +303,48 @@ public class MapUIManager implements
                                     HashMap<String, GeoLocationInfo> geoLocationInfos) {
         mUserGeoLocations = geoLocations;
         mUserGeoLocationInfos = geoLocationInfos;
+    }
+
+    /**
+     * Update self address on the text view.
+     * @param address new address
+     */
+    private void updateSelfAddress(String address) {
+        TextView textView = (TextView) mContext.findViewById(R.id.text_view_address);
+        textView.setText(address);
+    }
+
+    /**
+     * Update self marker's location.
+     * @param latLng new location
+     */
+    private void updateSelfMarker(LatLng latLng) {
+        if (mSelfCircle == null) {
+            mSelfCircle = mGoogleMap.addCircle(new CircleOptions()
+                    .center(latLng)
+                    .radius(CIRCLE_RADIUS)
+                    .strokeColor(CIRCLE_STROKE_COLOR)
+                    .fillColor(CIRCLE_FILL_COLOR)
+                    .strokeWidth(CIRCLE_STROKE_WIDTH));
+        } else {
+            mSelfCircle.setCenter(latLng);
+        }
+
+        if (mSelfMarker == null) {
+            mSelfMarker = mGoogleMap.addMarker(new MarkerOptions()
+                    .title("My position")
+                    .position(latLng)
+                    .icon(MapUIManager.bitmapDescriptorFromVector(
+                            mContext,
+                            R.drawable.ic_radio_button_checked_dodgeblue_24dp,
+                            1))
+                    .anchor(0.5f, 0.5f));
+        } else {
+            mSelfMarker.setPosition(latLng);
+        }
+
+        animateCameraToPosition(latLng);
+        hideProgressBarLocating();
     }
 
     /**
@@ -392,9 +419,11 @@ public class MapUIManager implements
     /**
      * Show progress bar for locating process.
      */
-    private void showProgressBarLocating() {
+    private void showProgressBarLocating(String hint) {
         ProgressBar progressBar = (ProgressBar) mContext.findViewById(R.id.progress_bar_locating);
+        TextView textView = (TextView) mContext.findViewById(R.id.text_view_address);
         progressBar.setVisibility(View.VISIBLE);
+        textView.setText(hint);
     }
 
     /**
@@ -412,9 +441,25 @@ public class MapUIManager implements
         SharedPreferences sharedPref = PreferencesAccess.getSettingsPreferences(mFragment.getActivity());
         double latitude = sharedPref.getFloat(mFragment.getString(R.string.PREF_KEY_CAMERA_LAT), (float) DEFAULT_INI_LAT);
         double longitude = sharedPref.getFloat(mFragment.getString(R.string.PREF_KEY_CAMERA_LONG), (float) DEFAULT_INT_LONG);
+        long locationTime = sharedPref.getLong(mContext.getString(R.string.SAVED_LOCATION_TIME), 0);
+        String address = sharedPref.getString(mContext.getString(R.string.SAVED_SELF_ADDRESS), "");
+
         LatLng currLatLng = new LatLng(latitude, longitude);
 
-        animateCameraToPosition(currLatLng);
+        // Restore map marker if previous location was retrieved at the time very close to now
+        if (locationTime != 0 && TimeUtil.isTimeCloseToNow(locationTime)) {
+            mCurrentLocation = new Location("");
+            mCurrentLocation.setLatitude(currLatLng.latitude);
+            mCurrentLocation.setLongitude(currLatLng.longitude);
+            mCurrentLocation.setTime(locationTime);
+            mCurrentAddress = address;
+
+            updateSelfMarker(currLatLng);
+            updateSelfAddress(address);
+        } else {
+            animateCameraToPosition(currLatLng);
+            updateSelfAddress("");
+        }
 
         if (latitude != DEFAULT_INI_LAT) {
             Log.v(TAG, "Last map view has been restored.");
@@ -454,6 +499,8 @@ public class MapUIManager implements
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putFloat(mFragment.getString(R.string.PREF_KEY_CAMERA_LAT), (float) mSelfMarker.getPosition().latitude);
             editor.putFloat(mFragment.getString(R.string.PREF_KEY_CAMERA_LONG), (float) mSelfMarker.getPosition().longitude);
+            editor.putLong(mContext.getString(R.string.SAVED_LOCATION_TIME), mCurrentLocation.getTime());
+            editor.putString(mContext.getString(R.string.SAVED_SELF_ADDRESS), mCurrentAddress);
             editor.apply();
         }
     }
