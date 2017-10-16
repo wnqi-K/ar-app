@@ -214,6 +214,10 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
                 + mMyLatitude + " longitude " + mMyLongitude);
     }
 
+    private void updateDistanceText(){
+        int dis= (int)GeoUtils.distance(mMyLatitude, mMyLongitude, mPoi.getPoiLatitude(),mPoi.getPoiLongitude());
+        disTextView.setText(dis+"m");
+    }
 
     /**
      * update the ar instruction text
@@ -291,6 +295,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     private void setupLayout() {
         descriptionTextView = (TextView) findViewById(R.id.cameraTextView);
         msgTextView = (TextView)findViewById(R.id.msg);
+        disTextView = (TextView)findViewById(R.id.distance);
 
         getWindow().setFormat(PixelFormat.UNKNOWN);
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.cameraview);
@@ -334,7 +339,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         Toast.makeText(this,"latitude: "+location.getLatitude()+" longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
         //update location in textView
         updateDescription();
-        updateDistance();
+        updateDistanceText();
     }
 
     /**
