@@ -31,19 +31,18 @@ public class SingleUserLocationReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String uid = intent.getStringExtra(LocationSharingService.PARAM_OUT_UID);
-        String distance = intent.getStringExtra(LocationSharingService.PARAM_OUT_DISTANCE);
-        String time = intent.getStringExtra(LocationSharingService.PARAM_OUT_TIME);
+        long time = intent.getLongExtra(LocationSharingService.PARAM_OUT_TIME, 0);
         LatLng latLng = intent.getParcelableExtra(LocationSharingService.PARAM_OUT_LATLNG);
 
         // Notify listener.
-        mListener.onReceivingSingleUserLocation(uid, latLng, distance, time);
+        mListener.onReceivingSingleUserLocation(uid, latLng, time);
     }
 
     /**
      * Required interface in order to use this receiver.
      */
     public interface SingleUserLocationListener {
-        void onReceivingSingleUserLocation(String uid, LatLng latLng, String distance, String time);
+        void onReceivingSingleUserLocation(String uid, LatLng latLng, long time);
     }
 
     /**
