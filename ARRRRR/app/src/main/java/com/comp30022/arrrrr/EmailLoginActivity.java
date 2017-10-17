@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.comp30022.arrrrr.utils.Constants;
 import com.comp30022.arrrrr.utils.LoginHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,15 +26,18 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.UUID;
+
 /**
  * Login via email account, lead to registration if no account exists.
  *
- * Created by Wenqiang Kuang on 26/08/2017.
+ * @author Wenqiang Kuang, Dafu Ai
  */
 public class EmailLoginActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String TAG = "EmailPassword";
     private static final String PROCESS_DIALOG_MESSAGE = "Loading...";
     public static final String AUTHENTICATION_FAILED = "Authentication failed.";
+    public static final String LOGIN_FAILED_OTHER = "Failed to logged in.";
     public static final String LOGGED_IN = "loggedIn";
     public static final String DUPLICATE_LOGIN_MESSAGE = "This account has been logged in.";
 
@@ -41,6 +45,8 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
     private EditText mPasswordField;
     private ProgressDialog mProgressDialog;
     private FirebaseAuth mAuth;
+    private String mFreshBuffer;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -67,6 +73,9 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         }*/
     }
 
+    /**
+     * Do sign in action with given email and password.
+     */
     private void signIn(String email, String password) {
         Log.d(TAG, "signIn:" + email);
         if (!LoginHelper.validateForm(mEmailField,mPasswordField)) {
@@ -75,27 +84,100 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
 
         showProgressDialog();
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, onSignInCompleteListener);
+                .addOnCompleteListener(mOnValidationCompleteListener);
     }
 
-    private OnCompleteListener onSignInCompleteListener = new OnCompleteListener<AuthResult>() {
+    /**
+     * Handles when a sign in (credential validation) action has completed.
+     * BUT the entire login process has not finished yet.
+     * We need to check for duplicate login!
+     */
+    private OnCompleteListener mOnValidationCompleteListener = new OnCompleteListener<AuthResult>() {
         @Override
         public void onComplete(@NonNull final Task<AuthResult> task) {
             if (task.isSuccessful()) {
-                Log.d(TAG, "onComplete.");
-                FirebaseUser user = mAuth.getCurrentUser();
-                updateUI(user);
+                Log.d(TAG, "signInWithEmail: Credentials correct, now checking duplicate login...");
+                checkLoginStatus();
             }
             else {
                 // Does not pass the authentication, display a message to the user.
-                Log.w(TAG, "signInWithEmail:failure", task.getException());
-                Toast.makeText(EmailLoginActivity.this, AUTHENTICATION_FAILED,
-                        Toast.LENGTH_SHORT).show();
-                updateUI(null);
+                Log.w(TAG, "signInWithEmail: Failure", task.getException());
+                updateUIByLoginFailure(AUTHENTICATION_FAILED);
             }
-            hideProgressDialog();
+        }
+    };
+
+    /**
+     * Handles when we complete login status check (including adding login status lock)
+     */
+    private OnCompleteListener mOnLoginProtectionCompleteListener = new OnCompleteListener() {
+        @Override
+        public void onComplete(@NonNull Task task) {
+            if (task.isSuccessful()) {
+                Log.v(TAG, "Login status locked has been applied. Login success");
+                updateUIByLoginSuccess();
+            } else {
+                Log.w(TAG, "Failed to update login status lock, forced logging out...");
+                updateUIByLoginFailure(LOGIN_FAILED_OTHER);
+            }
+        }
+    };
+
+    private ValueEventListener mLoginStatusValueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            String freshIdentifier = (String) dataSnapshot.child(Constants.ARG_FRESH).getValue();
+
+            if (freshIdentifier.equals(mFreshBuffer)) {
+                // Only trust this data if it is fresh
+                Boolean loggedIn = dataSnapshot.child(Constants.ARG_LOCK).getValue(Boolean.class);
+                if(loggedIn == null || !loggedIn){
+                    Log.d(TAG, "No duplicate login status found. Permit to login.");
+                    getLoginStatusRef().child(Constants.ARG_LOCK).setValue(true)
+                            .addOnCompleteListener(mOnLoginProtectionCompleteListener);
+                    Log.d(TAG, "Now updating login security lock.");
+                }else{
+                    Log.d(TAG, "Another user has already logged in. Login failed.");
+                    handleDuplicateLogin();
+                }
+            } else {
+                // If data not fresh, ask for value again
+                getLoginStatusRef().addListenerForSingleValueEvent(mLoginStatusValueEventListener);
+            }
         }
 
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            Log.d(TAG, "Login status check: failed to fetch data. ");
+
+            // This is important! Still sign out user if check fails for other reaseons.
+            mAuth.signOut();
+            updateUIByLoginFailure(LOGIN_FAILED_OTHER);
+        }
+    };
+
+    /**
+     * Get common database reference to login status value field.
+     */
+    private DatabaseReference getLoginStatusRef() {
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseUser user = mAuth.getCurrentUser();
+        return firebaseDatabase.getReference().
+                child(Constants.ARG_USERS).child(user.getUid()).child(Constants.ARG_STATUS);
+
+    }
+
+    private OnCompleteListener mOnKeepFreshCompleteListener = new OnCompleteListener() {
+        @Override
+        public void onComplete(@NonNull Task task) {
+
+            if (task.isSuccessful()) {
+                getLoginStatusRef().addListenerForSingleValueEvent(mLoginStatusValueEventListener);
+            } else {
+                Log.w(TAG, "Failed to use fresh lock data, login failed.");
+                updateUIByLoginFailure(LOGIN_FAILED_OTHER);
+            }
+        }
     };
 
     /**
@@ -106,56 +188,42 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
     private void checkLoginStatus(){
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
+
         final DatabaseReference statusReference = firebaseDatabase.getReference().
                 child(Constants.ARG_USERS).child(user.getUid()).child(Constants.ARG_STATUS);
 
-        statusReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String status = dataSnapshot.getValue(String.class);
-                if(status == null){
-                    statusReference.setValue(LOGGED_IN);
-                    Log.d(TAG, "CAN LOGIN");
-                }else{
-                    Log.d(TAG, "CANNOT LOGIN");
-                    duplicateLogin();
-                }
-            }
+        mFreshBuffer = UUID.randomUUID().toString();
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "Fail to fetch data. ");
-            }
-        });
+        statusReference.keepSynced(true);
+        statusReference.child(Constants.ARG_FRESH)
+                .setValue(mFreshBuffer)
+                .addOnCompleteListener(mOnKeepFreshCompleteListener);
     }
 
     /**
-     * This method is Update the interface, if authentication passes, go to the mainView.
+     * Update UI after entire login process is complete.
      */
-    public void updateUI(FirebaseUser user) {
+    public void updateUIByLoginSuccess() {
         hideProgressDialog();
-        if (user != null) {
-            checkLoginStatus();
-            if(mAuth != null){
-                Log.d(TAG, "Still enter");
-                Intent intent = new Intent(this, MainViewActivity.class);
-                startActivity(intent);
-            }
-        } else {
-            findViewById(R.id.email_password_fields).setVisibility(View.VISIBLE);
-        }
+        Intent intent = new Intent(this, MainViewActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * Update UI when login process fails.
+     */
+    public void updateUIByLoginFailure(String toastMessage) {
+        hideProgressDialog();
+        Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show();
+        findViewById(R.id.email_password_fields).setVisibility(View.VISIBLE);
     }
 
     /**
      * Force the duplicated user to logout. Go back to the MainActivity and show notification.
      */
-    private void duplicateLogin() {
+    private void handleDuplicateLogin() {
         mAuth.signOut();
-        Log.d(TAG, "EnterDuplicate");
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        Toast.makeText(this, DUPLICATE_LOGIN_MESSAGE, Toast.LENGTH_LONG).show();
-        Log.d(TAG, "GoBackActivity");
+        updateUIByLoginFailure(DUPLICATE_LOGIN_MESSAGE);
     }
 
     @Override
@@ -198,6 +266,6 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
 
     @RestrictTo(RestrictTo.Scope.TESTS)
     public OnCompleteListener getOnSignInCompleteListener() {
-        return onSignInCompleteListener;
+        return mOnValidationCompleteListener;
     }
 }
