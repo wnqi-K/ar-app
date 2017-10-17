@@ -43,7 +43,7 @@ public class ArUIHelper {
                 + " metres around you.\n"
                 + Constants.ALTER_QUESTION);
 
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No.",
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();

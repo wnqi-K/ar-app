@@ -51,7 +51,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     private static final String TAG = "ArViewActivity";
 
     public static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
-    public static final int DISTANCE_POP_UP_BOUND = 50;
+    public static final int DISTANCE_POP_UP_BOUND = 30;
 
     /**
      * Camera Class to get camera Preview
@@ -333,27 +333,18 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         double minAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(0);
         double maxAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(1);
 
-        //if within the range, show ICON
         if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal)) {
-            //UIHelper.setVisibility(pointerIcon, rightIcon, leftIcon);
-            pointerIcon.setVisibility(View.VISIBLE);
-            rightIcon.setVisibility(View.INVISIBLE);
-            leftIcon.setVisibility(View.INVISIBLE);
+            UIHelper.setVisibility(pointerIcon, rightIcon, leftIcon); //if within the range, show ICON
             updateMsg(Constants.CORRECT_MSG);
 
         } else {
-            pointerIcon.setVisibility(View.INVISIBLE);
             if (calculator.turnLeft(mAzimuthTeoretical, mAzimuthReal)) {
-                rightIcon.setVisibility(View.INVISIBLE);
 
-                leftIcon.setVisibility(View.VISIBLE);
-                //UIHelper.setVisibility(leftIcon, rightIcon, pointerIcon);
+                UIHelper.setVisibility(leftIcon, rightIcon, pointerIcon); //if turn left
                 updateMsg(Constants.TURN_LEFT_MSG);
-            } else {
-                leftIcon.setVisibility(View.INVISIBLE);
-
-                rightIcon.setVisibility(View.VISIBLE);
-                //UIHelper.setVisibility(rightIcon, pointerIcon, leftIcon);
+            }
+            else {
+                UIHelper.setVisibility(rightIcon, pointerIcon, leftIcon); //else turn right
                 updateMsg(Constants.TURN_RIGHT_MSG);
             }
         }
