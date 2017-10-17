@@ -28,12 +28,20 @@ public class ArUIHelper {
     public ArUIHelper() {
     }
 
+    /**
+     * This method help control the visibility of Ar View Icon
+     * */
     public void setVisibility(ImageView vis, ImageView invis1, ImageView invis2) {
         vis.setVisibility(View.VISIBLE);
         invis1.setVisibility(View.INVISIBLE);
         invis2.setVisibility(View.INVISIBLE);
     }
 
+    /**
+     * this method is called in ArViewActivity when
+     * the POI is close enough to user
+     * it pops up a dialog to ask user whether to exit the Ar View
+     * */
     public void showAlert(Context context, final Activity activity, AugmentedPOI POI) {
 
         Log.i(TAG, "showAlter is called.");
