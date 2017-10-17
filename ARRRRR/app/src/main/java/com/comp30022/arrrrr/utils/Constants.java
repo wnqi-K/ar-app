@@ -56,4 +56,8 @@ public class Constants {
     public static final String ADDRESS_PREFIX = "Address:   ";
 
     public static final CharSequence ADD_TO_DATABASE_SUCCESS = "Success";
+
+    public static final String CORRECT_MSG = "Correct Direction";
+    public static final String TURN_RIGHT_MSG = "Slowly Rotate to Right";
+    public static final String TURN_LEFT_MSG = "Slowly Rotate to Left";
 }
