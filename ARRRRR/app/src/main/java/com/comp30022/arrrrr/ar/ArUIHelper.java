@@ -21,9 +21,11 @@ import java.util.logging.Logger;
  * Created by xiaoyuguo on 17/10/2017.
  */
 
-public class ArUIHelper {
+/**
+ * This is a class that help manage ArViewActivity's UI
+ * */
 
-    private static final String TAG = "ArUIHelper";
+public class ArUIHelper {
 
     public ArUIHelper() {
     }
@@ -44,7 +46,6 @@ public class ArUIHelper {
      * */
     public void showAlert(Context context, final Activity activity, AugmentedPOI POI) {
 
-        Log.i(TAG, "showAlter is called.");
         AlertDialog alertDialog = new AlertDialog.Builder(context).create();
         alertDialog.setTitle("Alert");
         alertDialog.setMessage(POI.getPoiName() + " is only " + ArViewActivity.DISTANCE_POP_UP_BOUND
