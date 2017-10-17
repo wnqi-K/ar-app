@@ -113,6 +113,11 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
      */
     private CamPermissionHelper camPerm;
 
+    /**
+     * Ar UI helper
+     */
+    private ArUIHelper UIHelper;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -283,6 +288,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     private void setupUtil() {
         this.calculator = new AziCalculator();
         this.camPerm = new CamPermissionHelper();
+        this.UIHelper = new ArUIHelper();
     }
 
     /** --------------------------------- interfaces implementation ----------------------------------------*/
@@ -323,22 +329,25 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
         //if within the range, show ICON
         if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal)) {
-            pointerIcon.setVisibility(View.VISIBLE);
-            rightIcon.setVisibility(View.INVISIBLE);
-            leftIcon.setVisibility(View.INVISIBLE);
+            UIHelper.setVisibility(pointerIcon, rightIcon, leftIcon);
+//            pointerIcon.setVisibility(View.VISIBLE);
+//            rightIcon.setVisibility(View.INVISIBLE);
+//            leftIcon.setVisibility(View.INVISIBLE);
             updateMsg(Constants.CORRECT_MSG);
 
         } else {
-            pointerIcon.setVisibility(View.INVISIBLE);
-            if (calculator.turnRight(mAzimuthTeoretical, mAzimuthReal)) {
-                rightIcon.setVisibility(View.INVISIBLE);
-
-                leftIcon.setVisibility(View.VISIBLE);
+//            pointerIcon.setVisibility(View.INVISIBLE);
+            if (calculator.turnLeft(mAzimuthTeoretical, mAzimuthReal)) {
+//                rightIcon.setVisibility(View.INVISIBLE);
+//
+//                leftIcon.setVisibility(View.VISIBLE);
+                UIHelper.setVisibility(leftIcon, rightIcon, pointerIcon);
                 updateMsg(Constants.TURN_LEFT_MSG);
             } else {
-                leftIcon.setVisibility(View.INVISIBLE);
-
-                rightIcon.setVisibility(View.VISIBLE);
+//                leftIcon.setVisibility(View.INVISIBLE);
+//
+//                rightIcon.setVisibility(View.VISIBLE);
+                UIHelper.setVisibility(rightIcon, pointerIcon, leftIcon);
                 updateMsg(Constants.TURN_RIGHT_MSG);
             }
         }
