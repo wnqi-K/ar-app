@@ -1,7 +1,7 @@
 package com.comp30022.arrrrr;
 
 import com.comp30022.arrrrr.ar.*;
-import com.comp30022.arrrrr.receivers.*;
+import com.comp30022.arrrrr.database.UserManagement;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -19,14 +19,12 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.content.IntentFilter;
 import android.content.Intent;
 
 import java.io.IOException;
 
-import com.comp30022.arrrrr.utils.ServiceManager;
+import com.comp30022.arrrrr.utils.Constants;
 import com.firebase.geofire.util.GeoUtils;
-import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.model.LatLng;
 
 
@@ -40,13 +38,11 @@ import com.google.android.gms.maps.model.LatLng;
  * 2. show the icon and distance between the destination when the
  * azimuth angle is within the right range
  * 3. Azimuth calculation(steps are listed below):
- *            i. get the GPS location of the device and destination point
- *            ii. calculate the theoretical azimuth based on GPS data
- *            iii. get the real azimuth of the device
- *            iv. compare both azimuths based on accuracy and show AR icon
+ * i. get the GPS location of the device and destination point
+ * ii. calculate the theoretical azimuth based on GPS data
+ * iii. get the real azimuth of the device
+ * iv. compare both azimuths based on accuracy and show AR icon
  **/
-
-//SelfPositionReceiver.SelfLocationListener,
 
 public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.Callback,
         OnLocationChangedListener, OnAzimuthChangedListener,
@@ -55,27 +51,21 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     private static final String TAG = "ArViewActivity";
 
     public static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
-    public static final String UID_Key = "UIDARKEY";
-    public static final String LATLNG_Key = "LATLNGARKEY";
-    public static final String ALLOW_KEY = "ALLOWED";
-
-    private static final String CORRECT_MSG = "Correct Direction";
-    private static final String TURN_RIGHT_MSG = "Slowly Rotate to Right";
-    private static final String TURN_LEFT_MSG = "Slowly Rotate to Left";
+    public static final int DISTANCE_POP_UP_BOUND = 30;
 
     /**
      * Camera Class to get camera Preview
-     * */
+     */
     private Camera mCamera;
 
     /**
      * SurfaceHolder is to track to surface layout
-     * */
+     */
     private SurfaceHolder mSurfaceHolder;
 
     /**
      * boolean value to track whether the camera is on
-     * */
+     */
     private boolean isCameraviewOn = false;
 
     /**
@@ -85,22 +75,22 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     /**
      * amzimuth factors
-     * */
+     */
     private double mAzimuthReal = 0; //my real azimuth
     private double mAzimuthTeoretical = 0; //friend's azimuth
     private MyCurrentAzimuth myCurrentAzimuth; // my azimuth listener
 
     /**
      * location factors
-     * */
+     */
     private double mMyLatitude = 0;
     private double mMyLongitude = 0;
-    private SelfPositionReceiver myCurrentPosition;
     private MyCurrentLocation myCurrentLocation;
+    private int distance = 0;
 
     /**
      * rendering view object
-     * */
+     */
     public TextView descriptionTextView;
     public TextView msgTextView;
     public TextView disTextView;
@@ -110,13 +100,18 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     /**
      * cohesive in amzimuth calculation
-     * */
+     */
     private AziCalculator calculator;
 
     /**
      * camera permission helper
-     * */
+     */
     private CamPermissionHelper camPerm;
+
+    /**
+     * Ar UI helper
+     */
+    private ArUIHelper UIHelper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -125,8 +120,8 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         // set up
-        setupListeners();
         setupLayout();
+        setupListeners();
         setupUtil();
 
         // get User's POI
@@ -136,15 +131,12 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     @Override
     protected void onResume() {
-            
+
         super.onResume();
-        //request camera permission
-        camPerm.requestPermission(ArViewActivity.this, ArViewActivity.this);
-        //start sensor listener
-        myCurrentAzimuth.start();
-        //start location listener
-        myCurrentLocation.start();
-        //ServiceManager.startPositioningService(this);
+
+        camPerm.requestPermission(ArViewActivity.this, ArViewActivity.this); //request camera permission
+        myCurrentAzimuth.start(); //start sensor listener
+        myCurrentLocation.start();  //start location listener
     }
 
     @Override
@@ -152,7 +144,6 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         super.onStop();
         myCurrentAzimuth.stop();
         myCurrentLocation.stop();
-        //unregisterReceivers();
     }
 
 
@@ -161,25 +152,24 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         super.onPause();
         myCurrentAzimuth.stop();
         myCurrentLocation.stop();
-        //unregisterReceivers();
     }
 
     /**
      * start Activity and get the POI
      */
 
-    public static void startActivity(Context context, String uid, LatLng latlng){
+    public static void startActivity(Context context, String uid, LatLng latlng) {
         Intent intent = new Intent(context, ArViewActivity.class);
 
-        intent.putExtra(UID_Key, uid);
-        intent.putExtra(LATLNG_Key, latlng);
+        intent.putExtra(Constants.UID_Key, uid);
+        intent.putExtra(Constants.LATLNG_Key, latlng);
 
         context.startActivity(intent);
     }
 
     /**
      * calculate the current theoretical azimuth
-     * */
+     */
     public double calculateTeoreticalAzimuth() {
         double dX = mPoi.getPoiLatitude() - mMyLatitude;
         double dY = mPoi.getPoiLongitude() - mMyLongitude;
@@ -207,80 +197,64 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     /**
      * update the text descirption when the location changes
-     * */
+     */
     private void updateDescription() {
         descriptionTextView.setText(mPoi.getPoiName() + " azimuthTeoretical "
                 + mAzimuthTeoretical + " azimuthReal " + mAzimuthReal + " latitude "
                 + mMyLatitude + " longitude " + mMyLongitude);
     }
 
-    private void updateDistanceText(){
-        int dis= (int)GeoUtils.distance(mMyLatitude, mMyLongitude, mPoi.getPoiLatitude(),mPoi.getPoiLongitude());
-        disTextView.setText(dis+"m");
+    /**
+     * update the distance between when the location changes
+     */
+    private void updateDistanceText() {
+        disTextView.setText(this.distance + "m");
     }
 
     /**
      * update the ar instruction text
-     * */
+     */
     private void updateMsg(String msg) {
         msgTextView.setText(msg);
     }
 
     /**
      * input POI here
-     * */
+     */
     private void setAugmentedRealityPoint() {
 
-        Intent prevIntent= getIntent();
-        String uid = prevIntent.getStringExtra(UID_Key);
-        LatLng latlng = prevIntent.getParcelableExtra(LATLNG_Key);
+        Intent prevIntent = getIntent();
+        String uid = prevIntent.getStringExtra(Constants.UID_Key);
+        LatLng latlng = prevIntent.getParcelableExtra(Constants.LATLNG_Key);
 
-        if (latlng == null){
-                //send a default location
-                mPoi = new AugmentedPOI(
-                "lweo27942jl3sdsk",      //uid
-                "Xiaoyu Guo",            //username
-                50.06169631,             //Latitude
-                19.93919566              //Longitude
-                );
+        if (latlng == null) {
+            //send a default location
+            mPoi = new AugmentedPOI(
+                    "lweo27942jl3sdsk",      //uid
+                    "Xiaoyu Guo",            //username
+                    50.06169631,             //Latitude
+                    19.93919566              //Longitude
+            );
             return;
-        }else{
+        } else {
             double lat = latlng.latitude;
             double lng = latlng.longitude;
-            //TODO: get userName
-            mPoi = new AugmentedPOI(uid, "Xiaoyu", lat, lng);
+            String name = UserManagement.getInstance().getUserDisplayName(uid); // add user name to POI
+
+            mPoi = new AugmentedPOI(uid, name, lat, lng);
             return;
         }
     }
 
-    /**
-     * Unregister receiver.
-     * Be called in onPause(), onStop()
-     * */
-
-    public  void unregisterReceivers(){
-        try{
-            unregisterReceiver(myCurrentPosition);
-        }catch (IllegalArgumentException e){
-            e.printStackTrace();
-        }
-        myCurrentAzimuth.stop();
-    }
 
     /** -------------------------------- Set Up Functions ---------------------------------------*/
 
     /**
      * set up listener: location and sensor
-     * */
+     */
     private void setupListeners() {
 
-        //set up location receiver
-//        IntentFilter filter = new IntentFilter(SelfPositionReceiver.ACTION_SELF_POSITION);
-//        filter.addCategory(Intent.CATEGORY_DEFAULT);
-//        myCurrentPosition = new SelfPositionReceiver(ArViewActivity.this);
-//        registerReceiver(myCurrentPosition, filter);
-
-        myCurrentLocation = new MyCurrentLocation(this,this,this);
+        myCurrentLocation = new MyCurrentLocation(this, this, this);
         myCurrentLocation.buildGoogleApiClient(this);
         myCurrentLocation.start();
 
@@ -291,11 +265,11 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     /**
      * set up surface layout
-     * */
+     */
     private void setupLayout() {
         descriptionTextView = (TextView) findViewById(R.id.cameraTextView);
-        msgTextView = (TextView)findViewById(R.id.msg);
-        disTextView = (TextView)findViewById(R.id.distance);
+        msgTextView = (TextView) findViewById(R.id.msg);
+        disTextView = (TextView) findViewById(R.id.distance);
 
         getWindow().setFormat(PixelFormat.UNKNOWN);
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.cameraview);
@@ -305,10 +279,11 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     /**
      * set up utils: calculator, camera preference helper
-     * */
+     */
     private void setupUtil() {
         this.calculator = new AziCalculator();
         this.camPerm = new CamPermissionHelper();
+        this.UIHelper = new ArUIHelper();
     }
 
     /** --------------------------------- interfaces implementation ----------------------------------------*/
@@ -316,37 +291,36 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     /**
      * This function upgrades user's real-time location
      * and meanwhile updates description
-     * */
-//    @Override
-//    public void onSelfLocationChanged(Location location) {
-//
-//        mMyLatitude = location.getLatitude();
-//        mMyLongitude = location.getLongitude();
-//        mAzimuthTeoretical = calculateTeoreticalAzimuth();
-//
-//
-//        Toast.makeText(this,"latitude: "+location.getLatitude()+
-//                " longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
-//        updateDescription();
-//    }
+     */
 
     @Override
     public void onLocationChanged(Location location) {
         mMyLatitude = location.getLatitude();
         mMyLongitude = location.getLongitude();
         mAzimuthTeoretical = calculateTeoreticalAzimuth();
-        //show new LatLng
-        Toast.makeText(this,"latitude: "+location.getLatitude()+" longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
-        //update location in textView
-        updateDescription();
-        updateDistanceText();
+        this.distance = (int)GeoUtils.distance(mMyLatitude, mMyLongitude,
+                mPoi.getPoiLatitude(), mPoi.getPoiLongitude());
+
+        boolean hasDisplayed = false;
+        if (this.distance < DISTANCE_POP_UP_BOUND){
+            if(!hasDisplayed){
+                UIHelper.showAlert(this, this, this.mPoi);
+                hasDisplayed = true;
+            }
+        }
+
+        Toast.makeText(this, "latitude: " + location.getLatitude() + " longitude: "  //show new LatLng
+                + location.getLongitude(), Toast.LENGTH_SHORT).show();
+
+        updateDescription();     //update location in textView
+        updateDistanceText();    //update new distance
     }
 
     /**
      * This function determine when to show the AR ICON.
      * When the orientation of the phone changes, we need to calculate accuracy,compare both angles
      * and if the current angle is within accuracy we can show a pointer on the screen.
-     * */
+     */
     @Override
     public void onAzimuthChanged(float azimuthChangedFrom, float azimuthChangedTo) {
         mAzimuthReal = azimuthChangedTo;
@@ -359,33 +333,28 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         double minAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(0);
         double maxAngle = calculator.calculateAzimuthAccuracy(mAzimuthTeoretical).get(1);
 
-        //if within the range, show ICON
         if (calculator.isBetween(minAngle, maxAngle, mAzimuthReal)) {
-            pointerIcon.setVisibility(View.VISIBLE);
-            rightIcon.setVisibility(View.INVISIBLE);
-            leftIcon.setVisibility(View.INVISIBLE);
-            updateMsg(CORRECT_MSG);
+            UIHelper.setVisibility(pointerIcon, rightIcon, leftIcon); //if within the range, show ICON
+            updateMsg(Constants.CORRECT_MSG);
 
         } else {
-            pointerIcon.setVisibility(View.INVISIBLE);
-            if (calculator.turnRight(mAzimuthTeoretical,mAzimuthReal)){
-                rightIcon.setVisibility(View.INVISIBLE);
+            if (calculator.turnLeft(mAzimuthTeoretical, mAzimuthReal)) {
 
-                leftIcon.setVisibility(View.VISIBLE);
-                updateMsg(TURN_LEFT_MSG);
+                UIHelper.setVisibility(leftIcon, rightIcon, pointerIcon); //if turn left
+                updateMsg(Constants.TURN_LEFT_MSG);
             }
-            else{
-                leftIcon.setVisibility(View.INVISIBLE);
-
-                rightIcon.setVisibility(View.VISIBLE);
-                updateMsg(TURN_RIGHT_MSG);
+            else {
+                UIHelper.setVisibility(rightIcon, pointerIcon, leftIcon); //else turn right
+                updateMsg(Constants.TURN_RIGHT_MSG);
             }
         }
 
         updateDescription();
     }
 
-    /** -------------------  implements SurfaceHolder.Callback Here -----------------------------*/
+    /**
+     * -------------------  implements SurfaceHolder.Callback Here -----------------------------
+     */
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width,
@@ -428,7 +397,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
 
     /**
      * implement ActivityCompat.OnRequestPermissionsResultCallback interface
-     * */
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -445,20 +414,11 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
                         if (showRationale) {
                             camPerm.showSettingsAlert(ArViewActivity.this, ArViewActivity.this);
                         } else if (!showRationale) {
-                            // user denied flagging NEVER ASK AGAIN
-                            // you can either enable some fall back,
-                            // disable features of your app
-                            // or open another dialog explaining
-                            // again the permission and directing to
-                            // the app setting
-                            camPerm.saveToPreferences(ArViewActivity.this, ALLOW_KEY, true);
+                            camPerm.saveToPreferences(ArViewActivity.this, Constants.ALLOW_KEY, true);
                         }
                     }
                 }
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 }
