@@ -239,7 +239,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         } else {
             double lat = latlng.latitude;
             double lng = latlng.longitude;
-            String name = UserManagement.getInstance().getUserDisplayName(uid);
+            String name = UserManagement.getInstance().getUserDisplayName(uid); // add user name to POI
 
             mPoi = new AugmentedPOI(uid, name, lat, lng);
             return;
