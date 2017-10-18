@@ -131,8 +131,6 @@ public class MapContainerFragment extends Fragment implements
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
-        // TODO: Consider saving current map view
     }
 
     @Override
@@ -143,7 +141,7 @@ public class MapContainerFragment extends Fragment implements
         ServiceManager.startLocationSharingService(getActivity());
 
         // Sets up permission checker.
-        mPermissionChecker = new LocationPermissionHelper((AppCompatActivity)getActivity());
+        mPermissionChecker = new LocationPermissionHelper((AppCompatActivity) getActivity());
         // 1. Check location permissions.
         Boolean permissionGranted = mPermissionChecker.checkPermissions();
 
@@ -193,7 +191,7 @@ public class MapContainerFragment extends Fragment implements
 
         mMapUIManager = new MapUIManager(this, (AppCompatActivity) getActivity(), googleMap);
         mMapUIManager.initializeMapUI();
-        
+
         // Do this after mMapUIManager has been initialized
         registerServerLocationsReceiver(mMapUIManager);
         registerPositioningReceiver(mMapUIManager);
@@ -278,7 +276,7 @@ public class MapContainerFragment extends Fragment implements
                 }
             } else {
                 // Permission denied.
-                Log.v(TAG,"" + R.string.permission_denied_explanation_location);
+                Log.v(TAG, "" + R.string.permission_denied_explanation_location);
 
                 Intent intent = new Intent();
                 intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -319,7 +317,6 @@ public class MapContainerFragment extends Fragment implements
     }
 
     public interface OnMapContainerFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onMapContainerFragmentInteraction(Uri uri);
     }
 }

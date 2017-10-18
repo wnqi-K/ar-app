@@ -27,10 +27,10 @@ import com.google.firebase.database.ValueEventListener;
 
 /**
  * Login via email account, lead to registration if no account exists.
- *
+ * <p>
  * Created by Wenqiang Kuang on 26/08/2017.
  */
-public class EmailLoginActivity extends AppCompatActivity implements View.OnClickListener{
+public class EmailLoginActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "EmailPassword";
     private static final String PROCESS_DIALOG_MESSAGE = "Loading...";
     public static final String AUTHENTICATION_FAILED = "Authentication failed.";
@@ -43,12 +43,12 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
     private FirebaseAuth mAuth;
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_email_login);
 
-        mEmailField = (EditText)findViewById(R.id.field_email);
-        mPasswordField = (EditText)findViewById(R.id.field_password);
+        mEmailField = (EditText) findViewById(R.id.field_email);
+        mPasswordField = (EditText) findViewById(R.id.field_password);
 
         findViewById(R.id.email_sign_in_button).setOnClickListener(this);
         findViewById(R.id.email_create_account_button).setOnClickListener(this);
@@ -64,7 +64,7 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
 
     private void signIn(String email, String password) {
         Log.d(TAG, "signIn:" + email);
-        if (!LoginHelper.validateForm(mEmailField,mPasswordField)) {
+        if (!LoginHelper.validateForm(mEmailField, mPasswordField)) {
             return;
         }
 
@@ -80,8 +80,7 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
                 Log.d(TAG, "onComplete.");
                 FirebaseUser user = mAuth.getCurrentUser();
                 updateUI(user);
-            }
-            else {
+            } else {
                 // Does not pass the authentication, display a message to the user.
                 Log.w(TAG, "signInWithEmail:failure", task.getException());
                 Toast.makeText(EmailLoginActivity.this, AUTHENTICATION_FAILED,
@@ -98,7 +97,7 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
      * if the status attribute is not null, meaning duplicated login. Go back to the Login interface
      * (Main Activity).
      */
-    private void checkLoginStatus(){
+    private void checkLoginStatus() {
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
         final DatabaseReference statusReference = firebaseDatabase.getReference().
@@ -108,11 +107,9 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String status = dataSnapshot.getValue(String.class);
-                if(status == null){
+                if (status == null) {
                     statusReference.setValue(LOGGED_IN);
-                    Log.d(TAG, "CAN LOGIN");
-                }else{
-                    Log.d(TAG, "CANNOT LOGIN");
+                } else {
                     duplicateLogin();
                 }
             }
@@ -131,7 +128,7 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         hideProgressDialog();
         if (user != null) {
             checkLoginStatus();
-            if(mAuth != null){
+            if (mAuth != null) {
                 Intent intent = new Intent(this, MainViewActivity.class);
                 startActivity(intent);
                 finish();
