@@ -1,33 +1,35 @@
 package com.comp30022.arrrrr;
 
-import com.comp30022.arrrrr.ar.*;
-import com.comp30022.arrrrr.receivers.*;
-
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.content.pm.PackageManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.content.IntentFilter;
-import android.content.Intent;
+
+import com.comp30022.arrrrr.ar.AugmentedPOI;
+import com.comp30022.arrrrr.ar.AziCalculator;
+import com.comp30022.arrrrr.ar.CamPermissionHelper;
+import com.comp30022.arrrrr.ar.MyCurrentAzimuth;
+import com.comp30022.arrrrr.ar.MyCurrentLocation;
+import com.comp30022.arrrrr.ar.OnAzimuthChangedListener;
+import com.comp30022.arrrrr.ar.OnLocationChangedListener;
+import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
+import com.firebase.geofire.util.GeoUtils;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
-
-import com.comp30022.arrrrr.utils.ServiceManager;
-import com.firebase.geofire.util.GeoUtils;
-import com.google.android.gms.maps.LocationSource;
-import com.google.android.gms.maps.model.LatLng;
 
 
 /**
@@ -122,6 +124,7 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ar_view);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         // set up
@@ -162,6 +165,12 @@ public class ArViewActivity extends AppCompatActivity implements SurfaceHolder.C
         myCurrentAzimuth.stop();
         myCurrentLocation.stop();
         //unregisterReceivers();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
     /**
