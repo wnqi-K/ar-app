@@ -107,6 +107,7 @@ public class MapContainerFragment extends Fragment implements
     public void onPrepareOptionsMenu(Menu menu) {
         // Hide the adding friends option in mapContainer fragment
         menu.findItem(R.id.adding_friends).setVisible(false);
+        menu.findItem(R.id.quick_ar_entry).setVisible(false);
         super.onPrepareOptionsMenu(menu);
     }
 
