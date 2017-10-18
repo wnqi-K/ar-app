@@ -29,7 +29,8 @@ public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFrie
     private ArrayList<User> mAllFriends;
     private Context mContext;
 
-    public static class FriendViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class FriendViewHolder extends RecyclerView.ViewHolder
+            implements View.OnClickListener, View.OnLongClickListener {
 
         public CardView mCardView;
         public TextView mFriendName;
@@ -39,6 +40,7 @@ public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFrie
         public FriendViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
             mCardView = (CardView) itemView.findViewById(R.id.friend_list_user_card);
             mFriendName = (TextView) itemView.findViewById(R.id.friend_list_username);
             mFriendEmail = (TextView) itemView.findViewById(R.id.friend_list_user_email);
@@ -49,6 +51,12 @@ public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFrie
         @Override
         public void onClick(View view) {
             clickListener.onItemClick(getAdapterPosition(), view);
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            clickListener.onItemLongClick(getAdapterPosition(), view);
+            return false;
         }
     }
 
@@ -102,5 +110,6 @@ public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFrie
 
     public interface ClickListener {
         void onItemClick(int position, View v);
+        void onItemLongClick(int position, View v);
     }
 }
