@@ -1,11 +1,14 @@
 package com.comp30022.arrrrr;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -13,12 +16,16 @@ import com.comp30022.arrrrr.adapters.RecyclerFriendListAdapter;
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.User;
 import com.comp30022.arrrrr.services.FirebaseIDService;
+import com.comp30022.arrrrr.utils.Constants;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 
 /**
- * This fragment is to contain five pre-placed friends and newly added friends.
+ * This fragment is to contain five pre-placed friends and newly added friends. It is also
+ * responsible for deleting friends.
  * Created by Wenqiang Kuang on 01/09/2017.
  */
 
@@ -38,17 +45,15 @@ public class FriendsFragment extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // refresh Firebase Token if user change devices
-        /*String refreshedToken = FirebaseInstanceId.getInstance().getToken();
-        String Uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        String currentToken = UserManagement.getInstance().getReceiverFirebaseToken(Uid,getActivity());*/
-
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
         new FirebaseIDService().sendRegistrationToServer(refreshedToken,getActivity());
+    }
 
-        /*if(!refreshedToken.equals(currentToken)){
-            new FirebaseIDService().
-                    sendRegistrationToServer(refreshedToken,getActivity());
-        }*/
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        // Hide the quick_ar_entry option in friend fragment.
+        menu.findItem(R.id.quick_ar_entry).setVisible(false);
+        super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -71,10 +76,57 @@ public class FriendsFragment extends Fragment{
                 User user = allFriends.get(position);
                 ChatActivity.startActivity(context, user.getUid());
             }
+
+            @Override
+            public void onItemLongClick(int position, View v) {
+                User user = allFriends.get(position);
+                deleteFriendDialog(user);
+            }
         });
 
         return view;
     }
+
+    /**
+     * This method is to create a dialog to ask for if needing to delete a friend.
+     * if confirm is pressed, update the database.
+     */
+    private void deleteFriendDialog(final User friend) {
+        AlertDialog alertDialog = new AlertDialog.Builder(this.getActivity()).create();
+        alertDialog.setTitle("Delete Friend");
+        alertDialog.setMessage("Are you sure You want to delete this friend? ");
+
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Confirm",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        upDateFriendDatabase(friend);
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
+    }
+
+    /**
+     * Update the friend database, delete the friend relationship mutually.
+     */
+    private void upDateFriendDatabase(User deleteFriend) {
+        DatabaseReference userReference = FirebaseDatabase.getInstance().getReference();
+
+        String currentUserUid = UserManagement.getInstance().getCurrentUser().getUid();
+        String deleteFriendUid = deleteFriend.getUid();
+
+        // Delete the friendship mutually. Update the friends database.
+        userReference.child(Constants.ARG_FRIENDS).child(currentUserUid).child(deleteFriendUid).removeValue();
+        userReference.child(Constants.ARG_FRIENDS).child(deleteFriendUid).child(currentUserUid).removeValue();
+    }
+
 
     /**
      * This method is to create an arraylist of friends.

@@ -2,10 +2,8 @@ package com.comp30022.arrrrr;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -21,8 +19,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.comp30022.arrrrr.receivers.AddressResultReceiver;
-import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.receivers.GeoQueryLocationsReceiver;
+import com.comp30022.arrrrr.receivers.SelfPositionReceiver;
 import com.comp30022.arrrrr.utils.BroadcastReceiverManager;
 import com.comp30022.arrrrr.utils.LocationPermissionHelper;
 import com.comp30022.arrrrr.utils.LocationSettingsHelper;
@@ -35,8 +33,6 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-
-import java.util.ArrayList;
 
 /**
  * Fragment containing map interface.
@@ -105,7 +101,6 @@ public class MapContainerFragment extends Fragment implements
 
         mRequestingLocationUpdates = false;
         mBroadcastReceivers = new BroadcastReceiverManager(getActivity());
-        // TODO: Update values using data stored in the Bundle.
     }
 
     @Override
