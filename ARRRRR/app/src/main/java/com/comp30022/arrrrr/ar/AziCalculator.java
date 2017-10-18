@@ -57,7 +57,7 @@ public class AziCalculator {
         return false;
     }
 
-    public boolean turnRight(double target, double azimuth){
+    public boolean turnLeft(double target, double azimuth){
         double half = 0;
         if(target>180){
             half = target - 180;

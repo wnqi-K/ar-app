@@ -56,4 +56,12 @@ public class Constants {
     public static final String UNKNOWN_POSITION = "Distance Unknown.";
 
     public static final CharSequence ADD_TO_DATABASE_SUCCESS = "Success";
+
+    public static final String CORRECT_MSG = "Correct Direction";
+    public static final String TURN_RIGHT_MSG = "Slowly Rotate to Right";
+    public static final String TURN_LEFT_MSG = "Slowly Rotate to Left";
+    public static final String UID_Key = "UIDARKEY";
+    public static final String LATLNG_Key = "LATLNGARKEY";
+    public static final String ALLOW_KEY = "ALLOWED";
+    public static final String ALTER_QUESTION = "Do you still want to CONTINUE Ar Navigation?";
 }
