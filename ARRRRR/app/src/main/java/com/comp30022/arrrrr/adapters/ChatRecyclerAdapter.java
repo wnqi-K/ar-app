@@ -2,6 +2,7 @@ package com.comp30022.arrrrr.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -26,6 +27,7 @@ import java.util.List;
 public class ChatRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int VIEW_TYPE_ME = 1;
     private static final int VIEW_TYPE_OTHER = 2;
+    private static final int AVATAR_SIZE = 200;
 
     private List<Chat> mChats;
     private FirebaseUser currentUser;
@@ -99,18 +101,15 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
      * */
     private void configureMyChatViewHolder(MyChatViewHolder myChatViewHolder, int position) {
         Chat chat = mChats.get(position);
-        Bitmap imageBitmap = UserManagement.
-                getInstance().
-                getUserProfileImage(chat.senderUid, mContext);
-
         myChatViewHolder.txtChatMessage.setText(chat.message);
-        if(imageBitmap != null){
-            try{
-                myChatViewHolder.userImage.setImageBitmap(imageBitmap);
-            }catch(Exception e){
-                e.printStackTrace();
-            }
+
+        Bitmap avatar;
+        try {
+            avatar = UserManagement.getInstance().getUserProfileImage(chat.senderUid, mContext);
+        } catch (Exception e) {
+            avatar = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.portrait_photo);
         }
+        myChatViewHolder.userImage.setImageBitmap(Bitmap.createScaledBitmap(avatar, AVATAR_SIZE, AVATAR_SIZE, false));
     }
 
     /**
@@ -118,18 +117,16 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
      * */
     private void configureOtherChatViewHolder(OtherChatViewHolder otherChatViewHolder, int position) {
         Chat chat = mChats.get(position);
-        Bitmap imageBitmap = UserManagement.
-                getInstance().
-                getUserProfileImage(chat.receiverUid, mContext);
-
         otherChatViewHolder.txtChatMessage.setText(chat.message);
-        if(imageBitmap != null){
-            try{
-                otherChatViewHolder.userImage.setImageBitmap(imageBitmap);
-            }catch(Exception e){
-                e.printStackTrace();
-            }
+
+        Bitmap avatar;
+        try {
+            avatar = UserManagement.getInstance().getUserProfileImage(chat.senderUid, mContext);
+        } catch (Exception e) {
+            avatar = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.portrait_photo);
         }
+        otherChatViewHolder.userImage.setImageBitmap(Bitmap.createScaledBitmap(avatar, AVATAR_SIZE, AVATAR_SIZE, false));
+
     }
 
 
