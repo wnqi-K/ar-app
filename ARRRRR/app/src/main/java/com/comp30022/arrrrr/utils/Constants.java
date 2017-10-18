@@ -52,6 +52,8 @@ public class Constants {
     public static final String EMAIL_PREFIX = "Email:   ";
     public static final String GENDER_PREFIX = "Gender:   ";
     public static final String ADDRESS_PREFIX = "Address:   ";
+    public static final String DISTANCE_PREFIX = "Distance:   ";
+    public static final String UNKNOWN_POSITION = "Distance Unknown.";
 
     public static final CharSequence ADD_TO_DATABASE_SUCCESS = "Success";
 

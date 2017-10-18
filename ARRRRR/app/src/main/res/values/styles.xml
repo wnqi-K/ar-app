@@ -128,7 +128,7 @@
     </style>
 
     <!-- Setting profile file head portrait-->
-    <style name="setting_profilephoto_btn" parent="Theme.AppCompat.Light">
+    <style name="setting_profile_photo_btn" parent="Theme.AppCompat.Light">
         <item name="android:textSize">20dp</item>
         <item name="android:textColor">@color/grey_text_real</item>
     </style>

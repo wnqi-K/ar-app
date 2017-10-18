@@ -2,27 +2,26 @@
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/black_background">
+    android:background="@color/black_background"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="0dp"
+        android:layout_weight="0.03"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:layout_margin="0dp"
-        android:weightSum="1"
-        android:layout_weight="0.03">
+        android:weightSum="1">
 
         <ImageView
             android:id="@+id/logo"
             style="@style/Logo"
-            app:srcCompat="@drawable/logo"
-            android:layout_weight="0.24" />
+            android:layout_weight="0.24"
+            app:srcCompat="@drawable/logo"/>
 
         <TextView
             android:id="@+id/title_text"
@@ -31,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/title_bottom_margin"
             android:layout_marginTop="30dp"
-            android:text="Email Login" />
+            android:text="Email Login"/>
 
     </LinearLayout>
 
@@ -46,9 +45,9 @@
             android:id="@+id/email_password_fields"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:orientation="horizontal"
             android:layout_alignParentTop="true"
-            android:layout_toEndOf="@+id/signed_in_buttons">
+            android:layout_toEndOf="@+id/signed_in_buttons"
+            android:orientation="horizontal">
 
             <EditText
                 android:id="@+id/field_email"
@@ -60,30 +59,30 @@
             <ImageView
                 style="@style/ListLine"
                 android:layout_above="@+id/field_password"
-                app:srcCompat="@drawable/listline" />
+                app:srcCompat="@drawable/listline"/>
 
             <EditText
                 android:id="@+id/field_password"
                 style="@style/LoginText"
 
+                android:layout_below="@+id/field_email"
                 android:hint="@string/hint_password"
-                android:inputType="textPassword"
-                android:layout_below="@+id/field_email" />
+                android:inputType="textPassword"/>
 
             <ImageView
                 style="@style/ListLine"
-                app:srcCompat="@drawable/listline"
                 android:layout_above="@+id/email_sign_in_button"
-                android:layout_alignParentStart="true" />
+                android:layout_alignParentStart="true"
+                app:srcCompat="@drawable/listline"/>
 
             <Button
                 android:id="@+id/email_sign_in_button"
                 style="@style/ClassicButton"
-                android:background="@drawable/btn_border"
-                android:text="Log In"
                 android:layout_below="@+id/field_password"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="30dp" />
+                android:layout_marginTop="30dp"
+                android:background="@drawable/btn_border"
+                android:text="Log In"/>
 
             <Button
                 android:id="@+id/email_create_account_button"
@@ -94,7 +93,7 @@
                 android:text="@string/create_account"
                 android:textColor="@color/text"
                 android:textSize="10dp"
-                android:textStyle="italic" />
+                android:textStyle="italic"/>
 
         </RelativeLayout>
 
@@ -116,7 +115,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.0"
                 android:text="@string/sign_out"
-                android:theme="@style/Login_Button" />
+                android:theme="@style/Login_Button"/>
 
             <Button
                 android:id="@+id/verify_email_button"
@@ -124,7 +123,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.0"
                 android:text="@string/verify_email"
-                android:theme="@style/Login_Button" />
+                android:theme="@style/Login_Button"/>
         </LinearLayout>
 
     </RelativeLayout>

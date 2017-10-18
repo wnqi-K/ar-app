@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.comp30022.arrrrr.R;
 import com.comp30022.arrrrr.database.UserManagement;
 import com.comp30022.arrrrr.models.User;
+import com.comp30022.arrrrr.utils.Constants;
 
 import java.util.ArrayList;
 
@@ -34,7 +35,7 @@ public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFrie
         public TextView mFriendName;
         public TextView mFriendEmail;
         public ImageView mFriendAvatar;
-
+        public TextView mFriendDistance;
         public FriendViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
@@ -42,6 +43,7 @@ public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFrie
             mFriendName = (TextView) itemView.findViewById(R.id.friend_list_username);
             mFriendEmail = (TextView) itemView.findViewById(R.id.friend_list_user_email);
             mFriendAvatar = (ImageView) itemView.findViewById(R.id.friend_list_user_avatar);
+            mFriendDistance = (TextView) itemView.findViewById(R.id.friend_list_user_distance);
         }
 
         @Override
@@ -64,10 +66,16 @@ public class RecyclerFriendListAdapter extends RecyclerView.Adapter<RecyclerFrie
 
     @Override
     public void onBindViewHolder(RecyclerFriendListAdapter.FriendViewHolder holder, int position) {
+        UserManagement userManagement = UserManagement.getInstance();
         User user = mAllFriends.get(position);
         String userID = user.getUid();
         holder.mFriendName.setText(user.getUsername());
         holder.mFriendEmail.setText(user.getEmail());
+        if(userManagement.getFriendLocation(userID)!=null){
+            holder.mFriendDistance.setText(Constants.DISTANCE_PREFIX + userManagement.getFriendLocation(userID).toString());
+        }else{
+            holder.mFriendDistance.setText(Constants.UNKNOWN_POSITION);
+        }
 
         Bitmap avatar;
         try {

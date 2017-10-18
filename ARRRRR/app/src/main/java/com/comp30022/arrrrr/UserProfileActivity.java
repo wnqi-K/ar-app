@@ -48,7 +48,7 @@ public class UserProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_user_profile);
+        setContentView(R.layout.activity_user_profile);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //declare the database reference object.
@@ -148,10 +148,6 @@ public class UserProfileActivity extends AppCompatActivity {
     @Override
     public boolean onSupportNavigateUp() {
         finish();
-        /*FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(SettingFragment.newInstance(), null);
-        fragmentTransaction.commit();*/
         return true;
     }
 }

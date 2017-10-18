@@ -1,12 +1,11 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:background="@color/grey_background"
-             tools:context="com.comp30022.arrrrr.SettingFragment"
-             android:paddingLeft="10dp"
-             android:paddingRight="10dp">
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/grey_background"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            tools:context="com.comp30022.arrrrr.SettingFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,7 +27,7 @@
                     style="@style/ClassicButton"
                     android:layout_width="match_parent"
                     android:layout_height="80dp"
-                    android:background="@drawable/btn_border_white_background" />
+                    android:background="@drawable/btn_border_white_background"/>
 
                 <ImageView
                     android:id="@+id/profilePhoto"
@@ -36,22 +35,22 @@
                     android:layout_height="60dp"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="20dp"
-                    android:src="@drawable/profilephoto" />
+                    android:src="@drawable/profilephoto"/>
 
                 <TextView
                     android:id="@+id/login_status_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="View profile" />
+                    android:text="View profile"/>
 
                 <TextView
-                    style="@style/setting_profilephoto_btn"
+                    style="@style/setting_profile_photo_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right|center_vertical"
                     android:layout_marginRight="20dp"
-                    android:text=">" />
+                    android:text=">"/>
 
             </FrameLayout>
 
@@ -64,13 +63,13 @@
             style="@style/SettingText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/title_settings" />
+            android:text="@string/title_settings"/>
 
         <!--Seperate Line-->
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/listline" />
+            android:src="@drawable/listline"/>
 
         <!--Setting 1-->
         <LinearLayout
@@ -85,12 +84,12 @@
                 style="@style/SettingText"
                 android:layout_width="@dimen/margin_setting"
                 android:layout_height="wrap_content"
-                android:text="@string/text_share_my_location" />
+                android:text="@string/text_share_my_location"/>
 
             <Switch
                 android:id="@+id/switch_location_sharing"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"/>
 
         </LinearLayout>
 
@@ -98,7 +97,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/listline" />
+            android:src="@drawable/listline"/>
 
 
         <!--Setting 2-->
@@ -114,12 +113,12 @@
                 style="@style/SettingText"
                 android:layout_width="@dimen/margin_setting"
                 android:layout_height="wrap_content"
-                android:text="@string/text_enable_nearby_friends_notification" />
+                android:text="@string/text_enable_nearby_friends_notification"/>
 
             <Switch
                 android:id="@+id/switch_nearby_friend_notification"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"/>
 
         </LinearLayout>
 
@@ -127,7 +126,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/listline" />
+            android:src="@drawable/listline"/>
 
         <!--Setting 3-->
         <LinearLayout
@@ -143,16 +142,16 @@
                 style="@style/SettingText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/text_nearby_friends_filter_distance"
-                android:layout_weight="0.60" />
+                android:layout_weight="0.60"
+                android:text="@string/text_nearby_friends_filter_distance"/>
 
             <Spinner
                 android:id="@+id/spinner_filter_distance"
                 android:layout_width="0dp"
-                android:layout_weight="0.40"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.40"
                 android:entries="@array/nearby_filter_options"
-            />
+                />
 
         </LinearLayout>
 
@@ -160,7 +159,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/listline" />
+            android:src="@drawable/listline"/>
 
         <!--Account privacy-->
         <LinearLayout
@@ -174,18 +173,18 @@
             <TextView
                 android:id="@+id/accountPrivacy"
                 style="@style/SettingText"
-                android:clickable="true"
                 android:layout_width="@dimen/margin_setting"
                 android:layout_height="wrap_content"
+                android:clickable="true"
                 android:text="@string/account_privacy"/>
 
             <TextView
-                android:id="@+id/textView"
-                style="@style/setting_profilephoto_btn"
+                android:id="@+id/decorationArrow"
+                style="@style/setting_profile_photo_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:text="   >" />
+                android:text="   >"/>
 
         </LinearLayout>
 
@@ -201,9 +200,9 @@
                 android:id="@+id/text_view_last_location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAlignment="center"
+                android:paddingBottom="5dp"
                 android:text=""
-                android:paddingBottom="5dp"/>
+                android:textAlignment="center"/>
 
             <Button
                 android:id="@+id/button_clear_records"
@@ -212,7 +211,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/btn_border_white_background"
                 android:text="@string/text_clear_my_location_records"
-                android:textColor="@color/grey_text_real" />
+                android:textColor="@color/grey_text_real"/>
 
             <Button
                 android:id="@+id/logoutButton"
@@ -221,7 +220,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/btn_border_white_background"
                 android:text="Log out"
-                android:textColor="@color/grey_text_real" />
+                android:textColor="@color/grey_text_real"/>
         </LinearLayout>
 
     </LinearLayout>

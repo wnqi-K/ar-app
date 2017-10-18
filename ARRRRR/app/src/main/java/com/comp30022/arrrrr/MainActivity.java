@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public void onStart() {
         super.onStart();
-
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null && mAuth != null) {
@@ -44,14 +43,15 @@ public class MainActivity extends AppCompatActivity{
         startActivity(intent);
     }
 
-    public void googleLogin(View view) {
+    /*public void googleLogin(View view) {
         Intent intent = new Intent(this, GoogleLoginActivity.class);
         startActivity(intent);
-    }
-//    public void facebookLogin(View view) {
-//        Intent intent = new Intent(this, EmailLoginActivity.class);
-//        startActivity(intent);
-//    }
+    }*/
+
+   /*public void facebookLogin(View view) {
+        Intent intent = new Intent(this, EmailLoginActivity.class);
+        startActivity(intent);
+   }*/
 
     /**
      * This method is Update the interface directly using current mAuth.

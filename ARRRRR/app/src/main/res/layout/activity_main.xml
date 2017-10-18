@@ -45,7 +45,6 @@
             android:id="@+id/googleLoginButton"
             style="@style/ClassicButton"
             android:background="@drawable/btn_border"
-            android:onClick="googleLogin"
             android:text="Google"/>
 
 
