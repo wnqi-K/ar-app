@@ -132,9 +132,9 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
         if (user != null) {
             checkLoginStatus();
             if(mAuth != null){
-                Log.d(TAG, "Still enter");
                 Intent intent = new Intent(this, MainViewActivity.class);
                 startActivity(intent);
+                finish();
             }
         } else {
             findViewById(R.id.email_password_fields).setVisibility(View.VISIBLE);
@@ -146,11 +146,10 @@ public class EmailLoginActivity extends AppCompatActivity implements View.OnClic
      */
     private void duplicateLogin() {
         mAuth.signOut();
-        Log.d(TAG, "EnterDuplicate");
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         Toast.makeText(this, DUPLICATE_LOGIN_MESSAGE, Toast.LENGTH_LONG).show();
-        Log.d(TAG, "GoBackActivity");
+        finish();
     }
 
     @Override

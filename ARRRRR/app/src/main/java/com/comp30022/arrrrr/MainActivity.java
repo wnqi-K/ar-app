@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity{
     public void emailLogin(View view) {
         Intent intent = new Intent(this, EmailLoginActivity.class);
         startActivity(intent);
+        finish();
     }
 
     /*public void googleLogin(View view) {

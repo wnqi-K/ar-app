@@ -126,6 +126,7 @@ public class AcceptRequestActivity extends AppCompatActivity {
     private void goBackToMainView() {
         Intent intent = new Intent(getBaseContext(), MainViewActivity.class);
         startActivity(intent);
+        finish();
     }
 
     /**
