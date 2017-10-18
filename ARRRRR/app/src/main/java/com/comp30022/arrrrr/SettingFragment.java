@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.support.annotation.RestrictTo;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -136,7 +135,7 @@ public class SettingFragment extends Fragment implements
 
         TextView mStatusView = (TextView) view.findViewById(R.id.login_status_view);
 
-        TextView accountPrivacy = (TextView) view.findViewById(R.id.accountPrivacy);
+        //TextView accountPrivacy = (TextView) view.findViewById(R.id.accountPrivacy);
 
         mStatusView.setText(currentUser.getEmail());
 
@@ -171,7 +170,7 @@ public class SettingFragment extends Fragment implements
         });
 
         //Go user account privacy
-        accountPrivacy.setOnTouchListener(new View.OnTouchListener() {
+        /*accountPrivacy.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -184,7 +183,7 @@ public class SettingFragment extends Fragment implements
                 }
                 return false;
             }
-        });
+        });*/
 
         mButtonClearRecords = (Button) view.findViewById(R.id.button_clear_records);
         mButtonClearRecords.setOnClickListener(mOnClearRecordsClickListener);
