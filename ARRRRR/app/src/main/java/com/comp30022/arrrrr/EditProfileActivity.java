@@ -21,7 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 
-public class EditProfileActivity extends AppCompatActivity{
+public class EditProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "AddToDatabase";
 
@@ -30,7 +30,7 @@ public class EditProfileActivity extends AppCompatActivity{
 
     //Gender Ratio BTN
     AlertDialog alertDialog1;
-    CharSequence[] values = {"Female","Male"};
+    CharSequence[] values = {"Female", "Male"};
 
     //Address Dialog
     AlertDialog alertDialog2;
@@ -38,8 +38,8 @@ public class EditProfileActivity extends AppCompatActivity{
     //Input value
     Boolean changeName = false;
     Boolean changePhoneNum = false;
-    private EditText mName,mPhoneNum;
-    private String mGender="";
+    private EditText mName, mPhoneNum;
+    private String mGender = "";
     private String mAddress = "";
     private String userID;
 
@@ -62,7 +62,7 @@ public class EditProfileActivity extends AppCompatActivity{
         mName = (EditText) findViewById(R.id.etName);
         mPhoneNum = (EditText) findViewById(R.id.etPhone);
 
-        TextView name = (TextView)findViewById(R.id.clickable_edit_name);
+        TextView name = (TextView) findViewById(R.id.clickable_edit_name);
 
         //declare the database reference object. This is what we use to access the database.
         mAuth = FirebaseAuth.getInstance();
@@ -76,7 +76,7 @@ public class EditProfileActivity extends AppCompatActivity{
 
 
         //Add value to database after click submit btn
-        btnSubmit = (Button)findViewById(R.id.btnSubmit);
+        btnSubmit = (Button) findViewById(R.id.btnSubmit);
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -89,25 +89,25 @@ public class EditProfileActivity extends AppCompatActivity{
                 );
 
 
-                if(changeName==true && validateName(name)==true){
+                if (changeName == true && validateName(name) == true) {
                     myRef.child(Constants.ARG_USERS).child(userID).child(Constants.ARG_USER_NAME).setValue(name);
                     toastMessage("New Information has been saved.");
                     mName.setText("");
                 }
 
-                if(changePhoneNum==true && validatePhoneNumber(phoneNum)==true){
+                if (changePhoneNum == true && validatePhoneNumber(phoneNum) == true) {
                     myRef.child(Constants.ARG_USERS).child(userID).child(Constants.ARG_PHONE_NUM).setValue(phoneNum);
                     toastMessage("New Information has been saved.");
                     mPhoneNum.setText("");
                 }
 
-                if(!mGender.equals("")){
+                if (!mGender.equals("")) {
                     myRef.child(Constants.ARG_USERS).child(userID).child(Constants.ARG_GENDER).setValue(mGender);
                     toastMessage("New Information has been saved.");
 
                 }
 
-                if(!mAddress.equals("")){
+                if (!mAddress.equals("")) {
                     myRef.child(Constants.ARG_USERS).child(userID).child(Constants.ARG_ADDRESS).setValue(mAddress);
                     toastMessage("New Information has been saved.");
                 }
@@ -116,14 +116,14 @@ public class EditProfileActivity extends AppCompatActivity{
 
     }
 
-    public void TextViewClicked(View view){
+    public void TextViewClicked(View view) {
 
         // Declare in and out animations and load them using AnimationUtils class
         Animation in = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
         Animation out = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
 
 
-        switch(view.getId()){
+        switch (view.getId()) {
             case R.id.clickable_edit_name:
                 ViewSwitcher switcher1 = (ViewSwitcher) findViewById(R.id.switcherName);
                 switcher1.setInAnimation(in);
@@ -142,22 +142,22 @@ public class EditProfileActivity extends AppCompatActivity{
 
     }
 
-    /** Called when the user clicks the gender button */
-    public void clickGender(View view){
-
-        CreateAlertDialogWithGenderRadioButtonGroup() ;
-
+    /**
+     * Called when the user clicks the gender button
+     */
+    public void clickGender(View view) {
+        CreateAlertDialogWithGenderRadioButtonGroup();
     }
 
-    /** Called when the user clicks the address button */
-    public void clickAddress(View view){
-
-        CreateAlertDialogWithAddress() ;
+    /**
+     * Called when the user clicks the address button
+     */
+    public void clickAddress(View view) {
+        CreateAlertDialogWithAddress();
     }
 
     private void CreateAlertDialogWithAddress() {
         AlertDialog.Builder builder = new AlertDialog.Builder(EditProfileActivity.this);
-
         builder.setTitle("Address");
 
         // Set up the input
@@ -180,26 +180,20 @@ public class EditProfileActivity extends AppCompatActivity{
         });
 
         builder.show();
-
     }
 
-    public void CreateAlertDialogWithGenderRadioButtonGroup(){
+    public void CreateAlertDialogWithGenderRadioButtonGroup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(EditProfileActivity.this);
 
         builder.setTitle("Gender");
-
         builder.setSingleChoiceItems(values, -1, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-
-                switch(item)
-                {
+                switch (item) {
                     case 0:
-
                         Toast.makeText(EditProfileActivity.this, "Female Clicked", Toast.LENGTH_LONG).show();
                         mGender = "Female";
                         break;
                     case 1:
-
                         Toast.makeText(EditProfileActivity.this, "Male Clicked", Toast.LENGTH_LONG).show();
                         mGender = "Male";
                         break;
@@ -213,11 +207,9 @@ public class EditProfileActivity extends AppCompatActivity{
     }
 
     //Validation for edit name
-    public boolean validateName(String name){
-
+    public boolean validateName(String name) {
         boolean valid = true;
-
-        if( name.matches("") || name.length()>8 ){
+        if (name.matches("") || name.length() > 8) {
             mName.setError("Enter a valid name ");
             valid = false;
         }
@@ -226,27 +218,25 @@ public class EditProfileActivity extends AppCompatActivity{
     }
 
     //Validation for edit phone number
-    public boolean validatePhoneNumber(String phone){
+    public boolean validatePhoneNumber(String phone) {
         boolean valid = true;
         String regexStr1 = "^\\+[0-9]{10,13}$";
         String regexStr2 = "^[0-9]{10}$";
 
-        if(phone.matches(regexStr1)==false && phone.matches(regexStr2)==false) {
+        if (phone.matches(regexStr1) == false && phone.matches(regexStr2) == false) {
             mPhoneNum.setError("Enter a valid telephone number");
             valid = false;
         }
 
-
-
         return valid;
     }
 
-    private void toastMessage(String message){
-        Toast.makeText(this,message,Toast.LENGTH_SHORT).show();
+    private void toastMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public boolean onSupportNavigateUp(){
+    public boolean onSupportNavigateUp() {
         finish();
         return true;
     }

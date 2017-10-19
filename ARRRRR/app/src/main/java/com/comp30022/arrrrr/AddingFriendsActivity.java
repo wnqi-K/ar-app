@@ -120,6 +120,7 @@ public class AddingFriendsActivity extends AppCompatActivity implements SearchVi
     private void goBackToMainView() {
         Intent intent = new Intent(this, MainViewActivity.class);
         startActivity(intent);
+        finish();
     }
 
     /**

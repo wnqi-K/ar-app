@@ -234,6 +234,7 @@ public class SelectPhotoActivity extends Activity {
 
         Intent intent = new Intent(this, MainViewActivity.class);
         startActivity(intent);
+        finish();
         overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
     }
 
