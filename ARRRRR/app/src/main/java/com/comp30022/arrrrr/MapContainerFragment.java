@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -83,6 +84,11 @@ public class MapContainerFragment extends Fragment implements
      */
     private MapUIManager mMapUIManager;
 
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public MapUIManager getMapUIManager(){
+        return this.mMapUIManager;
+    }
+
     public MapContainerFragment() {
         // Required empty public constructor
     }
@@ -107,7 +113,7 @@ public class MapContainerFragment extends Fragment implements
     public void onPrepareOptionsMenu(Menu menu) {
         // Hide the adding friends option in mapContainer fragment
         menu.findItem(R.id.adding_friends).setVisible(false);
-        menu.findItem(R.id.quick_ar_entry).setVisible(false);
+        //menu.findItem(R.id.quick_ar_entry).setVisible(false);
         super.onPrepareOptionsMenu(menu);
     }
 
