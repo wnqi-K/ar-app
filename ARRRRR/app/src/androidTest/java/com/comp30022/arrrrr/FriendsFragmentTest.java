@@ -39,7 +39,6 @@ import static org.hamcrest.core.IsNull.notNullValue;
  */
 
 @RunWith(AndroidJUnit4.class)
-
 public class FriendsFragmentTest {
     @Rule
     public ActivityTestRule<MainViewActivity> mActivityTestRule =
