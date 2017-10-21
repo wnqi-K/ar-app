@@ -4,6 +4,23 @@ An Android app made for COMP30022 IT Project by group Yunkai.
 This repository contains all source files of our application.
 There is no repository dedicated for the server as we are using Firebase Android API.
 
+### Documents
+
+(Need UniMelb email account to view)
+
+1. COMP30022-Yunkai-WorkflowPlan
+https://docs.google.com/a/student.unimelb.edu.au/document/d/1HlBP4Bn7OFxADu_rXxF67q20Bgps4IxOHkdmtAH5EvM/edit?usp=sharing
+
+2. COMP30022-Yunkai-Requirements
+https://docs.google.com/a/student.unimelb.edu.au/document/d/1pyrFDFnkCsKrC1SriBYLN_Q3p2ysztRw8xPaa6Ndjyk/edit?usp=sharing
+
+3. COMP30022-Yunkai-ArchitectureDesign
+https://docs.google.com/a/student.unimelb.edu.au/document/d/1C_TSNsGA08I38Z9g5k8zvrJc9sHrijqKCJD_iFtGJJ8/edit?usp=sharing
+
+4. COMP30022-Yunkai-interface
+https://docs.google.com/a/student.unimelb.edu.au/document/d/1LKwkBCJzTrLPFuBYTszD9TuKe3QVkrpnlDJnlS1clgY/edit?usp=sharing
+
+
 ## Project Configurations
 
 ### Database: Firebase Console 
